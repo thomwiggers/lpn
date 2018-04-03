@@ -1,0 +1,11 @@
+[package]
+name = "lpn"
+version = "0.1.0"
+authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
+
+[dependencies]
+num-traits = "0.2"
+bit = "0.1"
+
+[dev-dependencies]
+quickcheck = "0.6"
