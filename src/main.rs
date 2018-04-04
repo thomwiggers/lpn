@@ -1,3 +1,14 @@
+extern crate lpn;
+use lpn::oracle::LpnOracle;
+use lpn::bkw::*;
+
 fn main() {
-    println!("Hello, world!");
+    let mut oracle: LpnOracle = LpnOracle::new(32, 1.0/8.0);
+    oracle.get_queries(10000000);
+
+    let oracle = bkw_reduction(oracle, 4, 8);
+    let solution = bkw_solve(&oracle, 8);
+
+    println!("Found:  {:?}", solution);
+    println!("Actual: {:?}", oracle.secret);
 }

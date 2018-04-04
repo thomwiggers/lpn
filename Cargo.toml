@@ -4,8 +4,6 @@ version = "0.1.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 
 [dependencies]
-num-traits = "0.2"
-bit = "0.1"
-
-[dev-dependencies]
-quickcheck = "0.6"
+bit-vec = "^0.4.4"
+rand = "0.4.2"
+fnv = "1.0.6"
