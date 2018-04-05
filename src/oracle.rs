@@ -73,6 +73,10 @@ impl LpnOracle {
     }
 }
 
+pub fn vector_weight(vector: &BitVec) -> u32 {
+    vector.storage().iter().fold(0u32, |acc, block| acc + block.count_ones())
+}
+
 /// a * b
 pub fn vector_product(a: &BitVec, b: &BitVec) -> bool {
     let mut sum = false;

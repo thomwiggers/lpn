@@ -13,7 +13,6 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
     for i in 1..a {
         let num_queries = oracle.queries.len();
         println!("BKW iteration {}, {} queries left", i, num_queries);
-        let queryiter = oracle.queries.into_iter();
         // Partition into V_j
         // max j:
         let maxj = 2usize.pow(b);
@@ -24,11 +23,12 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
         }
 
         let bitrange: ops::Range<usize> = ((k - (b * i)) as usize)..((k - (b * (i - 1))) as usize);
-        for v in queryiter {
+        for mut v in oracle.queries.into_iter() {
             let idx = query_bits_range(&v.a, bitrange.clone()) as usize;
             if vector_partitions[idx].capacity() == 0 {
                 println!("Vector {} is full, will need to resize", idx);
             }
+            v.a.truncate((k - (b*i)) as usize);
             vector_partitions[idx].push(v);
         }
 
@@ -47,18 +47,20 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
             oracle.queries.extend(partition.into_iter());
         }
     }
+    println!("BKW iterations done, {} queries left", oracle.queries.len());
 
     oracle
 }
 
-pub fn bkw_solve(oracle: &LpnOracle, b: u32) -> BitVec {
+pub fn bkw_solve(oracle: LpnOracle) -> BitVec {
     println!("BKW Solver");
-    let b = b as usize;
+    let b = oracle.queries[0].a.len();
+    debug_assert!(b < 20, "Don't run BKW on too large b!");
     println!("Selecting all queries with hw=1 from {} queries", oracle.queries.len());
     let queries = oracle
         .queries
-        .iter()
-        .filter(|&q| q.count_ones() == 1)
+        .into_iter()
+        .filter(|q| q.count_ones() == 1)
         .map(|q| (query_bits_range(&q.a, 0..(b)), q.s))
         .collect::<Vec<(u64, bool)>>();
 
