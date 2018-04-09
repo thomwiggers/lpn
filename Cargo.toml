@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 
 [dependencies]
-bit-vec = "^0.4.4"
 rand = "0.4.2"
 fnv = "1.0.6"
+
+[dependencies.m4ri-rust]
+git = "https://github.com/thomwiggers/m4ri-rust.git"
+
+[profile.release]
+lto = true

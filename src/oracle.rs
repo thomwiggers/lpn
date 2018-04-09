@@ -1,25 +1,23 @@
-use bit_vec::BitVec;
 use rand;
 use rand::Rng;
 use std::ops::Range;
+use m4ri_rust::friendly::BinVector;
 
+#[derive(Debug,Clone)]
 pub struct Query {
-    pub a: BitVec,
+    pub a: BinVector,
     pub s: bool,
 }
 
 impl Query {
     pub fn count_ones(&self) -> u32 {
-        self.a
-            .storage()
-            .iter()
-            .fold(0, |acc, block| acc + block.count_ones())
+        self.a.count_ones()
     }
 }
 
 pub struct LpnOracle {
     pub queries: Vec<Query>,
-    pub secret: BitVec,
+    pub secret: BinVector,
     pub k: u32,
     pub tau: f32,
 }
@@ -35,7 +33,7 @@ impl LpnOracle {
         for _ in 0..len {
             secret_bytes.push(rng.gen());
         }
-        let mut secret = BitVec::from_bytes(&secret_bytes);
+        let mut secret = BinVector::from_bytes(&secret_bytes);
         secret.truncate(k as usize);
         debug_assert_eq!(secret.len(), k as usize);
 
@@ -60,12 +58,12 @@ impl LpnOracle {
             for _ in 0..len {
                 blocks.push(rng.gen());
             }
-            let mut vector = BitVec::from_bytes(&blocks);
+            let mut vector = BinVector::from_bytes(&blocks);
             vector.truncate(self.k as usize);
             debug_assert_eq!(vector.len(), self.k as usize);
 
             let query = Query {
-                s: vector_product(&self.secret, &vector),
+                s: &self.secret * &vector,
                 a: vector,
             };
             self.queries.push(query);
@@ -73,39 +71,8 @@ impl LpnOracle {
     }
 }
 
-pub fn vector_weight(vector: &BitVec) -> u32 {
-    vector.storage().iter().fold(0u32, |acc, block| acc + block.count_ones())
-}
-
-/// a * b
-pub fn vector_product(a: &BitVec, b: &BitVec) -> bool {
-    let mut sum = false;
-    let mut z = a.clone();
-    z.intersect(b);
-    if z.storage()
-        .iter()
-        .fold(0u32, |acc, block| acc + block.count_ones()) % 2 == 1
-    {
-        // odd
-        sum ^= true;
-    }
-    sum
-}
-
-/// a ^= b
-pub fn vector_sum(a: &mut BitVec, b: &BitVec) {
-    unsafe {
-        let storage = a.storage_mut();
-        for (mut a, b) in storage.iter_mut().zip(b.storage().iter()) {
-            *a ^= b;
-        }
-    }
-}
-
-pub fn random_vector() {
-    rand::thread_rng();
-}
-pub fn query_bits_range(v: &BitVec, range: Range<usize>) -> u64 {
+pub fn query_bits_range(v: &BinVector, range: Range<usize>) -> u64 {
+    // FIXME speed up
     let len = range.end - range.start;
     debug_assert!(len < 64, "Needs to fit in u64");
     let mut result = 0u64;
@@ -122,7 +89,7 @@ mod test {
 
     #[test]
     fn bitrange() {
-        let v = BitVec::from_bytes(&[0b10011101u8]);
+        let v = BinVector::from_bytes(&[0b10011101u8]);
         assert_eq!(query_bits_range(&v, 0..3), 0b100);
         assert_eq!(query_bits_range(&v, 2..4), 0b01);
         assert_eq!(query_bits_range(&v, 3..4), 0b1);

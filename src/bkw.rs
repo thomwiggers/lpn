@@ -1,10 +1,9 @@
-use bit_vec::BitVec;
 use oracle::LpnOracle;
 use oracle::query_bits_range;
-use oracle::vector_sum;
 use std::ops;
 use std::default::Default;
 use fnv::FnvHashMap;
+use m4ri_rust::friendly::BinVector;
 
 pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
     let k = oracle.k;
@@ -23,20 +22,20 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
         }
 
         let bitrange: ops::Range<usize> = ((k - (b * i)) as usize)..((k - (b * (i - 1))) as usize);
-        for mut v in oracle.queries.into_iter() {
-            let idx = query_bits_range(&v.a, bitrange.clone()) as usize;
+        for mut q in oracle.queries.into_iter() {
+            let idx = query_bits_range(&(q.a), bitrange.clone()) as usize;
             if vector_partitions[idx].capacity() == 0 {
                 println!("Vector {} is full, will need to resize", idx);
             }
-            v.a.truncate((k - (b*i)) as usize);
-            vector_partitions[idx].push(v);
+            q.a.truncate((k - (b*i)) as usize);
+            vector_partitions[idx].push(q);
         }
 
         // FIXME integrate this into the sorting out loop.
         for mut partition in vector_partitions.iter_mut() {
             if let Some(first) = partition.pop() {
                 for mut v in partition.iter_mut() {
-                    vector_sum(&mut v.a, &first.a);
+                    v.a += &first.a;
                     v.s ^= first.s;
                 }
             }
@@ -47,12 +46,14 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
             oracle.queries.extend(partition.into_iter());
         }
     }
-    println!("BKW iterations done, {} queries left", oracle.queries.len());
+    // Set the new k
+    oracle.k = k - (a-1) * b;
+    println!("BKW iterations done, {} queries left, k' = {}", oracle.queries.len(), oracle.k);
 
     oracle
 }
 
-pub fn bkw_solve(oracle: LpnOracle) -> BitVec {
+pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
     println!("BKW Solver");
     let b = oracle.queries[0].a.len();
     debug_assert!(b < 20, "Don't run BKW on too large b!");
@@ -79,7 +80,7 @@ pub fn bkw_solve(oracle: LpnOracle) -> BitVec {
         }
     }
 
-    let mut result = BitVec::with_capacity(b);
+    let mut result = BinVector::with_capacity(b as usize);
     let mut i = 1 << (b-1);
     while i > 0 {
         let count = counts.get(&i).unwrap();
