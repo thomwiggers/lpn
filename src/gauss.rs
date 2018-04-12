@@ -1,4 +1,5 @@
 use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinVector;
 use oracle::LpnOracle;
 use rand;
@@ -20,7 +21,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let mut rng = rand::thread_rng();
 
     println!("Building (Am, b) with length {}", m);
-    let (am, b) = {
+    let (am, bm) = {
         let queries = rand::seq::sample_iter(&mut rng, oracle.queries.iter(), m).unwrap();
         let mut b = BinVector::with_capacity(m);
         (
@@ -33,18 +34,19 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
                     })
                     .collect(),
             ),
-            b,
+            b.as_column_matrix(),
         )
     };
 
     let mut tries = 0;
-    let mut test = |s_prime: &BinVector| {
+    let mut test = |s_prime: &BinMatrix| {
         tries += 1;
         if tries % 1000 == 0 {
             println!("Attempt {}...", tries);
         }
-        let testproduct = &(&am * s_prime) + &b;
-        testproduct.count_ones() <= c
+        let mut testproduct = &am * s_prime;
+        testproduct += &bm;
+        testproduct.as_vector().count_ones() <= c
     };
 
     println!("Starting random sampling of invertible (A, b)");
@@ -53,6 +55,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             let (mut a, b) = {
                 let queries =
                     rand::seq::sample_iter(&mut rng, oracle.queries.iter(), k as usize).unwrap();
+                // replace by matrix directly?
                 let mut b = BinVector::with_capacity(k as usize);
                 (
                     BinMatrix::new(
@@ -72,11 +75,18 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             }
         };
 
-        let s_prime = a.inverted() * b;
-        if test(&s_prime) {
-            break s_prime;
+
+        // A*s = b
+        let mut b = b.as_column_matrix();
+        if !solve_left(a, &mut b) {
+            println!("Somehow, solving failed....");
+            continue;
+        }
+        println!("Solved");
+        if test(&b) {
+            break b;
         }
     };
 
-    s_prime
+    s_prime.as_vector()
 }

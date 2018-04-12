@@ -32,16 +32,17 @@ name = "lpn"
 version = "0.1.0"
 dependencies = [
  "fnv 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "m4ri-rust 0.0.7 (git+https://github.com/thomwiggers/m4ri-rust.git)",
+ "m4ri-rust 0.0.8 (git+https://github.com/thomwiggers/m4ri-rust.git)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "m4ri-rust"
-version = "0.0.7"
-source = "git+https://github.com/thomwiggers/m4ri-rust.git#67057cb8045adfc1e004ed4522687be6f7020f29"
+version = "0.0.8"
+source = "git+https://github.com/thomwiggers/m4ri-rust.git#5519140f88398a1294d53936b7c74a23bfa2326e"
 dependencies = [
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "vob 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -93,7 +94,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum fuchsia-zircon 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2e9763c69ebaae630ba35f74888db465e49e259ba1bc0eda7d06f4a067615d82"
 "checksum fuchsia-zircon-sys 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3dcaa9ae7725d12cdb85b3ad99a434db70b468c09ded17e012d86b5c1010f7a7"
 "checksum libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)" = "6fd41f331ac7c5b8ac259b8bf82c75c0fb2e469bbf37d2becbba9a6a2221965b"
-"checksum m4ri-rust 0.0.7 (git+https://github.com/thomwiggers/m4ri-rust.git)" = "<none>"
+"checksum m4ri-rust 0.0.8 (git+https://github.com/thomwiggers/m4ri-rust.git)" = "<none>"
 "checksum num-traits 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dee092fcdf725aee04dd7da1d21debff559237d49ef1cb3e69bcb8ece44c7364"
 "checksum rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "eba5f8cb59cc50ed56be8880a5c7b496bfd9bd26394e176bc67884094145c2c5"
 "checksum vob 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2eba33ad5c45e78e693e759b73d446a4ddcf6814d0fcbcf785d79906856a96e8"

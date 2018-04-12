@@ -6,3 +6,5 @@ pub mod oracle;
 pub mod bkw;
 pub mod lf1;
 pub mod gauss;
+
+pub mod codes;
