@@ -39,7 +39,7 @@ dependencies = [
 [[package]]
 name = "m4ri-rust"
 version = "0.0.8"
-source = "git+https://github.com/thomwiggers/m4ri-rust.git#5519140f88398a1294d53936b7c74a23bfa2326e"
+source = "git+https://github.com/thomwiggers/m4ri-rust.git#be23cd65a3db1cb90c5e7b76b208f79a002c29e6"
 dependencies = [
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",

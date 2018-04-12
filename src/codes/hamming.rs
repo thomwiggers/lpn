@@ -2,7 +2,10 @@ use codes::BinaryCode;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 
+use codes::syndromes::hamming_7_4::SYNDROME;
+
 pub struct HammingCode7_4;
+
 
 impl BinaryCode for HammingCode7_4 {
 
@@ -16,16 +19,12 @@ impl BinaryCode for HammingCode7_4 {
         ]))
     }
 
-    /// FIXME
-    fn decode_to_message(&self, mut c: BinVector) -> BinVector {
-        c.truncate(4);
-        c
+    fn decode_to_message(&self, c: BinVector) -> BinVector {
+        debug_assert_eq!(c.len(), 7);
+        BinVector::from_bools(&SYNDROME[c.as_u32() as usize])
     }
 }
 
-fn parity_check_matrix() {
-    // all non-zero, length r (3) columns each used exactly once.
-}
 
 #[cfg(test)]
 mod tests {
