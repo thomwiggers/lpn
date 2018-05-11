@@ -29,4 +29,3 @@ pub trait BinaryCode {
 }
 
 pub mod hamming;
-mod syndromes;
