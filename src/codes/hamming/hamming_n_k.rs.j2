@@ -5,19 +5,20 @@ use m4ri_rust::friendly::BinVector;
 
 pub struct HammingCode{{n}}_{{k}};
 
+static SYNDROME: [[bool; {{k}}]; {{ 2**n }}] = [
+{% for syndrome in syndromes %}     [{{ syndrome|boollist }}], // {{ syndrome }}
+{% endfor %}];
+
+static ENCODE: [[bool; {{ n }}]; {{ 2**k }}] = [
+{% for encoding in encodings %}       [{{ encoding|boollist }}], // {{ encoding }}
+{% endfor %}];
+
+
 lazy_static! {
     static ref GENERATOR: BinMatrix = BinMatrix::new(vec![
 {% for row in generator %}      BinVector::from_bools(&[{{ row|boollist }}]),
 {% endfor %}
     ]);
-
-    static SYNDROME: [[bool; {{k}}]; {{ 2**n }}] = [
-{% for syndrome in syndromes %}     [{{ syndrome|boollist }}], // {{ syndrome }}
-{% endfor %}];
-
-    static ENCODE: [[bool; {{ k }}; {{ 2**k }}] = [
-{% for encoding in encodings %}       [{{ encoding|boollist }}], // {{ encoding }}
-{% endfor %}];
 }
 
 
@@ -41,7 +42,7 @@ impl BinaryCode for HammingCode{{n}}_{{k}} {
     }
 
     /// Encode using lookup table
-    fn encode(&self, _c: BinVector) -> BinVector {
+    fn encode(&self, c: BinVector) -> BinVector {
         debug_assert_eq!(c.len(), Self::dimension());
         BinVector::from_bools(&ENCODE[c.as_u32() as usize])
     }
@@ -72,7 +73,7 @@ mod tests {
         assert_eq!(codeword, BinVector::from_elem({{k}}, true));
 
         let vec = code.decode_to_codeword(BinVector::from_elem({{n}}, false));
-        assert_eq!(codeword, BinVector::from_elem({{n}}, false));
+        assert_eq!(vec, BinVector::from_elem({{n}}, false));
     }
 
 }

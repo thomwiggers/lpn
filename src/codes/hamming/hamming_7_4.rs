@@ -5,16 +5,7 @@ use m4ri_rust::friendly::BinVector;
 
 pub struct HammingCode7_4;
 
-lazy_static! {
-    static ref GENERATOR: BinMatrix = BinMatrix::new(vec![
-      BinVector::from_bools(&[true, false, false, false, false, true, true]),
-      BinVector::from_bools(&[false, true, false, false, true, false, true]),
-      BinVector::from_bools(&[false, false, true, false, true, true, false]),
-      BinVector::from_bools(&[false, false, false, true, true, true, true]),
-
-    ]);
-
-    static SYNDROME: [[bool; 4]; 128] = [
+static SYNDROME: [[bool; 4]; 128] = [
      [false, false, false, false], // (0, 0, 0, 0)
      [false, false, false, false], // (0, 0, 0, 0)
      [false, false, false, false], // (0, 0, 0, 0)
@@ -145,7 +136,7 @@ lazy_static! {
      [true, true, true, true], // (1, 1, 1, 1)
 ];
 
-    static ENCODE: [[bool; 4; 16] = [
+static ENCODE: [[bool; 7]; 16] = [
        [false, false, false, false, false, false, false], // (0, 0, 0, 0, 0, 0, 0)
        [true, false, false, false, false, true, true], // (1, 0, 0, 0, 0, 1, 1)
        [false, true, false, false, true, false, true], // (0, 1, 0, 0, 1, 0, 1)
@@ -163,6 +154,16 @@ lazy_static! {
        [false, true, true, true, true, false, false], // (0, 1, 1, 1, 1, 0, 0)
        [true, true, true, true, true, true, true], // (1, 1, 1, 1, 1, 1, 1)
 ];
+
+
+lazy_static! {
+    static ref GENERATOR: BinMatrix = BinMatrix::new(vec![
+      BinVector::from_bools(&[true, false, false, false, false, true, true]),
+      BinVector::from_bools(&[false, true, false, false, true, false, true]),
+      BinVector::from_bools(&[false, false, true, false, true, true, false]),
+      BinVector::from_bools(&[false, false, false, true, true, true, true]),
+
+    ]);
 }
 
 
@@ -186,7 +187,7 @@ impl BinaryCode for HammingCode7_4 {
     }
 
     /// Encode using lookup table
-    fn encode(&self, _c: BinVector) -> BinVector {
+    fn encode(&self, c: BinVector) -> BinVector {
         debug_assert_eq!(c.len(), Self::dimension());
         BinVector::from_bools(&ENCODE[c.as_u32() as usize])
     }
@@ -217,7 +218,7 @@ mod tests {
         assert_eq!(codeword, BinVector::from_elem(4, true));
 
         let vec = code.decode_to_codeword(BinVector::from_elem(7, false));
-        assert_eq!(codeword, BinVector::from_elem(7, false));
+        assert_eq!(vec, BinVector::from_elem(7, false));
     }
 
 }
