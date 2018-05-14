@@ -12,8 +12,11 @@ pub trait BinaryCode {
     /// Generator Matrix
     fn generator_matrix(&self) -> &'static BinMatrix;
 
+    /// Parity check matrix
+    fn parity_check_matrix(&self) -> &'static BinMatrix;
+
     /// Decode a codeword to the codeword space
-    fn decode_to_codeword(&self, c: BinVector) -> BinVector {
+    fn decode_to_code(&self, c: BinVector) -> BinVector {
         self.encode(self.decode_to_message(c))
     }
 
@@ -22,8 +25,11 @@ pub trait BinaryCode {
 
     /// Encode a codeword
     fn encode(&self, c: BinVector) -> BinVector {
-        debug_assert_eq!(c.len(), Self::length());
-        &c * self.generator_matrix()
+        debug_assert_eq!(c.len(), Self::dimension());
+        let result = &c.as_column_matrix() * self.generator_matrix();
+        let result = result.as_vector();
+        debug_assert_eq!(result.len(), Self::length(), "wtf, product should be of length");
+        result
     }
 
 }

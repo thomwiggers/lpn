@@ -1,0 +1,123 @@
+use codes::BinaryCode;
+use std::default::Default;
+use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::BinVector;
+
+use fnv::FnvHashMap;
+
+
+pub struct {{ name }}Code{{n}}_{{k}};
+
+
+
+lazy_static! {
+    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
+{% for row in generator %}      BinVector::from_bools(&[{{ row|boollist }}]),
+{% endfor %}
+    ]);
+    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
+{% for row in parity_matrix %}      BinVector::from_bools(&[{{ row|boollist }}]),
+{% endfor %}
+    ]);
+
+    /// Map from He to e
+    static ref SYNDROME_MAP: FnvHashMap<usize, [bool; {{ n }}]> = {
+        let mut map = FnvHashMap::with_capacity_and_hasher({{ syndrome_map|length }}, Default::default());
+        {% for (he, e) in syndrome_map.items() %}map.insert({{ he }}, [{{ e|boollist }}]); // {{ he }} => {{ e }}
+        {% endfor %}
+        map
+    };
+}
+
+
+
+impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
+    fn length() -> usize {
+        {{ n }}
+    }
+
+    fn dimension() -> usize {
+        {{ k }}
+    }
+
+    fn generator_matrix(&self) -> &'static BinMatrix {
+        &GENERATOR_MATRIX
+    }
+
+    fn parity_check_matrix(&self) -> &'static BinMatrix {
+        &PARITY_MATRIX
+    }
+
+    fn decode_to_code(&self, c: BinVector) -> BinVector {
+        debug_assert_eq!(c.len(), Self::length());
+        let he = self.parity_check_matrix() * &c;
+        let error = BinVector::from_bools(&SYNDROME_MAP[&(he.as_u32() as usize)]);
+        c + error
+    }
+
+    fn decode_to_message(&self, c: BinVector) -> BinVector {
+        {% if info_set|max == k - 1 %}
+        let mut codeword = self.decode_to_code(c);
+        codeword.truncate({{ k }});
+        codeword
+        {% else %}
+        let codeword = self.decode_to_code(c);
+        let mut new_codeword = BinVector::with_capacity({{k}});
+        {% for idx in info_set %}
+        new_codeword.push(codeword[{{idx}}]);
+        {% endfor %}
+        new_codeword
+        {% endif %}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use m4ri_rust::friendly::BinVector;
+
+    #[test]
+    fn size() {
+        let code = {{ name }}Code{{n}}_{{k}}.generator_matrix();
+        assert_eq!(code.ncols(), {{n}});
+        assert_eq!(code.nrows(), {{k}});
+    }
+
+    #[test]
+    fn decode() {
+        let code = {{ name }}Code{{n}}_{{k}};
+
+        let codeword = code.decode_to_message(BinVector::from_elem({{n}}, true));
+        assert_eq!(codeword, BinVector::from_elem({{k}}, true));
+
+        let mut vec = BinVector::from_elem({{n}}, true);
+        vec.set(0, false);
+        let codeword = code.decode_to_message(vec);
+        assert_eq!(codeword, BinVector::from_elem({{k}}, true));
+
+        let vec = code.decode_to_code(BinVector::from_elem({{n}}, false));
+        assert_eq!(vec, BinVector::from_elem({{n}}, false));
+    }
+
+    #[test]
+    fn encode_decode_tests() {
+        let code = {{ name}}Code{{n}}_{{ k }};
+
+        {% for testcase in testcases %}
+        {
+            let m = BinVector::from_bools(&[{{ testcase.m|boollist }}]);
+            let encoded = BinVector::from_bools(&[{{ testcase.encoded|boollist }}]);
+            assert_eq!(code.encode(m), encoded);
+            {% for errorvec in testcase.errorvecs %}
+            {
+                let errored = BinVector::from_bools(&[{{ errorvec|boollist }}]);
+                assert_eq!(m, code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(errored), "decode to code failed");
+            }
+            {% endfor %}
+        }
+        {% endfor %}
+    }
+
+}
+

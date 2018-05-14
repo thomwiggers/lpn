@@ -34829,7 +34829,7 @@ static ENCODE: [[bool; 15]; 2048] = [
 
 
 lazy_static! {
-    static ref GENERATOR: BinMatrix = BinMatrix::new(vec![
+    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
       BinVector::from_bools(&[true, false, false, false, false, false, false, false, false, false, false, false, false, true, true]),
       BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, false, false, false, true, false, true]),
       BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, false, false, false, true, true, false]),
@@ -34841,6 +34841,13 @@ lazy_static! {
       BinVector::from_bools(&[false, false, false, false, false, false, false, false, true, false, true, false, true, false, true]),
       BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, true, true, false, false, true, true]),
       BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, false, false, true, true, true, true]),
+
+    ]);
+    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
+      BinVector::from_bools(&[true, false, true, false, true, false, true, false, true, false, true, false, true, false, true]),
+      BinVector::from_bools(&[false, true, true, false, false, true, true, false, false, true, true, false, false, true, true]),
+      BinVector::from_bools(&[false, false, false, true, true, true, true, false, false, false, false, true, true, true, true]),
+      BinVector::from_bools(&[false, false, false, false, false, false, false, true, true, true, true, true, true, true, true]),
 
     ]);
 }
@@ -34857,7 +34864,11 @@ impl BinaryCode for HammingCode15_11 {
     }
 
     fn generator_matrix(&self) -> &'static BinMatrix {
-        &GENERATOR
+        &GENERATOR_MATRIX
+    }
+
+    fn parity_check_matrix(&self) -> &'static BinMatrix {
+        &PARITY_MATRIX
     }
 
     fn decode_to_message(&self, c: BinVector) -> BinVector {
@@ -34896,7 +34907,7 @@ mod tests {
         let codeword = code.decode_to_message(vec);
         assert_eq!(codeword, BinVector::from_elem(11, true));
 
-        let vec = code.decode_to_codeword(BinVector::from_elem(15, false));
+        let vec = code.decode_to_code(BinVector::from_elem(15, false));
         assert_eq!(vec, BinVector::from_elem(15, false));
     }
 

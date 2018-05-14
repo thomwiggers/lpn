@@ -20,6 +20,7 @@ def generate_hamming_implementation(exponent):
         'n': code.length(),
         'k': code.dimension(),
         'generator': code.systematic_generator_matrix(),
+        'parity_matrix': code.parity_check_matrix(),
     }
 
     info['syndromes'] = [code.decode_to_message(v)

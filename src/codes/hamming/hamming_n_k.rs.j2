@@ -15,8 +15,12 @@ static ENCODE: [[bool; {{ n }}]; {{ 2**k }}] = [
 
 
 lazy_static! {
-    static ref GENERATOR: BinMatrix = BinMatrix::new(vec![
+    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
 {% for row in generator %}      BinVector::from_bools(&[{{ row|boollist }}]),
+{% endfor %}
+    ]);
+    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
+{% for row in parity_matrix %}      BinVector::from_bools(&[{{ row|boollist }}]),
 {% endfor %}
     ]);
 }
@@ -33,7 +37,11 @@ impl BinaryCode for HammingCode{{n}}_{{k}} {
     }
 
     fn generator_matrix(&self) -> &'static BinMatrix {
-        &GENERATOR
+        &GENERATOR_MATRIX
+    }
+
+    fn parity_check_matrix(&self) -> &'static BinMatrix {
+        &PARITY_MATRIX
     }
 
     fn decode_to_message(&self, c: BinVector) -> BinVector {
@@ -72,7 +80,7 @@ mod tests {
         let codeword = code.decode_to_message(vec);
         assert_eq!(codeword, BinVector::from_elem({{k}}, true));
 
-        let vec = code.decode_to_codeword(BinVector::from_elem({{n}}, false));
+        let vec = code.decode_to_code(BinVector::from_elem({{n}}, false));
         assert_eq!(vec, BinVector::from_elem({{n}}, false));
     }
 

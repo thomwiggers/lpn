@@ -45,7 +45,7 @@ dependencies = [
 [[package]]
 name = "m4ri-rust"
 version = "0.0.9"
-source = "git+https://github.com/thomwiggers/m4ri-rust.git#58383cba610ebde1220b396ee679f9679258a988"
+source = "git+https://github.com/thomwiggers/m4ri-rust.git#9aa4c5aaca379b9819bfdd5b60a0264bb20970bf"
 dependencies = [
  "libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -54,7 +54,7 @@ dependencies = [
 
 [[package]]
 name = "num-traits"
-version = "0.2.3"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -72,7 +72,7 @@ name = "vob"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "num-traits 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -102,7 +102,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum lazy_static 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c8f31047daa365f19be14b47c29df4f7c3b581832407daabe6ae77397619237d"
 "checksum libc 0.2.40 (registry+https://github.com/rust-lang/crates.io-index)" = "6fd41f331ac7c5b8ac259b8bf82c75c0fb2e469bbf37d2becbba9a6a2221965b"
 "checksum m4ri-rust 0.0.9 (git+https://github.com/thomwiggers/m4ri-rust.git)" = "<none>"
-"checksum num-traits 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c22f20a157cb4af265c71e47db525852368feeb4a0013f0f8c68a7f4ef0d0fc1"
+"checksum num-traits 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)" = "775393e285254d2f5004596d69bb8bc1149754570dcc08cf30cabeba67955e28"
 "checksum rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "eba5f8cb59cc50ed56be8880a5c7b496bfd9bd26394e176bc67884094145c2c5"
 "checksum vob 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "13c70c9208745316d1c8c534f94f75d0a02577b8cddded471682541d5a87d6ec"
 "checksum winapi 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "04e3bd221fcbe8a271359c04f21a76db7d0c6028862d1bb5512d85e1e2eb5bb3"

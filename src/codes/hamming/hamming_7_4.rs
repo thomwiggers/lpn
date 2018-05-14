@@ -157,10 +157,16 @@ static ENCODE: [[bool; 7]; 16] = [
 
 
 lazy_static! {
-    static ref GENERATOR: BinMatrix = BinMatrix::new(vec![
+    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
       BinVector::from_bools(&[true, false, false, false, false, true, true]),
       BinVector::from_bools(&[false, true, false, false, true, false, true]),
       BinVector::from_bools(&[false, false, true, false, true, true, false]),
+      BinVector::from_bools(&[false, false, false, true, true, true, true]),
+
+    ]);
+    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
+      BinVector::from_bools(&[true, false, true, false, true, false, true]),
+      BinVector::from_bools(&[false, true, true, false, false, true, true]),
       BinVector::from_bools(&[false, false, false, true, true, true, true]),
 
     ]);
@@ -178,7 +184,11 @@ impl BinaryCode for HammingCode7_4 {
     }
 
     fn generator_matrix(&self) -> &'static BinMatrix {
-        &GENERATOR
+        &GENERATOR_MATRIX
+    }
+
+    fn parity_check_matrix(&self) -> &'static BinMatrix {
+        &PARITY_MATRIX
     }
 
     fn decode_to_message(&self, c: BinVector) -> BinVector {
@@ -217,7 +227,7 @@ mod tests {
         let codeword = code.decode_to_message(vec);
         assert_eq!(codeword, BinVector::from_elem(4, true));
 
-        let vec = code.decode_to_codeword(BinVector::from_elem(7, false));
+        let vec = code.decode_to_code(BinVector::from_elem(7, false));
         assert_eq!(vec, BinVector::from_elem(7, false));
     }
 
