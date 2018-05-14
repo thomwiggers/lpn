@@ -107,12 +107,12 @@ mod tests {
         {
             let m = BinVector::from_bools(&[{{ testcase.m|boollist }}]);
             let encoded = BinVector::from_bools(&[{{ testcase.encoded|boollist }}]);
-            assert_eq!(code.encode(m), encoded);
+            assert_eq!(code.encode(m.clone()), encoded);
             {% for errorvec in testcase.errorvecs %}
             {
                 let errored = BinVector::from_bools(&[{{ errorvec|boollist }}]);
-                assert_eq!(m, code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded, code.decode_to_code(errored), "decode to code failed");
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
             }
             {% endfor %}
         }
