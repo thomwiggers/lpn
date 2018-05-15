@@ -52,7 +52,10 @@ impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
         debug_assert_eq!(c.len(), Self::length());
         let he = self.parity_check_matrix() * &c;
         let error = BinVector::from_bools(&SYNDROME_MAP[&(he.as_u32() as usize)]);
-        c + error
+        debug_assert_eq!(error.len(), Self::length());
+        let result = c + error;
+        debug_assert_eq!(result.len(), Self::length());
+        result
     }
 
     fn decode_to_message(&self, c: BinVector) -> BinVector {
@@ -63,8 +66,7 @@ impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
         {% else %}
         let codeword = self.decode_to_code(c);
         let mut new_codeword = BinVector::with_capacity({{k}});
-        {% for idx in info_set %}
-        new_codeword.push(codeword[{{idx}}]);
+        {% for idx in info_set %}new_codeword.push(codeword[{{idx}}]);
         {% endfor %}
         new_codeword
         {% endif %}

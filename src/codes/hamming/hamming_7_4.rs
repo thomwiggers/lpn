@@ -1,159 +1,13 @@
 use codes::BinaryCode;
+use std::default::Default;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
+
+use fnv::FnvHashMap;
 
 
 pub struct HammingCode7_4;
 
-static SYNDROME: [[bool; 4]; 128] = [
-     [false, false, false, false], // (0, 0, 0, 0)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [false, false, false, false], // (0, 0, 0, 0)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [true, true, true, false], // (1, 1, 1, 0)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [true, false, false, true], // (1, 0, 0, 1)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, true, true, true], // (0, 1, 1, 1)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, false, true], // (0, 1, 0, 1)
-     [true, true, false, true], // (1, 1, 0, 1)
-     [false, false, true, true], // (0, 0, 1, 1)
-     [true, false, true, true], // (1, 0, 1, 1)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [true, false, false, false], // (1, 0, 0, 0)
-     [false, true, false, false], // (0, 1, 0, 0)
-     [true, true, false, false], // (1, 1, 0, 0)
-     [false, false, true, false], // (0, 0, 1, 0)
-     [true, false, true, false], // (1, 0, 1, 0)
-     [false, true, true, false], // (0, 1, 1, 0)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [false, false, false, true], // (0, 0, 0, 1)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [true, true, true, true], // (1, 1, 1, 1)
-     [true, true, true, true], // (1, 1, 1, 1)
-];
-
-static ENCODE: [[bool; 7]; 16] = [
-       [false, false, false, false, false, false, false], // (0, 0, 0, 0, 0, 0, 0)
-       [true, false, false, false, false, true, true], // (1, 0, 0, 0, 0, 1, 1)
-       [false, true, false, false, true, false, true], // (0, 1, 0, 0, 1, 0, 1)
-       [true, true, false, false, true, true, false], // (1, 1, 0, 0, 1, 1, 0)
-       [false, false, true, false, true, true, false], // (0, 0, 1, 0, 1, 1, 0)
-       [true, false, true, false, true, false, true], // (1, 0, 1, 0, 1, 0, 1)
-       [false, true, true, false, false, true, true], // (0, 1, 1, 0, 0, 1, 1)
-       [true, true, true, false, false, false, false], // (1, 1, 1, 0, 0, 0, 0)
-       [false, false, false, true, true, true, true], // (0, 0, 0, 1, 1, 1, 1)
-       [true, false, false, true, true, false, false], // (1, 0, 0, 1, 1, 0, 0)
-       [false, true, false, true, false, true, false], // (0, 1, 0, 1, 0, 1, 0)
-       [true, true, false, true, false, false, true], // (1, 1, 0, 1, 0, 0, 1)
-       [false, false, true, true, false, false, true], // (0, 0, 1, 1, 0, 0, 1)
-       [true, false, true, true, false, true, false], // (1, 0, 1, 1, 0, 1, 0)
-       [false, true, true, true, true, false, false], // (0, 1, 1, 1, 1, 0, 0)
-       [true, true, true, true, true, true, true], // (1, 1, 1, 1, 1, 1, 1)
-];
 
 
 lazy_static! {
@@ -170,6 +24,21 @@ lazy_static! {
       BinVector::from_bools(&[false, false, false, true, true, true, true]),
 
     ]);
+
+    /// Map from He to e
+    static ref SYNDROME_MAP: FnvHashMap<usize, [bool; 7]> = {
+        let mut map = FnvHashMap::with_capacity_and_hasher(8, Default::default());
+        map.insert(0, [false, false, false, false, false, false, false]); // 0 => (0, 0, 0, 0, 0, 0, 0)
+        map.insert(1, [true, false, false, false, false, false, false]); // 1 => (1, 0, 0, 0, 0, 0, 0)
+        map.insert(2, [false, true, false, false, false, false, false]); // 2 => (0, 1, 0, 0, 0, 0, 0)
+        map.insert(3, [false, false, true, false, false, false, false]); // 3 => (0, 0, 1, 0, 0, 0, 0)
+        map.insert(4, [false, false, false, true, false, false, false]); // 4 => (0, 0, 0, 1, 0, 0, 0)
+        map.insert(5, [false, false, false, false, true, false, false]); // 5 => (0, 0, 0, 0, 1, 0, 0)
+        map.insert(6, [false, false, false, false, false, true, false]); // 6 => (0, 0, 0, 0, 0, 1, 0)
+        map.insert(7, [false, false, false, false, false, false, true]); // 7 => (0, 0, 0, 0, 0, 0, 1)
+
+        map
+    };
 }
 
 
@@ -191,15 +60,22 @@ impl BinaryCode for HammingCode7_4 {
         &PARITY_MATRIX
     }
 
-    fn decode_to_message(&self, c: BinVector) -> BinVector {
+    fn decode_to_code(&self, c: BinVector) -> BinVector {
         debug_assert_eq!(c.len(), Self::length());
-        BinVector::from_bools(&SYNDROME[c.as_u32() as usize])
+        let he = self.parity_check_matrix() * &c;
+        let error = BinVector::from_bools(&SYNDROME_MAP[&(he.as_u32() as usize)]);
+        debug_assert_eq!(error.len(), Self::length());
+        let result = c + error;
+        debug_assert_eq!(result.len(), Self::length());
+        result
     }
 
-    /// Encode using lookup table
-    fn encode(&self, c: BinVector) -> BinVector {
-        debug_assert_eq!(c.len(), Self::dimension());
-        BinVector::from_bools(&ENCODE[c.as_u32() as usize])
+    fn decode_to_message(&self, c: BinVector) -> BinVector {
+
+        let mut codeword = self.decode_to_code(c);
+        codeword.truncate(4);
+        codeword
+
     }
 }
 
@@ -229,6 +105,221 @@ mod tests {
 
         let vec = code.decode_to_code(BinVector::from_elem(7, false));
         assert_eq!(vec, BinVector::from_elem(7, false));
+    }
+
+    #[test]
+    fn encode_decode_tests() {
+        let code = HammingCode7_4;
+
+
+        {
+            let m = BinVector::from_bools(&[true, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, false, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, false, false, false]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, false, true, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, false, true, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, true, false, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, false, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, false, true, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, false, true, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, false, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, false, false, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, false, false, false]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, false, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, true, false]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, false, true, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, false, true, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, true, false, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, true, false, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, false]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, true, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, false, true, false]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, true, false]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, true, true, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[false, false, false, true, true, false, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
+        {
+            let m = BinVector::from_bools(&[true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, true]);
+            assert_eq!(code.encode(m.clone()), encoded);
+
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, false, true, true]);
+                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
+                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+            }
+
+        }
+
     }
 
 }

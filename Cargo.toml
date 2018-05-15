@@ -10,6 +10,7 @@ lazy_static = "1.0.0"
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
+features = ["system_alloc"]
 
 [profile.release]
 lto = true

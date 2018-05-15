@@ -50,8 +50,14 @@ def generate_code_implementation(name, code):
     info['info_set'] = code.information_set()
 
     testcases = []
-    for i in range(min(2**k, 1000)):
-        m = random_vector(GF(2), k)
+    seen = set()
+    for i in range(min(2**k, 200)):
+        m = None
+        while m is None or m in seen:
+            m = random_vector(GF(2), k)
+            m.set_immutable()
+        seen.add(m)
+
         encoded = code.encode(m)
         testcase = {
             'm': m,
@@ -76,6 +82,8 @@ def generate_code_implementation(name, code):
 
 
 if __name__ == "__main__":
+    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 3))
+    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 4))
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 5))
-    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 6))
-    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))
+    #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 6))
+    #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))
