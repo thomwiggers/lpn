@@ -1,9 +1,32 @@
 use codes::BinaryCode;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-
+use std::sync::{Once,ONCE_INIT};
+use std::boxed::Box;
 
 pub struct HammingCode{{n}}_{{k}};
+
+static INIT: Once = ONCE_INIT;
+static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
+static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
+
+fn init() {
+    INIT.call_once(|| {
+        unsafe { 
+            let matrix = Box::new(BinMatrix::new(vec![
+                {% for row in generator %}BinVector::from_bools(&[{{ row|boollist }}]),
+                {% endfor %}
+            ]));
+            GENERATOR_MATRIX = Box::into_raw(matrix);
+
+            let matrix = Box::new(BinMatrix::new(vec![
+                    {% for row in parity_matrix %}BinVector::from_bools(&[{{ row|boollist }}]),
+                    {% endfor %}
+            ]));
+            PARITY_MATRIX = Box::into_raw(matrix);
+        }
+    });
+}
 
 static SYNDROME: [[bool; {{k}}]; {{ 2**n }}] = [
 {% for syndrome in syndromes %}     [{{ syndrome|boollist }}], // {{ syndrome }}
@@ -12,19 +35,6 @@ static SYNDROME: [[bool; {{k}}]; {{ 2**n }}] = [
 static ENCODE: [[bool; {{ n }}]; {{ 2**k }}] = [
 {% for encoding in encodings %}       [{{ encoding|boollist }}], // {{ encoding }}
 {% endfor %}];
-
-
-lazy_static! {
-    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
-{% for row in generator %}      BinVector::from_bools(&[{{ row|boollist }}]),
-{% endfor %}
-    ]);
-    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
-{% for row in parity_matrix %}      BinVector::from_bools(&[{{ row|boollist }}]),
-{% endfor %}
-    ]);
-}
-
 
 
 impl BinaryCode for HammingCode{{n}}_{{k}} {
@@ -37,11 +47,17 @@ impl BinaryCode for HammingCode{{n}}_{{k}} {
     }
 
     fn generator_matrix(&self) -> &'static BinMatrix {
-        &GENERATOR_MATRIX
+        init();
+        unsafe {
+            GENERATOR_MATRIX.as_ref().unwrap()
+        }
     }
 
     fn parity_check_matrix(&self) -> &'static BinMatrix {
-        &PARITY_MATRIX
+        init();
+        unsafe {
+            PARITY_MATRIX.as_ref().unwrap()
+        }
     }
 
     fn decode_to_message(&self, c: BinVector) -> BinVector {

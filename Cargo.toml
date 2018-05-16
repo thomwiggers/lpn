@@ -6,11 +6,10 @@ authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 [dependencies]
 rand = "0.4.2"
 fnv = "1.0.6"
-lazy_static = "1.0.0"
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
-features = ["system_alloc"]
+#features = ["system_alloc"]
 
 [profile.release]
 lto = true

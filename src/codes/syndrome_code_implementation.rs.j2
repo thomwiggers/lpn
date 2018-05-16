@@ -2,33 +2,41 @@ use codes::BinaryCode;
 use std::default::Default;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
+use std::sync::{Once,ONCE_INIT};
+use std::boxed::Box;
 
 use fnv::FnvHashMap;
 
 
 pub struct {{ name }}Code{{n}}_{{k}};
 
+static INIT: Once = ONCE_INIT;
+static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
+static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
+static mut SYNDROME_MAP: *const FnvHashMap<usize, [bool; {{ n }}]> = 0 as *const FnvHashMap<usize, [bool; {{ n }}]>;
 
+fn init() {
+    INIT.call_once(|| {
+        unsafe {
+            let matrix = Box::new(BinMatrix::new(vec![
+                {% for row in generator %}BinVector::from_bools(&[{{ row|boollist }}]),
+                {% endfor %}
+            ]));
+            GENERATOR_MATRIX = Box::into_raw(matrix);
 
-lazy_static! {
-    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
-{% for row in generator %}      BinVector::from_bools(&[{{ row|boollist }}]),
-{% endfor %}
-    ]);
-    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
-{% for row in parity_matrix %}      BinVector::from_bools(&[{{ row|boollist }}]),
-{% endfor %}
-    ]);
+            let matrix = Box::new(BinMatrix::new(vec![
+                {% for row in parity_matrix %}BinVector::from_bools(&[{{ row|boollist }}]),
+                {% endfor %}
+            ]));
+            PARITY_MATRIX = Box::into_raw(matrix);
 
-    /// Map from He to e
-    static ref SYNDROME_MAP: FnvHashMap<usize, [bool; {{ n }}]> = {
-        let mut map = FnvHashMap::with_capacity_and_hasher({{ syndrome_map|length }}, Default::default());
-        {% for (he, e) in syndrome_map.items() %}map.insert({{ he }}, [{{ e|boollist }}]); // {{ he }} => {{ e }}
-        {% endfor %}
-        map
-    };
+            let mut map = Box::new(FnvHashMap::with_capacity_and_hasher({{ syndrome_map|length }}, Default::default()));
+            {% for (he, e) in syndrome_map.items() %}map.insert({{ he }}, [{{ e|boollist }}]); // {{ he }} => {{ e }}
+            {% endfor %}
+            SYNDROME_MAP = Box::into_raw(map);
+        }
+    });
 }
-
 
 
 impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
@@ -41,17 +49,27 @@ impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
     }
 
     fn generator_matrix(&self) -> &'static BinMatrix {
-        &GENERATOR_MATRIX
+        init();
+        unsafe {
+            GENERATOR_MATRIX.as_ref().unwrap()
+        }
     }
 
     fn parity_check_matrix(&self) -> &'static BinMatrix {
-        &PARITY_MATRIX
+        init();
+        unsafe {
+            PARITY_MATRIX.as_ref().unwrap()
+        }
     }
 
     fn decode_to_code(&self, c: BinVector) -> BinVector {
+        init();
+        let map = unsafe {
+            SYNDROME_MAP.as_ref().unwrap()
+        };
         debug_assert_eq!(c.len(), Self::length());
         let he = self.parity_check_matrix() * &c;
-        let error = BinVector::from_bools(&SYNDROME_MAP[&(he.as_u32() as usize)]);
+        let error = BinVector::from_bools(&map[&(he.as_u64() as usize)]);
         debug_assert_eq!(error.len(), Self::length());
         let result = c + error;
         debug_assert_eq!(result.len(), Self::length());

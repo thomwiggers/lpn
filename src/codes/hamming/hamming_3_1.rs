@@ -1,38 +1,49 @@
 use codes::BinaryCode;
-use std::default::Default;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-
-use fnv::FnvHashMap;
-
+use std::sync::{Once,ONCE_INIT};
+use std::boxed::Box;
 
 pub struct HammingCode3_1;
 
+static INIT: Once = ONCE_INIT;
+static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
+static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 
+fn init() {
+    INIT.call_once(|| {
+        unsafe { 
+            let matrix = Box::new(BinMatrix::new(vec![
+                BinVector::from_bools(&[true, true, true]),
+                
+            ]));
+            GENERATOR_MATRIX = Box::into_raw(matrix);
 
-lazy_static! {
-    static ref GENERATOR_MATRIX: BinMatrix = BinMatrix::new(vec![
-      BinVector::from_bools(&[true, true, true]),
-
-    ]);
-    static ref PARITY_MATRIX: BinMatrix = BinMatrix::new(vec![
-      BinVector::from_bools(&[true, false, true]),
-      BinVector::from_bools(&[false, true, true]),
-
-    ]);
-
-    /// Map from He to e
-    static ref SYNDROME_MAP: FnvHashMap<usize, [bool; 3]> = {
-        let mut map = FnvHashMap::with_capacity_and_hasher(4, Default::default());
-        map.insert(0, [false, false, false]); // 0 => (0, 0, 0)
-        map.insert(1, [true, false, false]); // 1 => (1, 0, 0)
-        map.insert(2, [false, true, false]); // 2 => (0, 1, 0)
-        map.insert(3, [false, false, true]); // 3 => (0, 0, 1)
-        
-        map
-    };
+            let matrix = Box::new(BinMatrix::new(vec![
+                    BinVector::from_bools(&[true, false, true]),
+                    BinVector::from_bools(&[false, true, true]),
+                    
+            ]));
+            PARITY_MATRIX = Box::into_raw(matrix);
+        }
+    });
 }
 
+static SYNDROME: [[bool; 1]; 8] = [
+     [false], // (0)
+     [false], // (0)
+     [false], // (0)
+     [true], // (1)
+     [false], // (0)
+     [true], // (1)
+     [true], // (1)
+     [true], // (1)
+];
+
+static ENCODE: [[bool; 3]; 2] = [
+       [false, false, false], // (0, 0, 0)
+       [true, true, true], // (1, 1, 1)
+];
 
 
 impl BinaryCode for HammingCode3_1 {
@@ -45,26 +56,28 @@ impl BinaryCode for HammingCode3_1 {
     }
 
     fn generator_matrix(&self) -> &'static BinMatrix {
-        &GENERATOR_MATRIX
+        init();
+        unsafe {
+            GENERATOR_MATRIX.as_ref().unwrap()
+        }
     }
 
     fn parity_check_matrix(&self) -> &'static BinMatrix {
-        &PARITY_MATRIX
-    }
-
-    fn decode_to_code(&self, c: BinVector) -> BinVector {
-        debug_assert_eq!(c.len(), Self::length());
-        let he = self.parity_check_matrix() * &c;
-        let error = BinVector::from_bools(&SYNDROME_MAP[&(he.as_u32() as usize)]);
-        c + error
+        init();
+        unsafe {
+            PARITY_MATRIX.as_ref().unwrap()
+        }
     }
 
     fn decode_to_message(&self, c: BinVector) -> BinVector {
-        let mut codeword = self.decode_to_code(c);
-        
-        codeword.truncate(1);
-        codeword
-        
+        debug_assert_eq!(c.len(), Self::length());
+        BinVector::from_bools(&SYNDROME[c.as_u32() as usize])
+    }
+
+    /// Encode using lookup table
+    fn encode(&self, c: BinVector) -> BinVector {
+        debug_assert_eq!(c.len(), Self::dimension());
+        BinVector::from_bools(&ENCODE[c.as_u32() as usize])
     }
 }
 
@@ -94,27 +107,6 @@ mod tests {
 
         let vec = code.decode_to_code(BinVector::from_elem(3, false));
         assert_eq!(vec, BinVector::from_elem(3, false));
-    }
-
-    #[test]
-    fn encode_decode_tests() {
-        let code = HammingCode3_1;
-
-        
-        {
-            let m = BinVector::from_bools(&[true]);
-            let encoded = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true]);
-                assert_eq!(m, code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded, code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-                
     }
 
 }
