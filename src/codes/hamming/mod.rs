@@ -1,9 +1,8 @@
-
 macro_rules! useit {
     ($name:ident) => {
         mod $name;
         pub use self::$name::*;
-    }
+    };
 }
 
 useit!(hamming_3_1);

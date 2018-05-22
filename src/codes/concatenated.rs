@@ -2,19 +2,16 @@ use codes::BinaryCode;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::cell::UnsafeCell;
-use std::sync::Mutex;
 use std::ptr;
+use std::sync::Mutex;
 
-pub struct ConcatenatedCode<T>
-where
-{
+pub struct ConcatenatedCode<T> {
     codes: Vec<Box<T>>,
     init: Mutex<bool>,
     generator: UnsafeCell<*mut BinMatrix>,
 }
 
-impl<'a, T> ConcatenatedCode<T>
-{
+impl<'a, T> ConcatenatedCode<T> {
     pub fn new(codes: Vec<Box<T>>) -> ConcatenatedCode<T> {
         ConcatenatedCode {
             codes,
@@ -24,9 +21,7 @@ impl<'a, T> ConcatenatedCode<T>
     }
 }
 
-
-impl<'a, T: BinaryCode<'a>> BinaryCode<'a> for ConcatenatedCode<T>
-{
+impl<'a, T: BinaryCode<'a>> BinaryCode<'a> for ConcatenatedCode<T> {
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }

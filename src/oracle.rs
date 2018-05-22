@@ -1,9 +1,9 @@
+use m4ri_rust::friendly::BinVector;
 use rand;
 use rand::Rng;
 use std::ops::Range;
-use m4ri_rust::friendly::BinVector;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct Query {
     pub a: BinVector,
     pub s: bool,

@@ -1,8 +1,7 @@
-use m4ri_rust::friendly::BinVector;
 use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::BinVector;
 
 pub trait BinaryCode<'a> {
-
     /// Length of the code
     fn length(&self) -> usize;
 
@@ -28,7 +27,11 @@ pub trait BinaryCode<'a> {
         debug_assert_eq!(c.len(), self.dimension());
         let result = &c.as_matrix() * self.generator_matrix();
         let result = result.as_vector();
-        debug_assert_eq!(result.len(), self.length(), "wtf, product should be of length");
+        debug_assert_eq!(
+            result.len(),
+            self.length(),
+            "wtf, product should be of length"
+        );
         result
     }
 }

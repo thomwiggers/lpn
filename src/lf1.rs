@@ -1,10 +1,9 @@
-use oracle::LpnOracle;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
+use oracle::LpnOracle;
 use std::mem;
 
-pub fn lf1_solve(oracle: LpnOracle) -> BinVector
-{
+pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     // get the (a, c) samples as matrix A and vector c
     let mut c = BinVector::new();
     let mut sample_matrix = Vec::new();
@@ -25,9 +24,8 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector
 
     let computation = |candidate: usize| {
         // A u32 is 4 u8s.
-        let candidate_bytes = unsafe {
-            mem::transmute::<usize,[u8;mem::size_of::<usize>()]>(candidate.to_le())
-        };
+        let candidate_bytes =
+            unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(candidate.to_le()) };
         let mut candidate_vector = BinVector::from_bytes(&candidate_bytes);
         candidate_vector.truncate(b as usize);
 
@@ -51,7 +49,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector
 
     let candidate_bytes;
     unsafe {
-        candidate_bytes = mem::transmute::<usize,[u8;mem::size_of::<usize>()]>(best_candidate);
+        candidate_bytes = mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(best_candidate);
     }
     let mut candidate_vector = BinVector::from_bytes(&candidate_bytes);
     candidate_vector.truncate(b as usize);
