@@ -8,7 +8,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Attempting Pooled Gauss solving method");
     let k = oracle.k;
     let alpha = 0.5f32.powi(k as i32);
-    let beta = ((1f32 - oracle.tau) / 2f32).powi(k as i32);
+   let beta = ((1f32 - oracle.tau) / 2f32).powi(k as i32);
     let m: f32 = (((1.5 * (1.0 / alpha).ln()).sqrt() + (1.0 / beta).ln().sqrt())
         / (0.5 - oracle.tau))
         .powi(2)
@@ -75,14 +75,12 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             }
         };
 
-
         // A*s = b
         let mut b = b.as_column_matrix();
         if !solve_left(a, &mut b) {
             println!("Somehow, solving failed....");
             continue;
         }
-        println!("Solved");
         if test(&b) {
             break b;
         }

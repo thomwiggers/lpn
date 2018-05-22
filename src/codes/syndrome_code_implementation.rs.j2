@@ -39,12 +39,12 @@ fn init() {
 }
 
 
-impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
-    fn length() -> usize {
+impl BinaryCode<'static> for {{ name }}Code{{n}}_{{k}} {
+    fn length(&self) -> usize {
         {{ n }}
     }
 
-    fn dimension() -> usize {
+    fn dimension(&self) -> usize {
         {{ k }}
     }
 
@@ -62,21 +62,21 @@ impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
         }
     }
 
-    fn decode_to_code(&self, c: BinVector) -> BinVector {
+    fn decode_to_code(&self, c: &BinVector) -> BinVector {
         init();
         let map = unsafe {
             SYNDROME_MAP.as_ref().unwrap()
         };
-        debug_assert_eq!(c.len(), Self::length());
-        let he = self.parity_check_matrix() * &c;
+        debug_assert_eq!(c.len(), self.length());
+        let he = self.parity_check_matrix() * c;
         let error = BinVector::from_bools(&map[&(he.as_u64() as usize)]);
-        debug_assert_eq!(error.len(), Self::length());
-        let result = c + error;
-        debug_assert_eq!(result.len(), Self::length());
+        debug_assert_eq!(error.len(), self.length());
+        let result = c + &error;
+        debug_assert_eq!(result.len(), self.length());
         result
     }
 
-    fn decode_to_message(&self, c: BinVector) -> BinVector {
+    fn decode_to_message(&self, c: &BinVector) -> BinVector {
         {% if info_set|max == k - 1 %}
         let mut codeword = self.decode_to_code(c);
         codeword.truncate({{ k }});
@@ -107,15 +107,15 @@ mod tests {
     fn decode() {
         let code = {{ name }}Code{{n}}_{{k}};
 
-        let codeword = code.decode_to_message(BinVector::from_elem({{n}}, true));
+        let codeword = code.decode_to_message(&BinVector::from_elem({{n}}, true));
         assert_eq!(codeword, BinVector::from_elem({{k}}, true));
 
         let mut vec = BinVector::from_elem({{n}}, true);
         vec.set(0, false);
-        let codeword = code.decode_to_message(vec);
+        let codeword = code.decode_to_message(&vec);
         assert_eq!(codeword, BinVector::from_elem({{k}}, true));
 
-        let vec = code.decode_to_code(BinVector::from_elem({{n}}, false));
+        let vec = code.decode_to_code(&BinVector::from_elem({{n}}, false));
         assert_eq!(vec, BinVector::from_elem({{n}}, false));
     }
 
@@ -127,12 +127,12 @@ mod tests {
         {
             let m = BinVector::from_bools(&[{{ testcase.m|boollist }}]);
             let encoded = BinVector::from_bools(&[{{ testcase.encoded|boollist }}]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             {% for errorvec in testcase.errorvecs %}
             {
                 let errored = BinVector::from_bools(&[{{ errorvec|boollist }}]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             {% endfor %}
         }

@@ -38,11 +38,11 @@ static ENCODE: [[bool; {{ n }}]; {{ 2**k }}] = [
 
 
 impl BinaryCode for HammingCode{{n}}_{{k}} {
-    fn length() -> usize {
+    fn length(&self) -> usize {
         {{ n }}
     }
 
-    fn dimension() -> usize {
+    fn dimension(&self) -> usize {
         {{ k }}
     }
 
@@ -60,14 +60,14 @@ impl BinaryCode for HammingCode{{n}}_{{k}} {
         }
     }
 
-    fn decode_to_message(&self, c: BinVector) -> BinVector {
-        debug_assert_eq!(c.len(), Self::length());
+    fn decode_to_message(&self, c: &BinVector) -> BinVector {
+        debug_assert_eq!(c.len(), self.length());
         BinVector::from_bools(&SYNDROME[c.as_u32() as usize])
     }
 
     /// Encode using lookup table
-    fn encode(&self, c: BinVector) -> BinVector {
-        debug_assert_eq!(c.len(), Self::dimension());
+    fn encode(&self, c: &BinVector) -> BinVector {
+        debug_assert_eq!(c.len(), self.dimension());
         BinVector::from_bools(&ENCODE[c.as_u32() as usize])
     }
 }

@@ -67,12 +67,12 @@ fn init() {
 }
 
 
-impl BinaryCode for HammingCode15_11 {
-    fn length() -> usize {
+impl BinaryCode<'static> for HammingCode15_11 {
+    fn length(&self) -> usize {
         15
     }
 
-    fn dimension() -> usize {
+    fn dimension(&self) -> usize {
         11
     }
 
@@ -90,21 +90,21 @@ impl BinaryCode for HammingCode15_11 {
         }
     }
 
-    fn decode_to_code(&self, c: BinVector) -> BinVector {
+    fn decode_to_code(&self, c: &BinVector) -> BinVector {
         init();
         let map = unsafe {
             SYNDROME_MAP.as_ref().unwrap()
         };
-        debug_assert_eq!(c.len(), Self::length());
-        let he = self.parity_check_matrix() * &c;
+        debug_assert_eq!(c.len(), self.length());
+        let he = self.parity_check_matrix() * c;
         let error = BinVector::from_bools(&map[&(he.as_u64() as usize)]);
-        debug_assert_eq!(error.len(), Self::length());
-        let result = c + error;
-        debug_assert_eq!(result.len(), Self::length());
+        debug_assert_eq!(error.len(), self.length());
+        let result = c + &error;
+        debug_assert_eq!(result.len(), self.length());
         result
     }
 
-    fn decode_to_message(&self, c: BinVector) -> BinVector {
+    fn decode_to_message(&self, c: &BinVector) -> BinVector {
         
         let codeword = self.decode_to_code(c);
         let mut new_codeword = BinVector::with_capacity(11);
@@ -141,15 +141,15 @@ mod tests {
     fn decode() {
         let code = HammingCode15_11;
 
-        let codeword = code.decode_to_message(BinVector::from_elem(15, true));
+        let codeword = code.decode_to_message(&BinVector::from_elem(15, true));
         assert_eq!(codeword, BinVector::from_elem(11, true));
 
         let mut vec = BinVector::from_elem(15, true);
         vec.set(0, false);
-        let codeword = code.decode_to_message(vec);
+        let codeword = code.decode_to_message(&vec);
         assert_eq!(codeword, BinVector::from_elem(11, true));
 
-        let vec = code.decode_to_code(BinVector::from_elem(15, false));
+        let vec = code.decode_to_code(&BinVector::from_elem(15, false));
         assert_eq!(vec, BinVector::from_elem(15, false));
     }
 
@@ -159,1535 +159,66 @@ mod tests {
 
         
         {
-            let m = BinVector::from_bools(&[true, true, false, false, true, true, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, false, true, true, true, true, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, false, true, false, false, true, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, true, false, false, true, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, false, false, true, false, false, true, true, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, false, true, false, false, true, false, false, false, true, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, true, true, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, false, true, false, false, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, true, true, true, false, false, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, true, false, false, true, true, true, false, false, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, true, true, true, true, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, true, false, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, true, true, true, false, false, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, false, true, false, true, false, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, true, false, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, true, false, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, true, false, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, true, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, false, true, false, false, true, true, false, true, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, false, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, true, true, true, false, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, true, false, true, false, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, false, false, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, true, true, false, true, true, false, true, false, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, false, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, false, false, false, true, false, false, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, true, false, false, true, false, true, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, false, false, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, false, false, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, true, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, true, false, false, true, false, true, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, false, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, false, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true, false, true, true, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, true, true, false, true, true, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, false, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, true, false, true, false, false, false, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, false, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, true, false, true, true, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, false, true, true, true, true, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, true, true, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, true, true, false, true, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, true, true, false, false, true, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, false, true, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, false, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, true, false, false, true, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, false, true, false, false, true, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, false, false, false, false, true, false, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, false, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, false, true, true, true, false, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, true, false, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, false, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, false, false, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, false, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, false, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, true, true, false, false, true, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, true, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, false, true, true, false, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, true, true, false, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, false, false, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, false, false, true, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, false, false, true, true, true, false, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, true, true, true, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, true, true, true, true, false, false, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, false, true, false, false, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, true, false, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, true, true, false, true, false, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, true, true, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, true, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, false, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, true, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, false, true, false, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, true, true, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, true, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, true, true, false, false, false, true, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, false, false, false, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, false, true, true, false, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, true, true, false, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, true, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, true, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, false, false, false, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, false, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, false, true, false, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, true, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, true, true, true, false, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, false, false, false, true, true, false, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, true, false, true, false, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, true, true, true, false, true, false, true, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, true, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, true, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, false, true, true, false, false, false, false, true, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, true, true, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, true, true, false, true, true, false, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, true, true, false, true, true, false, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, false, true, true, false, false, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, true, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, false, false, false, true, true, true, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, true, true, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, true, false, true, true, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, true, false, true, false, true, true, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, true, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, false, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, false, true, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, false, true, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, true, true, true, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, true, true, false, false, false, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, true, true, false, false, false, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, false, false, false, true, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, true, false, false, false, true, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, false, false, true, true, false, false, true, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, false, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, false, true, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, false, true, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, false, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, false, false, true, true, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, false, true, true, false, false, false, true, true, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, true, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, false, false, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, true, true, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, true, true, true, true, true, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, false, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, true, true, true, false, false, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, false, false, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, false, true, true, false, true, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, false, true, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, false, true, false, false, false, false, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, false, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, false, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, true, false, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, true, false, false, true, true, true, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, true, true, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, false, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, false, false, true, true, true, false, false, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, false, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, false, true, true, false, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, true, true, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, true, false, false, false, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, true, false, false, false, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, true, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, true, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, true, true, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, true, true, false, true, true, true, true, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, false, false, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, false, false, false, false, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, false, true, false, false, false, false, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, true, false, false, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, true, false, false, true, false, true, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, false, false, false, true, false, true, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, false, false, false, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, false, false, false, false, true, false, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, false, false, false, false, false, true, false, false, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, true, false, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, true, true, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, true, false, true, true, false, true, true, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, false, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, false, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, true, true, true, true, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, false, true, true, true, true, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, false, false, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, false, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, true, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, false, true, true, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, true, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, false, false, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, true, true, true, true, true, true, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, true, false, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, false, true, false, true, true, true, false, true, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, true, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, true, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, false, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, true, false, false, true, true, false, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, true, false, false, true, false, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, true, false, false, false, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, true, true, true, true, false, false, false, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, false, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, true, false, true, true, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, false, true, false, true, false, true, true, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, true, false, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, false, false, true, true, false, true, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, true, false, false, true, true, false, true, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, true, true, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, false, true, false, false, true, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, false, true, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, false, true, false, true, false, false, true, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, false, true, false, true, false, false, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, true, false, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, false, true, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, true, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, false, true, true, false, true, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, false, true, true, false, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, true, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, true, true, false, true, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, true, true, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, true, false, true, true, true, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, false, true, true, true, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, false, false, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, true, false, true, true, true, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, false, false, true, false, false, true, true, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, true, true, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, true, true, true, true, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, true, true, true, true, true, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, true, true, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, true, false, false, true, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, true, true, false, true, true, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, true, true, false, true, true, false, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, true, false, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, true, false, true, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, true, false, true, false, true, false, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, true, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, false, true, false, false, true, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, false, false, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, false, false, true, false, true, true, true, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, true, false, true, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, true, false, false, false, false, false, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, false, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, false, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, false, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, true, false, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, false, true, false, true, false, true, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, true, false, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, true, false, true, false, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, true, false, true, false, false, true, false, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, false, true, false, false, false, false, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, false, true, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, false, false, true, false, false, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, false, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, true, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, false, false, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, true, true, false, true, false, false, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, false, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, false, true, true, false, false, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, false, false, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, false, false, true, false, true, false, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, false, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, false, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, false, true, true, false, true, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, false, true, false, false, true, true, false, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, false, true, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, false, true, false, true, true, false, true, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, true, false, true, true, false, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, true, false, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, false, true, true, true, false, false, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, false, false, true, true, true, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true, false, false, true, true, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, false, true, false, false, true, true, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, false, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, false, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, true, true, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, true, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, true, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, true, true, true, true, false, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, true, true, true, true, false, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, true, false, false, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, false, true, false, true, true, false, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, false, true, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, false, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, true, false, true, true, true, false, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, true, true, false, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, false, true, false, true, false, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, true, false, true, false, true, false, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, false, false, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, false, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, true, false, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -1695,38 +226,298 @@ mod tests {
         {
             let m = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, true, false]);
             let encoded = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, true, true, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, true, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, true, false, false, true, true, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, false, true, true, true, false, false, true, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, false, false, true, false, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, true, false, true, false, false, true, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, true, true, true, false, false, true, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, false, true, false, true, true, false, true, true, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, false, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, false, true, true, true, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, true, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, false, false, false, true, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, false, true, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, false, true, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, true, false, false, false, false, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, true, false, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, true, true, false, true, true, true, false, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, false, false, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, false, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, true, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, true, true, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, false, true, true, false, false, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, false, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, true, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, true, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, false, false, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, false, false, false, false, false, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, true, true, false, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, false, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, true, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, false, false, false, true, false, true, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, false, true, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, true, false, false, true, false, false, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, true, false, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, true, true, false, false, true, false, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, true, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, true, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, false, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, false, true, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, false, false, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, false, true, false, false, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, true, true, false, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, true, true, false, true, true, false, true, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, true, true, true, false, true, true, false, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, true, false, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, true, false, true, false, false, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, true, false, false, false, false, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, true, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, true, true, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, true, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -1734,272 +525,25 @@ mod tests {
         {
             let m = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, false, true]);
             let encoded = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, false, true, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, false, false, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, false, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, true, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, false, false, false, false, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, true, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, false, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, true, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, true, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, true, true, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, true, true, false, true, true, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, true, true, true, true, false, false, true, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, false, true, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, false, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, true, true, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, false, true, true, false, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, false, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, true, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, false, false, false, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, false, false, false, true, false, true, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, true, false, true, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, false, true, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, false, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, false, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, true, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, true, false, false, false, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, true, false, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, true, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, false, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, false, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, true, true, false, true, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, false, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, true, true, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, true, true, false, true, true, false, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, true, true, true, true, false, true, true, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, false, false, true, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, true, false, true, false, false, true, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, false, false, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, false, false, false, false, false, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, false, false, true, false, false, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, false, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, false, false, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, false, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, false, false, true, true, true, true, false, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, true, false, false, false, false, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -2007,441 +551,25 @@ mod tests {
         {
             let m = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, false, false]);
             let encoded = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, false, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, false, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, false, false, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, true, true, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, false, true, false, false, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, true, true, true, true, true, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, true, true, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, false, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, false, false, true, false, true, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, true, false, true, false, true, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, false, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, false, false, true, true, false, true, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, true, false, false, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, true, true, false, true, false, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, true, true, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, true, false, true, true, true, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, false, true, false, true, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, true, true, true, true, true, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, true, true, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, false, true, true, false, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, true, true, false, false, true, true, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, false, true, true, false, false, true, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, false, true, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, false, true, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, false, false, true, true, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, true, true, true, false, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, false, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, false, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, false, true, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, true, false, false, false, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, false, false, false, true, true, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, true, true, false, false, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, true, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, false, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, true, false, true, false, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, false, false, true, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, true, false, true, true, false, false, true, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, true, true, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, true, true, true, false, false, true, true, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, true, true, false, true, true, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, true, true, true, false, true, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, true, false, true, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, false, true, true, true, true, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, true, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, true, true, true, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, true, true, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, true, false, false, true, true, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, false, true, true, false, true, true, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, true, false, false, true, true, true, true, true, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, true, false, true, true, true, false, true, false, false, false, false, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, false, true, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, false, true, false, true, true, true, false, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, true, true, true, false, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, false, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, true, false, false, true, true, false, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, false, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, false, false, false, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, false, true, true, false, true, false, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, true, true, false, true, true, true, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, false, false, true, false, false, true, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, false, true, true, false, true, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, false, true, true, false, true, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, true, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true, true, true, true, true, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, true, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, false, false, true, false, false, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, false, false, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, true, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[false, false, true, false, false, false, false, false, true, true, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
-            }
-            
-        }
-        
-        {
-            let m = BinVector::from_bools(&[true, true, false, false, false, false, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, false, true, true, false, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
-            
-            {
-                let errored = BinVector::from_bools(&[true, true, false, false, false, false, false, true, false, false, false, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, false, true, true, false, true, true, true, true, true, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -2449,129 +577,181 @@ mod tests {
         {
             let m = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, true, true]);
             let encoded = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, true, true, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, true, true, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, true, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, true, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, false, true, false, false, true, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, false, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, true, false, false, false, true, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, true, false, true, false, true, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, false, false, true, true, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, true, true, false, false, true, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, false, false, false, true, true, false, true, false, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, true, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, false, true, false, true, false, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, true, false, false, true, true, false, false, false, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, false, false, true, false, true, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, false, true, false, true, false, false, true, true, false, true, false, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, true, true, false, true, false, false, true, false, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, false, false, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, false, false, false, true, false, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, true, true, false, false, true, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, true, false, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, false, false, false, true, false, true, true, false, false, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, false, true, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, true, true, true, false, false, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, false, true, false, false, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, true, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, false, true, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, false, true, false, false, true, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, false, false, true, false, false, false, false, true, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, false, true, false, false, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, true, false, true, false, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, false, true, false, false, false, false, false, false, false, true, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, true, false, true, false, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, false, true, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, false, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, false, true, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, false, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, false, false, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, true, false, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, false, false, false, true, false, true, true, false, false, false, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, true, false, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, true, false, true, false, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, false, true, true, true, false, false, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, false, false, false, false, false, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, false, true, true, true, true, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, true, true, true, false, false, true, true, true, false, false, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, false, false, false, false, true, true, true, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, true, false, true, false, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, true, true, false, true, false, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, true, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, true, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, false, true, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, false, true, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, true, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, true, false, false, false, false, true, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, true, false, false, false, false, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -2579,103 +759,610 @@ mod tests {
         {
             let m = BinVector::from_bools(&[false, false, false, true, false, true, true, true, true, false, true]);
             let encoded = BinVector::from_bools(&[false, false, false, true, false, true, true, true, true, false, true, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, true, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, false, true, false, true, true, true, true, false, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, true, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, false, false, false, false, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, false, true, false, false, false, true, false, false, true, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, true, false, true, true, false, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, false, false, true, false, true, false, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, true, false, true, true, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, true, true, true, false, false, false, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, true, false, true, true, false, false, true, false, true, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, true, false, false, false, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, false, true, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, false, true, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, true, false, false, false, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, false, true, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, true, true, false, true, false, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, true, false, true, true, false, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, true, false, true, false, true, false, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, false, true, false, true, false, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, true, false, true, true, false, true, false, true, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, true, true, false, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, true, false, true, true, false, false, false, true, true, true, false, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, true, false, true, true, false, false, true, false, true, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, false, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, true, true, true, true, false, false, true, true, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, false, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, true, true, false, true, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, true, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, true, true, false, true, true, false, true, false, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, true, false, true, true, true, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, true, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, false, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, true, false, false, false, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, true, false, true, false, false, false, false, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, true, false, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, true, true, false, true, true, false, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, true, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, true, true, false, true, false, false, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, true, true, true, false, true, false, false, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, true, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, true, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, true, true, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, true, true, false, true, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, true, true, false, true, false, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, false, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, false, false, false, true, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, false, false, false, true, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, true, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, true, true, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, false, false, false, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, false, true, false, true, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, true, false, true, true, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, true, false, false, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, false, true, true, false, false, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, false, false, false, true, false, false, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, false, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, false, false, true, true, true, false, false, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, true, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, true, true, true, true, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, true, true, true, true, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, true, true, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, true, true, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, true, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, false, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, false, true, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, true, false, false, false, false, false, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, true, false, true, false, false, false, false, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, true, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, false, false, true, true, false, true, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, true, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, true, false, false, true, true, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, true, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, false, true, false, false, true, false, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, false, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, false, true, true, true, true, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, true, true, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, true, false, false, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, true, false, false, true, false, false, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, true, false, false, true, false, false, false, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, true, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, true, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, true, false, true, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, false, true, true, false, true, true, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, true, false, false, true, false, true, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, false, true, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, false, false, true, true, false, false, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, false, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, false, true, true, false, false, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, false, false, true, true, false, false, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, true, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, true, true, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, true, false, false, true, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, true, true, false, false, true, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, false, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, false, true, true, true, false, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, false, true, true, true, false, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, true, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, false, true, false, false, false, true, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, false, true, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, false, true, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, true, true, true, false, true, false, true, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, false, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, false, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, true, false, false, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, true, false, false, true, true, true, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, true, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, true, false, false, false, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, false, false, true, false, false, false, false, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, false, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, false, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, true, true, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, true, true, false, false, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, true, true, true, true, false, false, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, false, true, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -2683,51 +1370,571 @@ mod tests {
         {
             let m = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, true, false]);
             let encoded = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, true, false, false, false, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, true, true, true, true, false, true, true, false, true, false, false, false, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, true, false, true, false, true, true, true, true, false, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, true, true, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, true, false, true, true, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, true, true, true, true, false, true, true, true, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[true, false, true, true, false, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, false, true, true, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, false, false, false, false, false, true, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, false, false, true, true, false, true, true, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[true, false, true, false, false, true, true, false, true, false, false, false, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, false, false, false, true, true, false, true, true, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, false, false, true, true, true, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, false, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, false, false, true, true, true, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, true, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, true, true, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, false, false, true, false, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, true, false, false, true, false, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, false, false, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, false, false, true, false, true, false, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, false, false, true, false, true, false, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, false, false, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, true, true, true, true, true, false, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, true, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, true, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, true, true, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, false, false, false, true, false, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, true, true, false, false, false, true, true, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, true, true, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, true, true, true, true, false, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, true, true, false, true, true, true, false, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, false, true, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, false, true, true, true, true, false, false, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, false, false, true, true, true, false, false, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, false, true, false, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, false, true, false, true, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, false, true, false, true, false, true, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, false, true, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, false, true, true, true, false, false, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, false, true, false, true, false, false, true, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, true, true, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, true, true, false, false, false, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, true, false, true, true, false, false, false, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, false, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, false, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, false, false, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, true, true, true, true, false, false, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, false, true, false, false, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, true, false, true, false, false, false, false, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, false, false, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, false, false, false, true, true, false, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, false, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, false, true, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, false, true, true, true, true, true, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, false, true, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, true, false, true, false, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, false, true, true, false, true, true, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, false, true, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, false, true, false, false, false, false, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, false, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, false, false, false, false, true, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, false, false, false, true, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, true, true, true, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, true, true, true, true, false, true, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, true, true, true, false, true, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, true, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, false, false, true, false, false, true, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, false, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, true, false, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, true, true, false, false, false, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, false, false, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, true, false, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, false, true, false, false, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, true, false, true, false, true, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, true, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, true, true, false, false, true, true, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, true, true, false, false, true, true, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, true, false, false, true, true, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, false, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, false, false, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, false, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, false, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, false, false, false, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, false, false, false, false, true, true, false, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, false, false, false, false, true, true, false, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, true, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, true, false, false, false, true, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, false, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, true, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, true, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, true, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, true, false, false, false, false, true, true, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, true, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, false, false, true, false, true, true, false, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, true, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, true, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, false, true, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, false, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, false, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, false, true, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, false, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, false, true, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, true, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, false, true, true, false, false, false, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, true, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, false, false, false, false, true, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, true, false, false, false, false, true, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, false, false, false, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, false, false, true, true, true, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, false, true, false, false, true, true, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, false, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, false, false, false, false, true, false, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
@@ -2735,25 +1942,818 @@ mod tests {
         {
             let m = BinVector::from_bools(&[false, false, false, true, false, true, true, false, false, false, true]);
             let encoded = BinVector::from_bools(&[false, false, false, true, false, true, true, false, false, false, true, true, true, false, true]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, true, true, true, true, false, false, false, true, true, true, false, true]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
         
         {
-            let m = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, false, false, true, false, true, false]);
-            assert_eq!(code.encode(m.clone()), encoded);
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, true, false, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
             
             {
-                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, false, false, true, false, true, false]);
-                assert_eq!(m.clone(), code.decode_to_message(errored.clone()), "decode to msg failed");
-                assert_eq!(encoded.clone(), code.decode_to_code(errored), "decode to code failed");
+                let errored = BinVector::from_bools(&[false, true, false, true, false, false, true, true, true, true, false, false, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, true, true, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, true, false, false, true, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, true, true, true, false, false, true, true, false, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, false, true, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, true, false, true, true, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, false, true, false, true, true, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, false, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, false, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, false, false, false, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, false, false, false, true, false, true, true, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, false, false, false, true, false, true, true, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, false, true, false, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, false, true, true, true, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, true, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, true, true, false, true, true, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, true, false, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, false, false, false, true, false, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, true, false, false, false, false, true, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, false, true, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, false, true, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, true, true, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, true, true, false, false, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, true, true, true, true, false, false, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, true, true, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, true, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, true, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, true, true, false, true, false, true, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, false, false, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, false, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, false, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, false, true, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, false, true, true, false, false, false, true, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, false, true, true, false, false, false, true, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, true, true, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, true, false, true, true, true, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, true, true, true, false, true, true, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, true, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, false, false, true, false, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, false, false, false, true, false, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, true, false, false, true, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, false, true, false, true, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, false, true, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, false, true, true, false, false, true, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, false, false, true, false, false, true, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, false, true, false, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, false, true, false, true, true, false, false, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, false, false, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, true, true, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, true, true, false, true, true, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, true, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, false, true, false, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, true, false, true, false, false, false, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, false, true, false, true, false, false, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, true, false, true, false, false, false, false, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, true, true, true, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, true, true, true, false, true, false, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, true, true, true, false, true, false, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, false, false, true, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, false, false, true, true, false, false, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, false, false, true, true, true, false, false, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, false, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, false, false, true, false, false, false, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, false, true, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, false, true, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, true, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, true, true, false, false, false, false, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, true, true, true, false, false, false, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, true, false, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, true, false, true, true, true, true, true, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, true, false, true, false, true, true, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, true, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, true, true, false, false, true, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, false, false, true, true, false, false, true, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, true, true, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, true, true, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, false, true, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, true, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, true, false, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, true, true, true, true, true, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, true, false, true, true, true, false, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, true, false, true, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, true, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, false, true, false, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, false, false, true, false, true, false, true, false, true, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, true, false, true, false, true, false, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, true, true, false, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, false, false, true, false, true, false, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, true, true, false, true, true, false, true, false, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, true, true, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, true, true, true, false, false, true, true, true, true, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, true, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, true, false, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, false, false, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, false, false, false, false, false, false, true, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, true, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, true, false, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, false, true, true, true, false, false, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, false, true, false, true, true, true, false, false, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, true, false, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, false, true, true, true, true, false, true, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, true, false, true, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, true, true, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, true, false, true, false, true, false, false, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, true, true, false, true, false, true, false, false, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, true, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, true, false, false, false, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, true, false, false, true, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, true, true, false, false, true, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false, true, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, true, false, false, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, true, false, false, true, true, true, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, true, false, false, true, false, false, false, true, true, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, false, false, true, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, true, false, true, true, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, false, false, true, false, true, true, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, false, false, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, false, false, true, true, true, false, true, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, true, false, true, false, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, false, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, true, false, true, false, true, true, true, false, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, false, true, true, true, false, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, true, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, true, true, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, true, false, false, false, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, true, false, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, true, false, true, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, false, true, true, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, false, true, true, false, false, false, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, true, false, false, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, true, false, false, true, false, false, false, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, false, false, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, false, true, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, false, true, false, false, false, true, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, true, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, true, false, false, false, false, true, false, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, false, true, false, true, false, true, false, false, false, false, true, false, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, false, false, false, false, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, false, true, false, false, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, true, true, false, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, false, false, false, true, false, false, true, true, true, false]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, true, false, false, false, false, true, false, false, true, true, true, false]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, true, false, false, true, false, true, false, true, true, false]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, true, false, true, false, true, true, false, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, true, true, false, true, false, true, false, true, true, false, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[false, true, false, true, false, true, true, true, true, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, false, true, true, true, true, true, false, false, true, true, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[false, true, false, true, false, true, true, true, true, false, false, false, true, true, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
+            }
+            
+        }
+        
+        {
+            let m = BinVector::from_bools(&[true, false, false, false, false, true, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, false, false, true, true, false, true, false, true, false, true, false, true]);
+            assert_eq!(code.encode(&m), encoded);
+            
+            {
+                let errored = BinVector::from_bools(&[true, false, false, false, false, true, false, false, true, false, true, false, true, false, true]);
+                assert_eq!(&m, &code.decode_to_message(&errored), "decode to msg failed");
+                assert_eq!(encoded, code.decode_to_code(&errored), "decode to code failed");
             }
             
         }
