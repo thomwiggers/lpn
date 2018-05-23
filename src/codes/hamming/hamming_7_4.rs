@@ -79,7 +79,7 @@ impl BinaryCode<'static> for HammingCode7_4 {
         let map = unsafe {
             SYNDROME_MAP.as_ref().unwrap()
         };
-        debug_assert_eq!(c.len(), self.length());
+        debug_assert_eq!(c.len(), self.length(), "input length != code length");
         let he = self.parity_check_matrix() * c;
         let error = BinVector::from_bools(&map[&(he.as_u64() as usize)]);
         debug_assert_eq!(error.len(), self.length());

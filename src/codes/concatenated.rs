@@ -5,14 +5,22 @@ use std::cell::UnsafeCell;
 use std::ptr;
 use std::sync::Mutex;
 
-pub struct ConcatenatedCode<T> {
-    codes: Vec<Box<T>>,
+
+/// 'Concatenated' Linear Codes
+///
+/// This struct allows to construct a Linear code from the direct sum
+/// of smaller codes.
+///
+/// It will construct the generator matrix lazily and use the encode and
+/// decode mechanism of the 'child' codes.
+pub struct ConcatenatedCode<'a, 'c: 'a> {
+    codes: Vec<&'a BinaryCode<'c>>,
     init: Mutex<bool>,
     generator: UnsafeCell<*mut BinMatrix>,
 }
 
-impl<'a, T> ConcatenatedCode<T> {
-    pub fn new(codes: Vec<Box<T>>) -> ConcatenatedCode<T> {
+impl<'codes, 'code> ConcatenatedCode<'codes, 'code> {
+    pub fn new(codes: Vec<&'codes BinaryCode<'code>>) -> ConcatenatedCode<'codes, 'code> {
         ConcatenatedCode {
             codes,
             init: Mutex::new(false),
@@ -21,7 +29,7 @@ impl<'a, T> ConcatenatedCode<T> {
     }
 }
 
-impl<'a, T: BinaryCode<'a>> BinaryCode<'a> for ConcatenatedCode<T> {
+impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }
@@ -30,7 +38,7 @@ impl<'a, T: BinaryCode<'a>> BinaryCode<'a> for ConcatenatedCode<T> {
         self.codes.iter().fold(0usize, |a, c| a + c.dimension())
     }
 
-    fn generator_matrix(&self) -> &'a BinMatrix {
+    fn generator_matrix(&self) -> &'codes BinMatrix {
         debug_assert_ne!(
             self.codes.len(),
             0,
@@ -42,8 +50,10 @@ impl<'a, T: BinaryCode<'a>> BinaryCode<'a> for ConcatenatedCode<T> {
             if !initialized {
                 let mut gen = Box::new(self.codes[0].generator_matrix().clone());
                 for code in self.codes.iter().skip(1) {
-                    gen = Box::new(gen.augmented(&BinMatrix::zero(gen.ncols(), code.length())));
+                    let corner = (gen.nrows(), gen.ncols());
+                    gen = Box::new(gen.augmented(&BinMatrix::zero(gen.nrows(), code.length())));
                     gen = Box::new(gen.stacked(&BinMatrix::zero(code.dimension(), gen.ncols())));
+                    gen.set_window(corner.0, corner.1, code.generator_matrix());
                 }
                 unsafe {
                     *(self.generator.get()) = Box::into_raw(gen);
@@ -53,17 +63,31 @@ impl<'a, T: BinaryCode<'a>> BinaryCode<'a> for ConcatenatedCode<T> {
         unsafe { (*(self.generator.get())).as_ref().unwrap() }
     }
 
-    fn parity_check_matrix(&self) -> &'a BinMatrix {
+    fn parity_check_matrix(&self) -> &'static BinMatrix {
         panic!("Not yet implemented");
+    }
+
+    fn encode(&self, c: &BinVector) -> BinVector {
+        let mut encoded = BinVector::with_capacity(self.dimension());
+        let mut slice = c.clone();
+        for code in self.codes.iter() {
+            let next_encode = BinVector::from(slice.split_off(code.dimension()));
+            debug_assert_eq!(slice.len(), code.dimension(), "split dimension incorrect");
+            encoded.extend(code.encode(&slice).iter());
+            slice = next_encode;
+        }
+        encoded
     }
 
     fn decode_to_message(&self, c: &BinVector) -> BinVector {
         let mut decoded = BinVector::with_capacity(self.dimension());
-        let mut to_decode = c.clone();
+        let mut slice = c.clone();
         for code in self.codes.iter() {
-            let slice = to_decode.split_off(code.length());
-            let decoded_slice = code.decode_to_message(&BinVector::from(slice));
+            let next_decode = BinVector::from(slice.split_off(code.length()));
+            debug_assert_eq!(slice.len(), code.length(), "Split length incorrect");
+            let decoded_slice = code.decode_to_message(&slice);
             decoded.extend(decoded_slice.iter());
+            slice = next_decode;
         }
         decoded
     }
@@ -76,8 +100,30 @@ mod tests {
     use codes::hamming::*;
     use m4ri_rust::friendly::BinVector;
 
-    fn get_code() -> ConcatenatedCode<BinaryCode<'static>> {
-        ConcatenatedCode::new(vec![Box::new(HammingCode7_4), Box::new(HammingCode3_1)])
+    static HAMMING_7_4: HammingCode7_4 = HammingCode7_4;
+    static HAMMING_3_1: HammingCode3_1 = HammingCode3_1;
+
+    fn get_code() -> ConcatenatedCode<'static, 'static> {
+        let codes: Vec<&BinaryCode<'static>> = vec![&HAMMING_7_4, &HAMMING_3_1];
+        ConcatenatedCode::new(codes)
     }
 
+    #[test]
+    fn test_concatenated_code() {
+        let code = get_code();
+
+        assert_eq!(code.length(), 7+3, "Length wrong");
+        assert_eq!(code.dimension(), 4+1, "Dimension wrong");
+
+        let mut input = BinVector::from_bytes(&[0b10101000]);
+        input.truncate(5);
+        assert_eq!(input, BinVector::from_bools(&[true, false, true, false, true]));
+
+        let mut encoded = BinVector::from_bytes(&[0b10101011, 0b11000000]);
+        encoded.truncate(10);
+        assert_eq!(*encoded, *code.encode(&input), "encode(input) doesn't match encoded");
+
+        // idempotent
+        assert_eq!(input, code.decode_to_message(&code.encode(&input)), "not idempotent");
+    }
 }

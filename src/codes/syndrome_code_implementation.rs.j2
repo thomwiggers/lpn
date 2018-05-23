@@ -67,12 +67,12 @@ impl BinaryCode<'static> for {{ name }}Code{{n}}_{{k}} {
         let map = unsafe {
             SYNDROME_MAP.as_ref().unwrap()
         };
-        debug_assert_eq!(c.len(), self.length());
+        debug_assert_eq!(c.len(), self.length(), "the length doesn't match the expected length (length of the code)");
         let he = self.parity_check_matrix() * c;
         let error = BinVector::from_bools(&map[&(he.as_u64() as usize)]);
-        debug_assert_eq!(error.len(), self.length());
+        debug_assert_eq!(error.len(), self.length(), "internal: the error vector is of the wrong length");
         let result = c + &error;
-        debug_assert_eq!(result.len(), self.length());
+        debug_assert_eq!(result.len(), self.length(), "internal: the result vector is of the wrong length");
         result
     }
 
