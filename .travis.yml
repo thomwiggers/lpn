@@ -10,6 +10,6 @@ before_script:
 script:
   - "[ '$TRAVIS_RUST_VERSION' != 'nightly' ] || cargo fmt --all -- --write-mode diff"
   - cargo build --all
-  - cargo test --all
+  - cargo test --all -- --test-threads 1
 
 cache: cargo
