@@ -24,7 +24,12 @@ pub trait BinaryCode<'a> {
 
     /// Encode a codeword
     fn encode(&self, c: &BinVector) -> BinVector {
-        debug_assert_eq!(c.len(), self.dimension(), "Vector to encode should be of length {}", self.dimension());
+        debug_assert_eq!(
+            c.len(),
+            self.dimension(),
+            "Vector to encode should be of length {}",
+            self.dimension()
+        );
         let result = &c.as_matrix() * self.generator_matrix();
         let result = result.as_vector();
         debug_assert_eq!(

@@ -12,6 +12,7 @@ pub fn reduce_covering_codes<'a, T: BinaryCode<'a>>(mut oracle: LpnOracle, code:
     for mut query in &mut oracle.queries {
         (*query).a = code.decode_to_message(&query.a);
     }
+    println!("Note that we decoded the secret!");
     oracle.secret.truncate(oracle.k as usize);
     oracle.k = code.dimension() as u32;
     oracle.secret = code.decode_to_message(&oracle.secret);

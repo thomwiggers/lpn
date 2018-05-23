@@ -5,7 +5,6 @@ use std::cell::UnsafeCell;
 use std::ptr;
 use std::sync::Mutex;
 
-
 /// 'Concatenated' Linear Codes
 ///
 /// This struct allows to construct a Linear code from the direct sum
@@ -112,18 +111,29 @@ mod tests {
     fn test_concatenated_code() {
         let code = get_code();
 
-        assert_eq!(code.length(), 7+3, "Length wrong");
-        assert_eq!(code.dimension(), 4+1, "Dimension wrong");
+        assert_eq!(code.length(), 7 + 3, "Length wrong");
+        assert_eq!(code.dimension(), 4 + 1, "Dimension wrong");
 
         let mut input = BinVector::from_bytes(&[0b10101000]);
         input.truncate(5);
-        assert_eq!(input, BinVector::from_bools(&[true, false, true, false, true]));
+        assert_eq!(
+            input,
+            BinVector::from_bools(&[true, false, true, false, true])
+        );
 
         let mut encoded = BinVector::from_bytes(&[0b10101011, 0b11000000]);
         encoded.truncate(10);
-        assert_eq!(*encoded, *code.encode(&input), "encode(input) doesn't match encoded");
+        assert_eq!(
+            *encoded,
+            *code.encode(&input),
+            "encode(input) doesn't match encoded"
+        );
 
         // idempotent
-        assert_eq!(input, code.decode_to_message(&code.encode(&input)), "not idempotent");
+        assert_eq!(
+            input,
+            code.decode_to_message(&code.encode(&input)),
+            "not idempotent"
+        );
     }
 }

@@ -3,6 +3,15 @@ use m4ri_rust::friendly::BinVector;
 use oracle::LpnOracle;
 use std::mem;
 
+fn usize_to_binvec(c: usize, size: usize) -> BinVector {
+    let bytes = unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(c.to_be()) };
+    let skip = (64 - size) / 8;
+    let mut binvec = BinVector::from_bytes(&bytes[skip..]);
+    let result = BinVector::from(binvec.split_off(((8 - skip) * 8) - size));
+    debug_assert_eq!(result.len(), size);
+    result
+}
+
 pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     // get the (a, c) samples as matrix A and vector c
     let mut c = BinVector::new();
@@ -24,10 +33,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
 
     let computation = |candidate: usize| {
         // A u32 is 4 u8s.
-        let candidate_bytes =
-            unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(candidate.to_le()) };
-        let mut candidate_vector = BinVector::from_bytes(&candidate_bytes);
-        candidate_vector.truncate(b as usize);
+        let candidate_vector = usize_to_binvec(candidate, b);
 
         let mut matrix_vector_product: BinVector = &a_matrix * &candidate_vector;
         matrix_vector_product += &c;
@@ -36,22 +42,50 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     };
 
     // first result for v = 0
-    let mut best_candidate = 0;
+    let mut best_candidates: Vec<usize> = vec![0];
     let mut best_vec_weight = computation(0);
     println!("Doing LF1 naively");
-    for candidate in 1..2usize.pow(b as u32) {
+    for candidate in 1..(2usize.pow(b as u32)) {
         let candidate_weight = computation(candidate);
         if candidate_weight > best_vec_weight {
             best_vec_weight = candidate_weight;
-            best_candidate = candidate;
+            best_candidates.truncate(0);
+            best_candidates.push(candidate);
+        } else if candidate_weight == best_vec_weight {
+            best_candidates.push(candidate);
         }
     }
 
-    let candidate_bytes;
-    unsafe {
-        candidate_bytes = mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(best_candidate);
+    if best_candidates.len() > 1 {
+        println!("* Debug: we also had these candidates: ");
+        for candidate in &best_candidates {
+            println!("\t{:?}", candidate);
+        }
     }
-    let mut candidate_vector = BinVector::from_bytes(&candidate_bytes);
-    candidate_vector.truncate(b as usize);
+
+    println!("Best candidate weight: {}", best_vec_weight);
+    let best_candidate = best_candidates.pop().unwrap();
+    let candidate_vector = usize_to_binvec(best_candidate, b);
     candidate_vector
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn transmute_usize_to_u8s() {
+        assert_eq!(
+            usize_to_binvec(2, 4),
+            BinVector::from_bools(&[false, false, true, false])
+        );
+
+        let a = 0x00_00_00_00__00_00_00_01usize;
+        let binvec = usize_to_binvec(a, 50);
+        for i in 0..49 {
+            assert_eq!(binvec.get(i), Some(false), "bit {} isn't 0", i);
+        }
+        assert_eq!(binvec.get(49), Some(true));
+    }
+
 }
