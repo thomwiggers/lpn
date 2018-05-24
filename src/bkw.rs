@@ -60,7 +60,7 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
 pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
     println!("BKW Solver");
     let b = oracle.queries[0].a.len();
-    debug_assert!(b < 20, "Don't run BKW on too large b!");
+    debug_assert!(b <= 20, "Don't run BKW on too large b!");
     println!(
         "Selecting all queries with hw=1 from {} queries",
         oracle.queries.len()
@@ -95,7 +95,7 @@ pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
     let mut result = BinVector::with_capacity(b as usize);
     let mut i = 1 << (b - 1);
     while i > 0 {
-        let count = counts.get(&i).unwrap();
+        let count = counts.get(&i).expect("this bucket can't be empty!");
         if let Some(sum) = sums.get(&i) {
             result.push(*count < 2 * sum);
         } else {

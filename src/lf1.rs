@@ -21,7 +21,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     sample_matrix.reserve_exact(oracle.queries.len());
     c.reserve(oracle.queries.len());
     let b = oracle.queries[0].a.len();
-    assert!(b < 20, "Don't use too large b!");
+    assert!(b < 21, "Don't use too large b! b = {}", b);
     assert!(b > 0, "Wtf, b = 0?");
 
     for query in oracle.queries {
@@ -35,6 +35,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         // A u32 is 4 u8s.
         let candidate_vector = usize_to_binvec(candidate, b);
 
+        // FIXME pretty sure this can be done faster.
         let mut matrix_vector_product: BinVector = &a_matrix * &candidate_vector;
         matrix_vector_product += &c;
         let hw = matrix_vector_product.count_ones();
@@ -45,7 +46,11 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     let mut best_candidates: Vec<usize> = vec![0];
     let mut best_vec_weight = computation(0);
     println!("Doing LF1 naively");
-    for candidate in 1..(2usize.pow(b as u32)) {
+    let max = 2usize.pow(b as u32);
+    for candidate in 1..max {
+        if candidate % 1000 == 0 {
+            println!("Processed {}/{} candidates", candidate, max);
+        }
         let candidate_weight = computation(candidate);
         if candidate_weight > best_vec_weight {
             best_vec_weight = candidate_weight;

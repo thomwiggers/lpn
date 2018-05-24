@@ -46,3 +46,6 @@ pub use self::hamming::*;
 
 mod concatenated;
 pub use self::concatenated::*;
+
+mod stgen;
+pub use self::stgen::*;

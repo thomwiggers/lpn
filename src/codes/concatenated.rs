@@ -99,11 +99,8 @@ mod tests {
     use codes::hamming::*;
     use m4ri_rust::friendly::BinVector;
 
-    static HAMMING_7_4: HammingCode7_4 = HammingCode7_4;
-    static HAMMING_3_1: HammingCode3_1 = HammingCode3_1;
-
     fn get_code() -> ConcatenatedCode<'static, 'static> {
-        let codes: Vec<&BinaryCode<'static>> = vec![&HAMMING_7_4, &HAMMING_3_1];
+        let codes: Vec<&BinaryCode<'static>> = vec![&HammingCode7_4, &HammingCode3_1];
         ConcatenatedCode::new(codes)
     }
 
