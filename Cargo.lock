@@ -53,11 +53,11 @@ dependencies = [
 [[package]]
 name = "m4ri-rust"
 version = "0.0.10"
-source = "git+https://github.com/thomwiggers/m4ri-rust.git#bd0a69aa991bb9222a01197891f6fb88ef23884c"
+source = "git+https://github.com/thomwiggers/m4ri-rust.git#2746f92b0ed86fc3071e4fe50fa086fb8dff4975"
 dependencies = [
  "libc 0.2.41 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "vob 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vob 1.2.0 (git+https://github.com/thomwiggers/vob.git?branch=storage_mut)",
 ]
 
 [[package]]
@@ -78,7 +78,7 @@ dependencies = [
 [[package]]
 name = "vob"
 version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/thomwiggers/vob.git?branch=storage_mut#405c759fe3495078c85ee15464c35b1bc11d60ed"
 dependencies = [
  "num-traits 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -113,7 +113,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum m4ri-rust 0.0.10 (git+https://github.com/thomwiggers/m4ri-rust.git)" = "<none>"
 "checksum num-traits 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)" = "775393e285254d2f5004596d69bb8bc1149754570dcc08cf30cabeba67955e28"
 "checksum rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "eba5f8cb59cc50ed56be8880a5c7b496bfd9bd26394e176bc67884094145c2c5"
-"checksum vob 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "13c70c9208745316d1c8c534f94f75d0a02577b8cddded471682541d5a87d6ec"
+"checksum vob 1.2.0 (git+https://github.com/thomwiggers/vob.git?branch=storage_mut)" = "<none>"
 "checksum winapi 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)" = "04e3bd221fcbe8a271359c04f21a76db7d0c6028862d1bb5512d85e1e2eb5bb3"
 "checksum winapi-i686-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
 "checksum winapi-x86_64-pc-windows-gnu 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"

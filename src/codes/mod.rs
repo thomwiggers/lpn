@@ -30,8 +30,7 @@ pub trait BinaryCode<'a> {
             "Vector to encode should be of length {}",
             self.dimension()
         );
-        let result = &c.as_matrix() * self.generator_matrix();
-        let result = result.as_vector();
+        let result = c * self.generator_matrix();
         debug_assert_eq!(
             result.len(),
             self.length(),
