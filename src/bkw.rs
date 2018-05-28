@@ -1,4 +1,5 @@
 use fnv::FnvHashMap;
+use rayon::prelude::*;
 use m4ri_rust::friendly::BinVector;
 use oracle::query_bits_range;
 use oracle::LpnOracle;
@@ -31,15 +32,14 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
             vector_partitions[idx].push(q);
         }
 
-        // FIXME integrate this into the sorting out loop.
-        for mut partition in vector_partitions.iter_mut() {
+        vector_partitions.par_iter_mut().for_each(|partition| {
             if let Some(first) = partition.pop() {
                 for mut v in partition.iter_mut() {
                     v.a += &first.a;
                     v.s ^= first.s;
                 }
             }
-        }
+        });
 
         oracle.queries = Vec::with_capacity(num_queries - maxj);
         for partition in vector_partitions {

@@ -35,7 +35,6 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         // A u32 is 4 u8s.
         let candidate_vector = usize_to_binvec(candidate, b);
 
-        // FIXME pretty sure this can be done faster.
         let mut matrix_vector_product: BinVector = &a_matrix * &candidate_vector;
         matrix_vector_product += &c;
         let hw = matrix_vector_product.count_ones();
