@@ -24,6 +24,8 @@ pub struct StGenCode<'a, 'c: 'a> {
     wb: u32,
 }
 
+unsafe impl<'a, 'b> Sync for StGenCode<'a, 'b> {}
+
 impl<'codes, 'code> StGenCode<'codes, 'code> {
     /// Construct a new stgencode
     pub fn new(
@@ -161,7 +163,6 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
             let small_code = self.codes[i];
             let ki = small_code.dimension();
             let ni = small_code.length() - ki;
-            println!("Decoding code {}, ki={}, ni={}", i, ki, ni);
             n_sum += ni;
             k_sum += ki;
             let mut b = BinVector::with_capacity(ki + ni);
@@ -173,7 +174,7 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                 "internal: the segment of C we took is not of size ki={}",
                 ki
             );
-            b.extend(lower.iter());
+            b.extend_from_binvec(&lower);
             let mut c_upper = BinVector::with_capacity(ni);
             for i in 0..ni {
                 c_upper.push(orig_c[k + (n_sum - ni) + i]);
@@ -190,9 +191,9 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                     );
                     let product = &xp * block_noise;
                     debug_assert_eq!(product.len(), ni, "internal: product length wrong");
-                    b.extend((&product + &c_upper).iter());
+                    b.extend_from_binvec(&(&product + &c_upper));
                 } else {
-                    b.extend(c_upper.iter());
+                    b.extend_from_binvec(&c_upper);
                 }
 
                 // allow this many possible errors
@@ -212,13 +213,13 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                     //}
                     let (e_prime_lo, e_prime_hi) = split_binvec(e_prime, ki);
                     let mut e_new = BinVector::with_capacity(k_sum + n_sum);
-                    e_new.extend(ep_lo.iter());
-                    e_new.extend(e_prime_lo.iter());
-                    e_new.extend(ep_hi.iter());
-                    e_new.extend(e_prime_hi.iter());
+                    e_new.extend_from_binvec(&ep_lo);
+                    e_new.extend_from_binvec(&e_prime_lo);
+                    e_new.extend_from_binvec(&ep_hi);
+                    e_new.extend_from_binvec(&e_prime_hi);
 
                     let mut x_new = xp.clone();
-                    x_new.extend(x_prime.iter());
+                    x_new.extend_from_binvec(&x_prime);
 
                     l_next.push((x_new, e_new));
                 }

@@ -7,10 +7,12 @@ authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 rand = "^0.4.2"
 fnv = "^1.0.6"
 itertools = "^0.7.8"
+rayon = "1.0.1"
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
 #features = ["system_alloc"]
 
 [profile.release]
+opt-level = 3
 lto = true

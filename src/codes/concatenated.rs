@@ -72,7 +72,7 @@ impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
         for code in self.codes.iter() {
             let next_encode = BinVector::from(slice.split_off(code.dimension()));
             debug_assert_eq!(slice.len(), code.dimension(), "split dimension incorrect");
-            encoded.extend(code.encode(&slice).iter());
+            encoded.extend_from_binvec(&code.encode(&slice));
             slice = next_encode;
         }
         encoded
@@ -85,7 +85,7 @@ impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
             let next_decode = BinVector::from(slice.split_off(code.length()));
             debug_assert_eq!(slice.len(), code.length(), "Split length incorrect");
             let decoded_slice = code.decode_to_message(&slice);
-            decoded.extend(decoded_slice.iter());
+            decoded.extend_from_binvec(&decoded_slice);
             slice = next_decode;
         }
         decoded

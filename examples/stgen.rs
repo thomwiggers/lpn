@@ -1,11 +1,11 @@
-#![feature(test)]
 extern crate lpn;
 extern crate m4ri_rust;
-extern crate test;
+extern crate rayon;
+
+use rayon::prelude::*;
 
 use lpn::codes::*;
 use m4ri_rust::friendly::*;
-use test::Bencher;
 
 fn get_code() -> StGenCode<'static, 'static> {
     let codes: Vec<&BinaryCode<'static>> = vec![
@@ -13,25 +13,21 @@ fn get_code() -> StGenCode<'static, 'static> {
         &HammingCode3_1,
         &HammingCode15_11,
         &HammingCode7_4,
+        &HammingCode3_1,
+        &HammingCode3_1,
+        &HammingCode7_4,
+        &HammingCode7_4,
     ];
-    StGenCode::new(codes, 5, 100, 4)
+    StGenCode::new(codes, 3, 100, 2)
 }
 
-#[bench]
-fn stgen_encode(b: &mut Bencher) {
+fn main() {
     let code = get_code();
 
-    let i = BinVector::random(code.dimension());
-
-    b.iter(|| code.encode(&i));
-}
-
-#[bench]
-fn decode(b: &mut Bencher) {
-    let code = get_code();
-
-    b.iter(|| {
+    //(0..100).into_par_iter().for_each(|_| {
+    for _ in 0..100 {
         let i = BinVector::random(code.length());
-        code.decode_to_message(&i)
-    });
+        code.decode_to_message(&i);
+    }
+    //});
 }
