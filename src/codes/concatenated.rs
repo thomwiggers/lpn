@@ -18,6 +18,8 @@ pub struct ConcatenatedCode<'a, 'c: 'a> {
     generator: UnsafeCell<*mut BinMatrix>,
 }
 
+unsafe impl<'a, 'b> Sync for ConcatenatedCode<'a, 'b> {}
+
 impl<'codes, 'code> ConcatenatedCode<'codes, 'code> {
     pub fn new(codes: Vec<&'codes BinaryCode<'code>>) -> ConcatenatedCode<'codes, 'code> {
         ConcatenatedCode {

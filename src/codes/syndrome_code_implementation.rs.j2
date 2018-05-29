@@ -121,10 +121,10 @@ mod tests {
 
     #[test]
     fn encode_decode_tests() {
-        let code = {{ name}}Code{{n}}_{{ k }};
 
         {% for testcase in testcases %}
         {
+            let code = {{ name}}Code{{n}}_{{ k }};
             let m = BinVector::from_bools(&[{{ testcase.m|boollist }}]);
             let encoded = BinVector::from_bools(&[{{ testcase.encoded|boollist }}]);
             assert_eq!(code.encode(&m), encoded);

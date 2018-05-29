@@ -158,6 +158,9 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
         // next round and final result
         let mut l_next = Vec::with_capacity(2usize.pow(self.wb as u32));
         let mut wi = min(self.w0, self.codes[0].length() as u32);
+        let mut b = BinVector::with_capacity(self.length());
+        let mut c_upper = BinVector::with_capacity(self.length() - self.dimension());
+
         for i in 0..self.codes.len() {
             // set helpful vars
             let small_code = self.codes[i];
@@ -165,23 +168,27 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
             let ni = small_code.length() - ki;
             n_sum += ni;
             k_sum += ki;
-            let mut b = BinVector::with_capacity(ki + ni);
             let (lower, c_) = split_binvec(c, ki);
             c = c_;
             debug_assert_eq!(
                 lower.len(),
                 ki,
-                "internal: the segment of C we took is not of size ki={}",
-                ki
+                "internal: the segment of C we took is not of size ki",
             );
+
+            // set relevant part of B
+            b.clear();
             b.extend_from_binvec(&lower);
-            let mut c_upper = BinVector::with_capacity(ni);
+
+            c_upper.clear();
             for i in 0..ni {
                 c_upper.push(orig_c[k + (n_sum - ni) + i]);
             }
             debug_assert_eq!(c_upper.len(), ni);
             for (xp, ep) in l_previous.drain(..).into_iter() {
-                let mut b = b.clone();
+                let mut b_tmp = BinVector::with_capacity(ni + ki);
+                b_tmp.extend_from_binvec(&b);
+                debug_assert!(b_tmp.capacity() < 10000000, "capacity is {}", b_tmp.capacity());
                 if i > 0 {
                     let block_noise = &self.noises[i - 1];
                     debug_assert_eq!(
@@ -191,10 +198,12 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                     );
                     let product = &xp * block_noise;
                     debug_assert_eq!(product.len(), ni, "internal: product length wrong");
-                    b.extend_from_binvec(&(&product + &c_upper));
+                    b_tmp.extend_from_binvec(&(&product + &c_upper));
                 } else {
-                    b.extend_from_binvec(&c_upper);
+                    b_tmp.extend_from_binvec(&c_upper);
                 }
+
+                debug_assert_eq!(b_tmp.len(), ki + ni);
 
                 // allow this many possible errors
                 let max_weight = if i > 0 {
@@ -202,15 +211,17 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                 } else {
                     wi
                 };
+                debug_assert!(max_weight <= self.wb);
+
                 // foreach possible error...
                 let (ep_lo, ep_hi) = split_binvec(ep, k_sum - ki);
                 for e_prime in vectors_up_to(max_weight as usize, ni + ki) {
                     // find x'G st xG + b == e'
-                    let x_prime = small_code.decode_to_message(&(&b + &e_prime));
+                    let x_prime = small_code.decode_to_message(&(&b_tmp + &e_prime));
                     // XXX should this be the case?
-                    //if &small_code.encode(&x_prime) + &e_prime != b {
-                    //    continue;
-                    //}
+                    if &small_code.encode(&x_prime) + &e_prime != b_tmp {
+                        continue;
+                    }
                     let (e_prime_lo, e_prime_hi) = split_binvec(e_prime, ki);
                     let mut e_new = BinVector::with_capacity(k_sum + n_sum);
                     e_new.extend_from_binvec(&ep_lo);
@@ -230,10 +241,11 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
             if l_previous.len() < self.l_max {
                 wi += 1;
             }
+            l_previous.truncate(self.l_max * 2);
         }
 
-        if let Some((x, _e)) = l_previous.into_iter().min_by_key(|(_x, e)| e.count_ones()) {
-            //debug_assert_eq!(self.encode(&x), &e + orig_c, "This isn't a valid solution?!");
+        if let Some((x, e)) = l_previous.into_iter().min_by_key(|(_x, e)| e.count_ones()) {
+            debug_assert_eq!(self.encode(&x), &e + orig_c, "This isn't a valid solution?!");
             x
         } else {
             panic!("No result found!");
@@ -299,7 +311,7 @@ fn vectors_up_to(weight: usize, length: usize) -> WeightIterator {
         weight,
         length
     );
-    let iter = (0..length).combinations(weight);
+    let iter = (0..length).combinations(0);
     WeightIterator {
         weight,
         length,
@@ -315,14 +327,37 @@ mod tests {
     use codes::hamming::*;
     use m4ri_rust::friendly::BinVector;
 
+    #[test]
+    fn test_vectors_up_to() {
+        let mut generator = vectors_up_to(3, 3);
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, false, false])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, false, false])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, true, false])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, false, true])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, true, false])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, false, true])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, true, true])));
+        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, true, true])));
+        assert_eq!(generator.next(), None);
+    }
+
     fn get_code() -> StGenCode<'static, 'static> {
         let codes: Vec<&BinaryCode<'static>> = vec![
             &HammingCode7_4,
-            &HammingCode3_1,
-            &HammingCode15_11,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
             &HammingCode7_4,
         ];
-        StGenCode::new(codes, 5, 100, 3)
+        StGenCode::new(codes, 3, 100, 3)
     }
 
     #[test]
@@ -332,7 +367,7 @@ mod tests {
         let gen = code.generator_matrix();
         let mut col = code.dimension();
         let mut row = 0;
-        for subcode in code.codes {
+        for (i, subcode) in code.codes.iter().enumerate() {
             let ki = subcode.dimension();
             let ni = subcode.length() - ki;
             let window = gen.get_window(row, col, row + ki, col + ni);
@@ -345,20 +380,37 @@ mod tests {
                     if window.bit(i, j) != other_window.bit(i, j) {
                         println!("bit {},{} unequal", i, j);
                         result = false;
-                    } else {
-                        println!("bit {},{} equal!", i, j);
                     }
                 }
             }
             assert!(result);
             assert_eq!(window, other_window);
+
+            // check noise blocks
+            if i > 0 {
+                let noise = &code.noises[i-1];
+                let window = gen.get_window(0, col, row, col+ni);
+                assert_eq!(window.nrows(), noise.nrows());
+                assert_eq!(window.ncols(), noise.ncols());
+                let mut result = true;
+                for i in 0..window.nrows() {
+                    for j in 0..window.ncols() {
+                        if window.bit(i, j) != noise.bit(i, j) {
+                            println!("bit {},{} unequal", i, j);
+                            result = false;
+                        }
+                    }
+                }
+                assert!(result);
+                assert_eq!(window, *noise);
+            }
             col += ni;
             row += ki;
         }
     }
 
     #[test]
-    fn test_concatenated_code() {
+    fn test_decode() {
         let code = get_code();
 
         let input = BinVector::random(code.dimension());
@@ -368,7 +420,7 @@ mod tests {
             input,
             code.decode_to_message(&code.encode(&input)),
             "not idempotent"
-        );
+            );
     }
 
     #[test]
