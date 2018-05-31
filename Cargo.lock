@@ -103,7 +103,7 @@ dependencies = [
 [[package]]
 name = "m4ri-rust"
 version = "0.0.10"
-source = "git+https://github.com/thomwiggers/m4ri-rust.git#add8ef524a18c41c3e5445bec7efc79d1d455b31"
+source = "git+https://github.com/thomwiggers/m4ri-rust.git#1536e948e405e9106888848cdf214e2ef55b0450"
 dependencies = [
  "libc 0.2.41 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -172,7 +172,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "vob"
 version = "1.2.0"
-source = "git+https://github.com/thomwiggers/vob.git?branch=fast_version#18a1f36ca0b5f3485fce0c8836e7e7778d229563"
+source = "git+https://github.com/thomwiggers/vob.git?branch=fast_version#c0054514d0e6689c5a5ee567733c89b8fe7c2cdc"
 dependencies = [
  "num-traits 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

@@ -38,4 +38,4 @@ def generate_hamming_implementation(exponent):
 if __name__ == "__main__":
     generate_hamming_implementation(2)
     generate_hamming_implementation(3)
-    #generate_hamming_implementation(4)
+    generate_hamming_implementation(4)

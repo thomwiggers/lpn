@@ -10,6 +10,11 @@ use test::Bencher;
 fn get_code() -> ConcatenatedCode<'static, 'static> {
     let codes: Vec<&BinaryCode<'static>> = vec![
         &HammingCode7_4,
+        &HammingCode7_4,
+        &HammingCode7_4,
+        &HammingCode7_4,
+        &HammingCode7_4,
+        &HammingCode7_4,
         &HammingCode3_1,
         &HammingCode15_11,
         &HammingCode7_4,

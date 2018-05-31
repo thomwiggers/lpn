@@ -31,23 +31,24 @@ def vectors_up_to(weight, n):
 def generate_code_implementation(name, code):
     """Generate a code implementation"""
     k = code.dimension()
+    cs, _p = code.standard_form()
     info = {
         'name': name,
         'n': code.length(),
         'k': k,
-        'generator': code.systematic_generator_matrix(),
-        'parity_matrix': code.parity_check_matrix(),
+        'generator': cs.systematic_generator_matrix(),
+        'parity_matrix': cs.parity_check_matrix(),
     }
 
     max_error = code.decoder().maximum_error_weight()
 
     syndrome_map = {}
     for (error, _) in vectors_up_to(max_error, code.length()):
-        he = tuple(code.parity_check_matrix() * error)
+        he = tuple(cs.parity_check_matrix() * error)
         syndrome_map[ZZ(he, base=2)] = tuple(error)
 
     info['syndrome_map'] = syndrome_map
-    info['info_set'] = code.information_set()
+    info['info_set'] = cs.information_set()
 
     testcases = []
     seen = set()
@@ -58,7 +59,7 @@ def generate_code_implementation(name, code):
             m.set_immutable()
         seen.add(m)
 
-        encoded = code.encode(m)
+        encoded = cs.encode(m)
         testcase = {
             'm': m,
             'encoded': encoded,
@@ -76,7 +77,7 @@ def generate_code_implementation(name, code):
     with open('syndrome_code_implementation.rs.j2', 'r') as templatefile:
         template = ENVIRONMENT.from_string(templatefile.read())
     with open('{name}/{name}_{n}_{k}.rs'.format(name=name.lower(),
-                                         n=code.length(), k=k),
+                                                n=code.length(), k=k),
               'w') as outputfile:
         outputfile.write(template.render(**info))
 

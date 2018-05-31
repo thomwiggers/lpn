@@ -73,6 +73,7 @@ impl BinaryCode<'static> for {{ name }}Code{{n}}_{{k}} {
         debug_assert_eq!(error.len(), self.length(), "internal: the error vector is of the wrong length");
         let result = c + &error;
         debug_assert_eq!(result.len(), self.length(), "internal: the result vector is of the wrong length");
+        debug_assert_eq!((self.parity_check_matrix() * &result).count_ones(), 0);
         result
     }
 

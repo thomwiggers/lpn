@@ -4,6 +4,7 @@ use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::cell::UnsafeCell;
 use std::cmp::min;
+use std::mem;
 use std::ptr;
 use std::sync::Mutex;
 
@@ -158,9 +159,9 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
         // next round and final result
         let mut l_next = Vec::with_capacity(2usize.pow(self.wb as u32));
         let mut wi = min(self.w0, self.codes[0].length() as u32);
-        let mut b = BinVector::with_capacity(self.length());
-        let mut c_upper = BinVector::with_capacity(self.length() - self.dimension());
 
+        let mut b = BinVector::with_capacity(20);
+        let mut b_tmp = BinVector::with_capacity(20);
         for i in 0..self.codes.len() {
             // set helpful vars
             let small_code = self.codes[i];
@@ -180,13 +181,13 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
             b.clear();
             b.extend_from_binvec(&lower);
 
-            c_upper.clear();
+            let mut c_upper = BinVector::with_capacity(ni);
             for i in 0..ni {
                 c_upper.push(orig_c[k + (n_sum - ni) + i]);
             }
             debug_assert_eq!(c_upper.len(), ni);
             for (xp, ep) in l_previous.drain(..).into_iter() {
-                let mut b_tmp = BinVector::with_capacity(ni + ki);
+                b_tmp.clear();
                 b_tmp.extend_from_binvec(&b);
                 debug_assert!(b_tmp.capacity() < 10000000, "capacity is {}", b_tmp.capacity());
                 if i > 0 {
@@ -223,7 +224,7 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                         continue;
                     }
                     let (e_prime_lo, e_prime_hi) = split_binvec(e_prime, ki);
-                    let mut e_new = BinVector::with_capacity(k_sum + n_sum);
+                    let mut e_new = BinVector::with_capacity(ni + ki);
                     e_new.extend_from_binvec(&ep_lo);
                     e_new.extend_from_binvec(&e_prime_lo);
                     e_new.extend_from_binvec(&ep_hi);
@@ -235,13 +236,15 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                     l_next.push((x_new, e_new));
                 }
             }
-            let tmp = l_previous;
-            l_previous = l_next;
-            l_next = tmp;
+            // swap
+            l_next = mem::replace(&mut l_previous, l_next);
+
             if l_previous.len() < self.l_max {
                 wi += 1;
+            } else {
+                l_previous.sort_unstable_by(|(_, e1), (_, e2)| e1.count_ones().cmp(&e2.count_ones()));
+                l_previous.truncate(self.l_max);
             }
-            l_previous.truncate(self.l_max * 2);
         }
 
         if let Some((x, e)) = l_previous.into_iter().min_by_key(|(_x, e)| e.count_ones()) {
