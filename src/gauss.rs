@@ -7,9 +7,9 @@ use rand;
 pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Attempting Pooled Gauss solving method");
     let k = oracle.k;
-    let alpha = 0.5f32.powi(k as i32);
-    let beta = ((1f32 - oracle.tau) / 2f32).powi(k as i32);
-    let m: f32 = (((1.5 * (1.0 / alpha).ln()).sqrt() + (1.0 / beta).ln().sqrt())
+    let alpha = 0.5f64.powi(k as i32);
+    let beta = ((1f64 - oracle.tau) / 2f64).powi(k as i32);
+    let m: f64 = (((1.5 * (1.0 / alpha).ln()).sqrt() + (1.0 / beta).ln().sqrt())
         / (0.5 - oracle.tau))
         .powi(2)
         .floor();
@@ -37,16 +37,22 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             b.as_column_matrix(),
         )
     };
+    debug_assert_eq!(am.nrows(), m);
+    debug_assert_eq!(bm.nrows(), m);
 
     let mut tries = 0;
     let mut test = |s_prime: &BinMatrix| {
+        debug_assert_eq!(s_prime.nrows(), oracle.k as usize);
+        debug_assert_eq!(s_prime.ncols(), 1);
         tries += 1;
         if tries % 1000 == 0 {
             println!("Attempt {}...", tries);
         }
         let mut testproduct = &am * s_prime;
         testproduct += &bm;
-        testproduct.as_vector().count_ones() <= c
+        let result = testproduct.as_vector().count_ones() <= c;
+        debug_assert_eq!(result, s_prime.as_vector() == oracle.secret);
+        result
     };
 
     println!("Starting random sampling of invertible (A, b)");
@@ -70,7 +76,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
                     b,
                 )
             };
-            if a.echelonize() == k as usize {
+            if a.clone().echelonize() == k as usize {
                 break (a, b);
             }
         };
