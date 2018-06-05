@@ -2,7 +2,6 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
 
-
 use lpn::codes::*;
 use m4ri_rust::friendly::*;
 

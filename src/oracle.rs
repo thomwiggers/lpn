@@ -3,7 +3,7 @@ use rand;
 use rand::Rng;
 use std::ops::Range;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Query {
     pub a: BinVector,
     pub s: bool,

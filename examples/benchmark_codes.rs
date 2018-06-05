@@ -1,14 +1,14 @@
+extern crate itertools;
 extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
-extern crate itertools;
 
-use std::mem;
-use std::collections::HashSet;
+use itertools::Itertools;
 use lpn::codes::*;
 use m4ri_rust::friendly::*;
-use itertools::Itertools;
 use rayon::prelude::*;
+use std::collections::HashSet;
+use std::mem;
 
 static N: usize = 1000;
 
@@ -24,7 +24,7 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
 fn get_distances<'a>(code: &'a BinaryCode<'a>) -> Vec<i32> {
     let mut distances = Vec::with_capacity(N);
     if 2f64.powi(code.length() as i32) > 1.5 * N as f64 {
-        let mut seen = HashSet::new();     
+        let mut seen = HashSet::new();
         while seen.len() < N {
             let v = BinVector::random(code.length());
             if seen.contains(&v) {
@@ -86,9 +86,14 @@ fn main() {
     ];
     let stgen_code = StGenCode::new(testset.clone(), 3, 500, 3);
     let concat_code = ConcatenatedCode::new(testset);
-    combined_names.push((999, stgen_code.length(), stgen_code.dimension(), vec![String::from("manual")]));
+    combined_names.push((
+        999,
+        stgen_code.length(),
+        stgen_code.dimension(),
+        vec![String::from("manual")],
+    ));
     combined_codes.push((String::from("[999]"), concat_code, stgen_code));
-    
+
     /*
     for (i, combination) in candidate_codes.iter().combinations(5).enumerate() {
         let mut subcodes = Vec::with_capacity(combination.len());
@@ -125,31 +130,32 @@ fn main() {
         print!("{:<20}", name);
         let distances = get_distances(code);
         for bias in &biases {
-            let sum: f64 = distances.iter().map(|dist| bias.powi(*dist)).sum();    
-            print!("{:16.5e}", sum/(distances.len() as f64));
+            let sum: f64 = distances.iter().map(|dist| bias.powi(*dist)).sum();
+            print!("{:16.5e}", sum / (distances.len() as f64));
         }
         println!("");
     }
 
     //let result_strings = Vec::with_capacity(stgen_codes.len());
-    combined_codes.into_par_iter().for_each(|(name, concat_code, stgen_code)| {
-        let mut line = format!("{:<20}", format!("Concat {}", name));
-        let distances = get_distances(concat_code);
+    combined_codes
+        .into_par_iter()
+        .for_each(|(name, concat_code, stgen_code)| {
+            let mut line = format!("{:<20}", format!("Concat {}", name));
+            let distances = get_distances(concat_code);
 
-        for bias in &biases {
-            let sum: f64 = distances.iter().map(|dist| bias.powi(*dist)).sum();    
-            line.push_str(&format!("{:16.5e}", sum/(distances.len() as f64)));
-        }
+            for bias in &biases {
+                let sum: f64 = distances.iter().map(|dist| bias.powi(*dist)).sum();
+                line.push_str(&format!("{:16.5e}", sum / (distances.len() as f64)));
+            }
 
-        line.push_str(&format!("\n{:<20}", format!("StGen {}", name)));
-        let distances = get_distances(stgen_code);
+            line.push_str(&format!("\n{:<20}", format!("StGen {}", name)));
+            let distances = get_distances(stgen_code);
 
-        for bias in &biases {
-            let sum: f64 = distances.iter().map(|dist| bias.powi(*dist)).sum();    
-            line.push_str(&format!("{:16.5e}", sum/(distances.len() as f64)));
-        }
-        println!("{}", line);
-        //result_strings.push(line);
-    });
-
+            for bias in &biases {
+                let sum: f64 = distances.iter().map(|dist| bias.powi(*dist)).sum();
+                line.push_str(&format!("{:16.5e}", sum / (distances.len() as f64)));
+            }
+            println!("{}", line);
+            //result_strings.push(line);
+        });
 }

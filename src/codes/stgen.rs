@@ -189,7 +189,11 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
             for (xp, ep) in l_previous.drain(..).into_iter() {
                 b_tmp.clear();
                 b_tmp.extend_from_binvec(&b);
-                debug_assert!(b_tmp.capacity() < 10000000, "capacity is {}", b_tmp.capacity());
+                debug_assert!(
+                    b_tmp.capacity() < 10000000,
+                    "capacity is {}",
+                    b_tmp.capacity()
+                );
                 if i > 0 {
                     let block_noise = &self.noises[i - 1];
                     debug_assert_eq!(
@@ -242,13 +246,18 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
             if l_previous.len() < self.l_max {
                 wi += 1;
             } else {
-                l_previous.sort_unstable_by(|(_, e1), (_, e2)| e1.count_ones().cmp(&e2.count_ones()));
+                l_previous
+                    .sort_unstable_by(|(_, e1), (_, e2)| e1.count_ones().cmp(&e2.count_ones()));
                 l_previous.truncate(self.l_max);
             }
         }
 
         if let Some((x, e)) = l_previous.into_iter().min_by_key(|(_x, e)| e.count_ones()) {
-            debug_assert_eq!(self.encode(&x), &e + orig_c, "This isn't a valid solution?!");
+            debug_assert_eq!(
+                self.encode(&x),
+                &e + orig_c,
+                "This isn't a valid solution?!"
+            );
             x
         } else {
             panic!("No result found!");
@@ -333,14 +342,38 @@ mod tests {
     #[test]
     fn test_vectors_up_to() {
         let mut generator = vectors_up_to(3, 3);
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, false, false])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, false, false])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, true, false])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, false, true])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, true, false])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, false, true])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[false, true, true])));
-        assert_eq!(generator.next(), Some(BinVector::from_bools(&[true, true, true])));
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[false, false, false]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[true, false, false]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[false, true, false]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[false, false, true]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[true, true, false]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[true, false, true]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[false, true, true]))
+        );
+        assert_eq!(
+            generator.next(),
+            Some(BinVector::from_bools(&[true, true, true]))
+        );
         assert_eq!(generator.next(), None);
     }
 
@@ -391,8 +424,8 @@ mod tests {
 
             // check noise blocks
             if i > 0 {
-                let noise = &code.noises[i-1];
-                let window = gen.get_window(0, col, row, col+ni);
+                let noise = &code.noises[i - 1];
+                let window = gen.get_window(0, col, row, col + ni);
                 assert_eq!(window.nrows(), noise.nrows());
                 assert_eq!(window.ncols(), noise.ncols());
                 let mut result = true;
@@ -423,7 +456,7 @@ mod tests {
             input,
             code.decode_to_message(&code.encode(&input)),
             "not idempotent"
-            );
+        );
     }
 
     #[test]

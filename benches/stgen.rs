@@ -3,7 +3,6 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate test;
 
-
 mod stgen {
     use lpn::codes::*;
     use m4ri_rust::friendly::*;

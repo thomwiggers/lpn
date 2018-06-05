@@ -1,8 +1,8 @@
 use fnv::FnvHashMap;
-use rayon::prelude::*;
 use m4ri_rust::friendly::BinVector;
 use oracle::query_bits_range;
 use oracle::LpnOracle;
+use rayon::prelude::*;
 use std::default::Default;
 use std::ops;
 
