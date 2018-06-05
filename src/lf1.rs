@@ -1,7 +1,7 @@
-use rayon::prelude::*;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use oracle::LpnOracle;
+use rayon::prelude::*;
 use std::mem;
 
 #[inline]
@@ -19,7 +19,6 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     let n_prime = oracle.queries.len();
     assert!(n_prime > 0, "What, no queries?");
 
-
     let b = oracle.queries[0].a.len();
     assert!(b < 21, "Don't use too large b! b = {}", b);
     assert!(b > 0, "Wtf, b = 0?");
@@ -29,12 +28,16 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         let mut c = BinVector::with_capacity(n_prime);
         (
             BinMatrix::new(
-                oracle.queries.into_iter()
-                .map(|q| {
-                    c.push(q.s);
-                    q.a
-                }).collect()),
-            c
+                oracle
+                    .queries
+                    .into_iter()
+                    .map(|q| {
+                        c.push(q.s);
+                        q.a
+                    })
+                    .collect(),
+            ),
+            c,
         )
     };
 
@@ -52,10 +55,11 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     println!("Doing LF1 naively");
     let max = 2usize.pow(b as u32);
     // find the candidate with the best weight
-    let (best_candidate, best_weight) = (1..max).into_par_iter()
-            .map(|candidate| (candidate, computation(candidate)))
-            .max_by(|(_, wta), (_, wtb)| wta.cmp(wtb))
-            .expect("Can't work on an empty list");
+    let (best_candidate, best_weight) = (1..max)
+        .into_par_iter()
+        .map(|candidate| (candidate, computation(candidate)))
+        .max_by(|(_, wta), (_, wtb)| wta.cmp(wtb))
+        .expect("Can't work on an empty list");
 
     println!("Best candidate weight: {}", best_weight);
     let best_candidate = best_candidate;
