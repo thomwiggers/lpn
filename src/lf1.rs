@@ -1,8 +1,10 @@
+use rayon::prelude::*;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use oracle::LpnOracle;
 use std::mem;
 
+#[inline]
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     let bytes = unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(c.to_be()) };
     let skip = (64 - size) / 8;
@@ -14,23 +16,29 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
 
 pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     // get the (a, c) samples as matrix A and vector c
-    let mut c = BinVector::new();
-    let mut sample_matrix = Vec::new();
     let n_prime = oracle.queries.len();
     assert!(n_prime > 0, "What, no queries?");
-    sample_matrix.reserve_exact(oracle.queries.len());
-    c.reserve(oracle.queries.len());
+
+
     let b = oracle.queries[0].a.len();
     assert!(b < 21, "Don't use too large b! b = {}", b);
     assert!(b > 0, "Wtf, b = 0?");
 
-    for query in oracle.queries {
-        sample_matrix.push(query.a);
-        c.push(query.s);
-    }
+    // split the query set into a matrix and a vector
+    let (a_matrix, c) = {
+        let mut c = BinVector::with_capacity(n_prime);
+        (
+            BinMatrix::new(
+                oracle.queries.into_iter()
+                .map(|q| {
+                    c.push(q.s);
+                    q.a
+                }).collect()),
+            c
+        )
+    };
 
-    let a_matrix = BinMatrix::new(sample_matrix);
-
+    // LF1 query weight computation
     let computation = |candidate: usize| {
         // A u32 is 4 u8s.
         let candidate_vector = usize_to_binvec(candidate, b);
@@ -41,34 +49,16 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         n_prime as i32 - 2 * (hw as i32)
     };
 
-    // first result for v = 0
-    let mut best_candidates: Vec<usize> = vec![0];
-    let mut best_vec_weight = computation(0);
     println!("Doing LF1 naively");
     let max = 2usize.pow(b as u32);
-    for candidate in 1..max {
-        if candidate % 1000 == 0 {
-            println!("Processed {}/{} candidates", candidate, max);
-        }
-        let candidate_weight = computation(candidate);
-        if candidate_weight > best_vec_weight {
-            best_vec_weight = candidate_weight;
-            best_candidates.truncate(0);
-            best_candidates.push(candidate);
-        } else if candidate_weight == best_vec_weight {
-            best_candidates.push(candidate);
-        }
-    }
+    // find the candidate with the best weight
+    let (best_candidate, best_weight) = (1..max).into_par_iter()
+            .map(|candidate| (candidate, computation(candidate)))
+            .max_by(|(_, wta), (_, wtb)| wta.cmp(wtb))
+            .expect("Can't work on an empty list");
 
-    if best_candidates.len() > 1 {
-        println!("* Debug: we also had these candidates: ");
-        for candidate in &best_candidates {
-            println!("\t{:?}", candidate);
-        }
-    }
-
-    println!("Best candidate weight: {}", best_vec_weight);
-    let best_candidate = best_candidates.pop().unwrap();
+    println!("Best candidate weight: {}", best_weight);
+    let best_candidate = best_candidate;
     let candidate_vector = usize_to_binvec(best_candidate, b);
     candidate_vector
 }

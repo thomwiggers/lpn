@@ -50,8 +50,8 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     // update the queries
     oracle.queries = oracle
         .queries
-        .into_iter()
-        .filter(|q| queries.contains(q))
+        .into_par_iter()
+        .filter(|q| !queries.contains(q))
         .map(|mut query| {
             query.a = &query.a * &m_t_inv;
             query.s = &query.a * &c_prime;
