@@ -7,6 +7,7 @@ use codes::BinaryCode;
 use rand;
 
 pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
+    println!("Reducing to a sparse secret");
     let k = oracle.k;
     let mut rng = rand::thread_rng();
     // get M, c'
@@ -18,6 +19,7 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
             // replace by matrix directly?
             let mut b = BinVector::with_capacity(k as usize);
             (
+                // vectors on the columns
                 BinMatrix::new(
                     queries
                         .iter()
@@ -26,35 +28,35 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
                             q.a.clone()
                         })
                         .collect(),
-                ),
+                ).transposed(),
                 b,
                 queries,
             )
         };
         if a.echelonize() == k as usize {
-            // remove the queries we took
             break (a, b, queries);
         }
     };
-
-    let m_t = m.transpose();
-    let m_t_inv = m_t.inverted();
 
     // update the secret:
     println!(
         "the secret prior to reduction to a sparse secret was: {:?}",
         oracle.secret
     );
-    oracle.secret = &(m_t * oracle.secret) + &c_prime;
+    oracle.secret = &(&oracle.secret * &m) + &c_prime;
 
+    let m_t_inv = m.transposed().inverted();
     // update the queries
+    let secret = &oracle.secret.clone();
     oracle.queries = oracle
         .queries
         .into_par_iter()
+        // remove the queries we took
         .filter(|q| !queries.contains(q))
         .map(|mut query| {
             query.a = &query.a * &m_t_inv;
-            query.s = &query.a * &c_prime;
+            query.s ^= &query.a * &c_prime;
+            debug_assert_eq!(secret * &query.a ^ query.e, query.s);
             query
         })
         .collect();

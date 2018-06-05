@@ -6,9 +6,10 @@ use lpn::covering_codes::*;
 use lpn::oracle::LpnOracle;
 
 fn main() {
-    let mut oracle: LpnOracle = LpnOracle::new(25, 1.0 / 8.0);
+    let mut oracle: LpnOracle = LpnOracle::new(25, 1.0 / 16.0);
     oracle.get_queries(800555);
     let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
+    let oracle = reduce_sparse_secret(oracle);
     let oracle = reduce_covering_codes(oracle, code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);

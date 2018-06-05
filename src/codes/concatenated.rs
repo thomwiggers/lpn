@@ -96,7 +96,6 @@ impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
     use codes::hamming::*;
     use m4ri_rust::friendly::BinVector;
@@ -134,5 +133,19 @@ mod tests {
             code.decode_to_message(&code.encode(&input)),
             "not idempotent"
         );
+    }
+
+    #[test]
+    fn test_random_samples() {
+        let code = ConcatenatedCode::new(
+            vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
+
+        for _ in 0..100 {
+            let v = BinVector::random(code.length());
+            let x = code.decode_to_message(&v);
+            let cw = code.decode_to_code(&v);
+            assert_eq!(&code.encode(&x), &cw);
+            assert!((v + cw).count_ones() < 5);
+        }
     }
 }

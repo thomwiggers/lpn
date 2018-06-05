@@ -55,14 +55,12 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     println!("Doing LF1 naively");
     let max = 2usize.pow(b as u32);
     // find the candidate with the best weight
-    let (best_candidate, best_weight) = (1..max)
+    let best_candidate = (1..max)
         .into_par_iter()
-        .map(|candidate| (candidate, computation(candidate)))
-        .max_by(|(_, wta), (_, wtb)| wta.cmp(wtb))
+        .max_by_key(|candidate| computation(*candidate))
         .expect("Can't work on an empty list");
 
-    println!("Best candidate weight: {}", best_weight);
-    let best_candidate = best_candidate;
+    println!("Best candidate weight: {}", best_candidate.count_ones());
     let candidate_vector = usize_to_binvec(best_candidate, b);
     candidate_vector
 }
