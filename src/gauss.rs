@@ -40,22 +40,29 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     debug_assert_eq!(am.nrows(), m);
     debug_assert_eq!(bm.nrows(), m);
 
-    let mut tries = 0;
-    let mut test = |s_prime: &BinMatrix| {
+    let test = |s_prime: &BinMatrix, tries: &mut usize| {
         debug_assert_eq!(s_prime.nrows(), oracle.k as usize);
         debug_assert_eq!(s_prime.ncols(), 1);
-        tries += 1;
-        if tries % 1000 == 0 {
+        *tries += 1;
+        if *tries % 1000 == 0 {
             println!("Attempt {}...", tries);
         }
         let mut testproduct = &am * s_prime;
         testproduct += &bm;
         let result = testproduct.as_vector().count_ones() <= c;
-        debug_assert_eq!(result, s_prime.as_vector() == oracle.secret);
+        debug_assert_eq!(
+            result,
+            s_prime.as_vector() == oracle.secret,
+            "Test will reject or accept an (in)correct secret with weight {} <= {}",
+            testproduct.as_vector().count_ones(),
+            c
+        );
         result
     };
 
     println!("Starting random sampling of invertible (A, b)");
+
+    let mut tries = 0;
     let s_prime = loop {
         let (a, b) = loop {
             let (mut a, b) = {
@@ -87,7 +94,9 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             println!("Somehow, solving failed....");
             continue;
         }
-        if test(&b) {
+        let result = { test(&b, &mut tries) };
+        if result {
+            println!("Found after {} tries", tries);
             break b;
         }
     };

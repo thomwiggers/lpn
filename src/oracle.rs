@@ -1,6 +1,6 @@
 use m4ri_rust::friendly::BinVector;
-use rand::{self, Rng};
 use rand::distributions::{Bernoulli, Distribution};
+use rand::{self, Rng};
 use std::ops::Range;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -16,6 +16,7 @@ impl Query {
     }
 }
 
+#[derive(Clone)]
 pub struct LpnOracle {
     pub queries: Vec<Query>,
     pub secret: BinVector,
@@ -37,6 +38,7 @@ impl LpnOracle {
         let mut secret = BinVector::from_bytes(&secret_bytes);
         secret.truncate(k as usize);
         debug_assert_eq!(secret.len(), k as usize);
+        println!("Constructed Oracle with k={}, τ={:0.5}", k, tau);
 
         LpnOracle {
             queries: vec![],
@@ -63,7 +65,7 @@ impl LpnOracle {
             let query = Query {
                 s: &self.secret * &vector ^ e,
                 a: vector,
-                e
+                e,
             };
             self.queries.push(query);
         }

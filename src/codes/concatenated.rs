@@ -137,8 +137,7 @@ mod tests {
 
     #[test]
     fn test_random_samples() {
-        let code = ConcatenatedCode::new(
-            vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
+        let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
 
         for _ in 0..100 {
             let v = BinVector::random(code.length());

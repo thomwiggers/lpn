@@ -65,6 +65,61 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     candidate_vector
 }
 
+/// Solving using the Fast Walsh-Hamadard Transform
+/// This section of code is based on the implementation of
+/// LPN by Tramer (Bogos Tramer Vaudenay 2015)
+pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
+    println!("FWHT solving...");
+    debug_assert_eq!(oracle.queries[0].a.len() as u32, oracle.k);
+
+    let mut majority_counter = vec![0i64; 2usize.pow(oracle.k)];
+    oracle.queries.into_iter().for_each(|q| {
+        majority_counter[q.a.as_u64() as usize] += if q.s { -1 } else { 1 };
+    });
+
+    fwht(majority_counter.as_mut_slice(), oracle.k);
+
+    let guess = (0..2usize.pow(oracle.k as u32))
+        .into_iter()
+        .max_by_key(|x| majority_counter[*x])
+        .unwrap();
+
+    let mut result = BinVector::with_capacity(oracle.k as usize);
+    for i in 0..oracle.k {
+        result.push(guess >> i & 1 == 1);
+    }
+    result
+}
+
+/// Fast Walsh Hamadard Transform
+///
+/// Adapted from Bogos, Tramer, Vaudenay,
+/// who used http://www.musicdsp.org/showone.php?id=18
+///
+/// Data: data to transform the transform over (whoooah)
+/// bits: log2(size), the length of the data
+#[inline]
+fn fwht(data: &mut [i64], bits: u32) {
+    let n = bits;
+    for i in 0..n {
+        let mut j = 0;
+        while j < (1 << n) {
+            let mut k = 0;
+            while k < (1 << i) {
+                let a = j + k;
+                let b = j + k + (1 << i);
+
+                let tmp = data[a];
+                data[a] += data[b];
+                data[b] = tmp - data[b];
+
+                k += 1;
+            }
+            j += 1 << (i + 1);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

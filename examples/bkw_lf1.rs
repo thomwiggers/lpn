@@ -1,17 +1,19 @@
 extern crate lpn;
 
 use lpn::bkw::*;
-use lpn::lf1::lf1_solve;
+use lpn::lf1::*;
 use lpn::oracle::LpnOracle;
 
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
     oracle.get_queries(100555);
-    let oracle = bkw_reduction(oracle, 8, 4);
+    let oracle = bkw_reduction(oracle, 4, 8);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
-    let solution = lf1_solve(oracle);
+    let lf1_solution = lf1_solve(oracle.clone());
+    let fwht_solution = fwht_solve(oracle);
 
-    println!("Found:  {:?}", solution);
-    println!("Actual: {:?}", secret);
+    println!("Found (lf1):   {:?}", lf1_solution);
+    println!("Found (fwht):  {:?}", fwht_solution);
+    println!("Actual:        {:?}", secret);
 }

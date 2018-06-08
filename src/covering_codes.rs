@@ -28,7 +28,7 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
                             q.a.clone()
                         })
                         .collect(),
-                ).transposed(),
+                ),
                 b,
                 queries,
             )
@@ -43,9 +43,9 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
         "the secret prior to reduction to a sparse secret was: {:?}",
         oracle.secret
     );
-    oracle.secret = &(&oracle.secret * &m) + &c_prime;
+    oracle.secret = &(&m * &oracle.secret) + &c_prime;
 
-    let m_t_inv = m.transposed().inverted();
+    let m_t_inv = m.inverted();
     // update the queries
     let secret = &oracle.secret.clone();
     oracle.queries = oracle
@@ -54,9 +54,10 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
         // remove the queries we took
         .filter(|q| !queries.contains(q))
         .map(|mut query| {
-            query.a = &query.a * &m_t_inv;
-            query.s ^= &query.a * &c_prime;
-            debug_assert_eq!(secret * &query.a ^ query.e, query.s);
+            let new_v = &query.a * &m_t_inv;
+            query.s ^= &new_v * &c_prime;
+            debug_assert_eq!(secret * &new_v ^ query.e, query.s);
+            query.a = new_v;
             query
         })
         .collect();
@@ -80,8 +81,11 @@ pub fn reduce_covering_codes<'a, T: BinaryCode<'a> + Sync>(
         (*query).a = code.decode_to_message(&query.a);
         debug_assert_eq!(query.a.len(), code.dimension());
     });
-    println!("Note that we decoded the secret!");
-    oracle.secret = code.decode_to_message(&oracle.secret);
+
+    println!("Note that we transformed the secret $s$ into $s'=s*G^T$!");
+    let gen_t = code.generator_matrix().transposed();
+    oracle.secret = &oracle.secret * &gen_t;
+
     debug_assert_eq!(oracle.secret.len(), code.dimension());
     oracle.k = code.dimension() as u32;
 

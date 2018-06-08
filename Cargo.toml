@@ -11,6 +11,7 @@ rayon = "1.0.1"
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
+features = ["strassen_mul"]
 #features = ["system_alloc"]
 
 [profile.release]
