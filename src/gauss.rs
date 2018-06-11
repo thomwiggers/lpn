@@ -5,7 +5,6 @@ use oracle::LpnOracle;
 use rand;
 
 pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
-    println!("Attempting Pooled Gauss solving method");
     let k = oracle.k;
     let alpha = 0.5f64.powi(k as i32);
     let tau = (1.0 - oracle.delta) / 2.0;
@@ -21,6 +20,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let m = m as usize;
     let mut rng = rand::thread_rng();
 
+    println!("Attempting Pooled Gauss solving method, k={}, tau={}", k, tau);
     println!("Building (Am, b) with length {}", m);
     let (am, bm) = {
         let queries = rand::seq::sample_iter(&mut rng, oracle.queries.iter(), m).unwrap();

@@ -3,7 +3,7 @@ use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::mem;
 
-static N: usize = 1000;
+static N: usize = 100000;
 
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     let bytes = unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(c.to_be()) };
