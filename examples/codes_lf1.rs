@@ -16,7 +16,7 @@ fn main() {
     //let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     let code = HammingCode15_11;
     let oracle = reduce_sparse_secret(oracle);
-    let oracle = reduce_covering_codes(oracle, code);
+    let oracle = code_reduction(oracle, code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
 

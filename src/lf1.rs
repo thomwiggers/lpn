@@ -1,8 +1,10 @@
+use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use oracle::LpnOracle;
+use oracle::{query_bits_range, LpnOracle, Query};
 use rayon::prelude::*;
 use std::mem;
+use std::ops;
 
 #[inline]
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
@@ -14,6 +16,7 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     result
 }
 
+/// Use the vector-matrix product version of the fwht
 pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     // get the (a, c) samples as matrix A and vector c
     let n_prime = oracle.queries.len();
@@ -63,6 +66,75 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     println!("Best candidate weight: {}", best_candidate.count_ones());
     let candidate_vector = usize_to_binvec(best_candidate, b);
     candidate_vector
+}
+
+/// This is the LF2 reduction. This reduction grows the number of queries.
+///
+/// Applies a single round reduction
+///
+/// $k' = k - (a-1)*b$
+/// $n' = n(n-1) / 2^{b+1}$  (for a = 1)
+/// $\delta' = \delta^2$
+pub fn xor_reduction(mut oracle: LpnOracle, b: u32) -> LpnOracle {
+    let k = oracle.k;
+    assert!(b <= k);
+
+    let num_queries = oracle.queries.len();
+    println!("Xor-reduce iteration, {} queries", num_queries);
+    // Partition into V_j
+    // max j:
+    let maxj = 2usize.pow(b);
+
+    // using [v; n] clones and won't set capacity correctly.
+    let mut vector_partitions = Vec::with_capacity(maxj);
+    // num / 2^b choose 2
+    let query_capacity = ((num_queries / maxj) * (num_queries / maxj - 1)) / 2;
+    for _ in 0..maxj {
+        vector_partitions.push(Vec::with_capacity(query_capacity));
+    }
+
+    let bitrange: ops::Range<usize> = ((k - b) as usize)..(k as usize);
+    for mut q in oracle.queries.into_iter() {
+        let idx = query_bits_range(&(q.a), bitrange.clone()) as usize;
+        if vector_partitions[idx].capacity() == 0 {
+            println!(
+                "Vector {} is full, will need to resize from {}",
+                idx,
+                vector_partitions[idx].len()
+            );
+        }
+        q.a.truncate((k - b) as usize);
+        vector_partitions[idx].push(q);
+    }
+
+    vector_partitions.par_iter_mut().for_each(|partition| {
+        *partition = partition
+            .iter()
+            .tuple_combinations()
+            .map(|(v1, v2)| Query {
+                a: &v1.a + &v2.a,
+                s: v1.s ^ v2.s,
+                e: v1.e ^ v2.e,
+            })
+            .collect();
+    });
+
+    oracle.queries = Vec::with_capacity(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
+    for partition in vector_partitions {
+        oracle.queries.extend(partition.into_iter());
+    }
+
+    // Set the new k
+    oracle.k = k - b;
+    oracle.delta = oracle.delta.powi(2);
+
+    println!(
+        "Xor-reduce iterations done, {} queries now, k' = {}",
+        oracle.queries.len(),
+        oracle.k
+    );
+
+    oracle
 }
 
 /// Solving using the Fast Walsh-Hamadard Transform

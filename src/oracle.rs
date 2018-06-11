@@ -21,7 +21,8 @@ pub struct LpnOracle {
     pub queries: Vec<Query>,
     pub secret: BinVector,
     pub k: u32,
-    pub tau: f64,
+    pub delta: f64,
+    pub delta_s: f64,
 }
 
 impl LpnOracle {
@@ -44,7 +45,8 @@ impl LpnOracle {
             queries: vec![],
             secret,
             k,
-            tau,
+            delta: 1f64 - 2f64 * tau,
+            delta_s: 0f64, // uniformly random
         }
     }
 
@@ -56,7 +58,8 @@ impl LpnOracle {
         debug_assert!(len > 0);
 
         let mut rng = rand::thread_rng();
-        let dist = Bernoulli::new(self.tau);
+        let tau = (1.0 - self.delta) / 2.0;
+        let dist = Bernoulli::new(tau);
         for _ in 0..n {
             let mut vector = BinVector::random(self.k as usize);
             debug_assert_eq!(vector.len(), self.k as usize);

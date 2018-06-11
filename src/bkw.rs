@@ -1,14 +1,21 @@
 use fnv::FnvHashMap;
 use m4ri_rust::friendly::BinVector;
 use oracle::query_bits_range;
-use oracle::LpnOracle;
+use oracle::*;
 use rayon::prelude::*;
 use std::default::Default;
 use std::ops;
 
+/// The reduction from BKW
+///
+/// also known as partition-reduce in the Bogos/Vaudenay extra material
+///
+/// $k' = k - (a-1) * b$
+/// $n' = n - (a-1)*2^b
+/// $d' = delta^{2*(a-1)}$
 pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
     let k = oracle.k;
-    assert_eq!(a * b, k, "a*b != k");
+    assert!(a * b <= k, "a*b <= k");
 
     for i in 1..a {
         let num_queries = oracle.queries.len();
@@ -16,8 +23,10 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
         // Partition into V_j
         // max j:
         let maxj = 2usize.pow(b);
-        let mut vector_partitions = Vec::with_capacity(maxj);
         let query_capacity = num_queries / maxj;
+
+        let mut vector_partitions = Vec::with_capacity(maxj);
+        // using [v; n] clones and won't set capacity correctly.
         for _ in 0..maxj {
             vector_partitions.push(Vec::with_capacity(query_capacity));
         }

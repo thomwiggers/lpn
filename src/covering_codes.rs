@@ -6,6 +6,14 @@ use rayon::prelude::*;
 use codes::BinaryCode;
 use rand;
 
+/// Sparse secret reduction
+///
+/// Changes the distribution of the secret to that of the noise
+///
+/// $k' = k$
+/// $n' = n-k$
+/// $d' = d$
+/// $d'_s = d$
 pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     println!("Reducing to a sparse secret");
     let k = oracle.k;
@@ -62,11 +70,18 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
         })
         .collect();
 
+    oracle.delta_s = oracle.delta;
+
     oracle
 }
 
 /// Reduce using the covering codes attack (Guo, Johansson, Lohndal; 2014)
-pub fn reduce_covering_codes<'a, T: BinaryCode<'a> + Sync>(
+///
+/// $k' = dim(G)$
+/// $n' = n$
+/// $d' = d * bc$
+/// $d'_s$ depends on $d_s$ and $G$.
+pub fn code_reduction<'a, T: BinaryCode<'a> + Sync>(
     mut oracle: LpnOracle,
     code: T,
 ) -> LpnOracle {
@@ -88,6 +103,10 @@ pub fn reduce_covering_codes<'a, T: BinaryCode<'a> + Sync>(
 
     debug_assert_eq!(oracle.secret.len(), code.dimension());
     oracle.k = code.dimension() as u32;
+
+    println!("Computing new delta");
+    oracle.delta = oracle.delta * code.bias(oracle.delta_s);
+    println!("New delta = {}", oracle.delta);
 
     oracle
 }

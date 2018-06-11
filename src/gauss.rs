@@ -8,13 +8,14 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Attempting Pooled Gauss solving method");
     let k = oracle.k;
     let alpha = 0.5f64.powi(k as i32);
-    let beta = ((1f64 - oracle.tau) / 2f64).powi(k as i32);
+    let tau = (1.0 - oracle.delta) / 2.0;
+    let beta = ((1f64 - tau) / 2f64).powi(k as i32);
     let m: f64 = (((1.5 * (1.0 / alpha).ln()).sqrt() + (1.0 / beta).ln().sqrt())
-        / (0.5 - oracle.tau))
+        / (0.5 - tau))
         .powi(2)
         .floor();
-    let c = (oracle.tau * m
-        + (3.0 * (0.5 - oracle.tau) * (1.0 / alpha).ln() * m)
+    let c = (tau * m
+        + (3.0 * (0.5 - tau) * (1.0 / alpha).ln() * m)
             .sqrt()
             .floor()) as u32;
     let m = m as usize;
