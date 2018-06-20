@@ -126,6 +126,7 @@ pub fn xor_reduction(mut oracle: LpnOracle, b: u32) -> LpnOracle {
 
     // Set the new k
     oracle.k = k - b;
+    oracle.secret.truncate(oracle.k as usize);
     oracle.delta = oracle.delta.powi(2);
 
     println!(

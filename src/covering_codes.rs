@@ -71,6 +71,7 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
         .collect();
 
     oracle.delta_s = oracle.delta;
+    oracle.secret.truncate(oracle.k as usize);
 
     oracle
 }

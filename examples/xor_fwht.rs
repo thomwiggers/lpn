@@ -1,6 +1,5 @@
 extern crate lpn;
 
-use lpn::bkw::*;
 use lpn::lf1::*;
 use lpn::oracle::LpnOracle;
 

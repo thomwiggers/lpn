@@ -57,6 +57,7 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
     }
     // Set the new k
     oracle.k = k - (a - 1) * b;
+    oracle.secret.truncate(oracle.k as usize);
     println!(
         "BKW iterations done, {} queries left, k' = {}",
         oracle.queries.len(),

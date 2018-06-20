@@ -21,6 +21,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let mut rng = rand::thread_rng();
 
     println!("Attempting Pooled Gauss solving method, k={}, tau={}", k, tau);
+    println!("Target secret weight <= {}", c);
     println!("Building (Am, b) with length {}", m);
     let (am, bm) = {
         let queries = rand::seq::sample_iter(&mut rng, oracle.queries.iter(), m).unwrap();
