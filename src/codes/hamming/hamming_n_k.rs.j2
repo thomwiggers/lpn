@@ -12,7 +12,7 @@ static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 
 fn init() {
     INIT.call_once(|| {
-        unsafe { 
+        unsafe {
             let matrix = Box::new(BinMatrix::new(vec![
                 {% for row in generator %}BinVector::from_bools(&[{{ row|boollist }}]),
                 {% endfor %}
@@ -69,6 +69,11 @@ impl BinaryCode<'static> for HammingCode{{n}}_{{k}} {
     fn encode(&self, c: &BinVector) -> BinVector {
         debug_assert_eq!(c.len(), self.dimension());
         BinVector::from_bools(&ENCODE[c.as_u32() as usize])
+    }
+
+    // for hamming codes
+    fn bias(&self, delta: f64) -> f64 {
+        (1f64 + ({{ n }} as f64) * delta_s) / (({{ n }} + 1) as f64)
     }
 }
 

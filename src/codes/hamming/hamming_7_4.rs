@@ -217,6 +217,11 @@ impl BinaryCode<'static> for HammingCode7_4 {
         debug_assert_eq!(c.len(), self.dimension());
         BinVector::from_bools(&ENCODE[c.as_u32() as usize])
     }
+
+    // for hamming codes
+    fn bias(&self, delta: f64) -> f64 {
+        (1f64 + (7 as f64) * delta_s) / ((7 + 1) as f64)
+    }
 }
 
 #[cfg(test)]
