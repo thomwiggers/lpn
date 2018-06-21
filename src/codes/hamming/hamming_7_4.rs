@@ -220,7 +220,7 @@ impl BinaryCode<'static> for HammingCode7_4 {
 
     // for hamming codes
     fn bias(&self, delta: f64) -> f64 {
-        (1f64 + (7 as f64) * delta_s) / ((7 + 1) as f64)
+        (1f64 + (7 as f64) * delta) / ((7 + 1) as f64)
     }
 }
 

@@ -34900,7 +34900,7 @@ impl BinaryCode<'static> for HammingCode15_11 {
 
     // for hamming codes
     fn bias(&self, delta: f64) -> f64 {
-        (1f64 + (15 as f64) * delta_s) / ((15 + 1) as f64)
+        (1f64 + (15 as f64) * delta) / ((15 + 1) as f64)
     }
 }
 

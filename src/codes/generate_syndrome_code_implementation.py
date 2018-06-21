@@ -83,9 +83,9 @@ def generate_code_implementation(name, code):
 
 
 if __name__ == "__main__":
-    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 2))
-    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 3))
-    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 4))
+    #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 2))
+    #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 3))
+    #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 4))
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 5))
-    #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 6))
+    generate_code_implementation("Hamming", codes.HammingCode(GF(2), 6))
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))

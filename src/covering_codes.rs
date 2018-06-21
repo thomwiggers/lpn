@@ -20,7 +20,7 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     let mut rng = rand::thread_rng();
     // get M, c'
     let (m, c_prime, queries) = loop {
-        let (mut a, b, queries) = {
+        let (a, b, queries) = {
             let queries =
                 rand::seq::sample_iter(&mut rng, oracle.queries.iter().cloned(), k as usize)
                     .unwrap();
@@ -41,7 +41,7 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
                 queries,
             )
         };
-        if a.echelonize() == k as usize {
+        if a.clone().echelonize() == k as usize {
             break (a, b, queries);
         }
     };
@@ -86,6 +86,8 @@ pub fn code_reduction<'a, T: BinaryCode<'a> + Sync>(
     mut oracle: LpnOracle,
     code: T,
 ) -> LpnOracle {
+    assert_ne!(oracle.delta_s, 0.5,
+               "This reduction only works for sparse secrets!");
     assert_eq!(
         oracle.k as usize,
         code.length(),
