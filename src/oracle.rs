@@ -1,4 +1,4 @@
-use m4ri_rust::friendly::BinVector;
+use m4ri_rust::friendly::*;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::{self, Rng};
 use std::ops::Range;
@@ -23,6 +23,8 @@ pub struct LpnOracle {
     pub k: u32,
     pub delta: f64,
     pub delta_s: f64,
+    pub sparse_transform_matrix: Option<BinMatrix>,
+    pub sparse_transform_vector: Option<BinVector>,
 }
 
 impl LpnOracle {
@@ -47,7 +49,14 @@ impl LpnOracle {
             k,
             delta: 1f64 - 2f64 * tau,
             delta_s: 0f64, // uniformly random
+            sparse_transform_matrix: None,
         }
+    }
+
+    pub fn new_with_secret(secret: BinVector, tau: f64) -> LpnOracle {
+        let mut lpn = Self::new(secret.len() as u32, tau);
+        lpn.secret = secret;
+        lpn
     }
 
     pub fn get_queries(&mut self, n: usize) {

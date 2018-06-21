@@ -18,14 +18,15 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     println!("Reducing to a sparse secret");
     let k = oracle.k;
     let mut rng = rand::thread_rng();
-    // get M, c'
-    let (m, c_prime, queries) = loop {
-        let (a, b, queries) = {
+    // get M, e, c'
+    let (m, c_prime, e, queries) = loop {
+        let (a, b, e, queries) = {
             let queries =
                 rand::seq::sample_iter(&mut rng, oracle.queries.iter().cloned(), k as usize)
                     .unwrap();
             // replace by matrix directly?
             let mut b = BinVector::with_capacity(k as usize);
+            let mut e = BinVector::with_capacity(k as usize);
             (
                 // vectors on the columns
                 BinMatrix::new(
@@ -33,25 +34,32 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
                         .iter()
                         .map(|q| {
                             b.push(q.s);
+                            e.push(q.e);
                             q.a.clone()
                         })
                         .collect(),
                 ),
                 b,
+                e,
                 queries,
             )
         };
         if a.clone().echelonize() == k as usize {
-            break (a, b, queries);
+            break (a, b, e, queries);
         }
     };
 
     // update the secret:
+    let original_secret = oracle.secret;
     println!(
         "the secret prior to reduction to a sparse secret was: {:?}",
-        oracle.secret
+        original_secret
     );
-    oracle.secret = &(&m * &oracle.secret) + &c_prime;
+    debug_assert_eq!((&original_secret * &m.transposed()) + e, c_prime);
+    oracle.secret = &(&m * &original_secret) + &c_prime;
+
+    debug_assert_eq!((&oracle.secret + &c_prime) * m.transposed().inverted(),
+                     original_secret);
 
     let m_t_inv = m.inverted();
     // update the queries
@@ -70,10 +78,20 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
         })
         .collect();
 
+    oracle.sparse_transform_matrix = Some(m);
+    oracle.sparse_transform_vector = Some(c_prime);
     oracle.delta_s = oracle.delta;
     oracle.secret.truncate(oracle.k as usize);
 
     oracle
+}
+
+/// Undo the sparse secret reduction for secrets.
+pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector{
+    let m = &oracle.sparse_transform_matrix.clone().expect("Not a sparse oracle");
+    let c_prime = &oracle.sparse_transform_vector.clone().unwrap();
+
+    (secret + c_prime) * m.transposed().inverted()
 }
 
 /// Reduce using the covering codes attack (Guo, Johansson, Lohndal; 2014)
@@ -86,7 +104,7 @@ pub fn code_reduction<'a, T: BinaryCode<'a> + Sync>(
     mut oracle: LpnOracle,
     code: T,
 ) -> LpnOracle {
-    assert_ne!(oracle.delta_s, 0.5,
+    assert_ne!(oracle.delta_s, 0.0,
                "This reduction only works for sparse secrets!");
     assert_eq!(
         oracle.k as usize,

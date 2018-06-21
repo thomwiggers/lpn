@@ -91,10 +91,12 @@ impl BinaryCode<'static> for {{ name }}Code{{n}}_{{k}} {
         {% endif %}
     }
 
+    {% if name == "Hamming" %}
     // for hamming codes
     fn bias(&self, delta: f64) -> f64 {
         (1f64 + ({{ n }} as f64) * delta) / (({{ n }} + 1) as f64)
     }
+    {% endif %}
 }
 
 #[cfg(test)]

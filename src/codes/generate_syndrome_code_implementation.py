@@ -88,4 +88,6 @@ if __name__ == "__main__":
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 4))
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 5))
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 6))
+    generate_code_implementation("Golay", codes.GolayCode(GF(2), extended=False))
+    generate_code_implementation("Golay", codes.GolayCode(GF(2), extended=True))
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))

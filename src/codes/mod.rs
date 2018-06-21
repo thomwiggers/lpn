@@ -82,6 +82,11 @@ pub trait BinaryCode<'a> {
 mod hamming;
 pub use self::hamming::*;
 
+/*
+mod golay;
+pub use self::golay::*;
+*/
+
 mod concatenated;
 pub use self::concatenated::*;
 
