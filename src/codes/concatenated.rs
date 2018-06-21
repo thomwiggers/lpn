@@ -93,8 +93,10 @@ impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
         decoded
     }
 
-    fn bias(&self, delta: f64) -> f64{
-        self.codes.iter().fold(1f64, |acc, code| acc * code.bias(delta))
+    fn bias(&self, delta: f64) -> f64 {
+        self.codes
+            .iter()
+            .fold(1f64, |acc, code| acc * code.bias(delta))
     }
 }
 

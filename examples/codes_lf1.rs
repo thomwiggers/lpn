@@ -16,6 +16,11 @@ fn main() {
     //let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     let code = HammingCode15_11;
     let oracle = reduce_sparse_secret(oracle);
+    let mut secret = oracle.secret.clone();
+    secret.truncate(oracle.k as usize);
+    let unsps = unsparse_secret(&oracle, &secret);
+    println!("unsparsed s:    {:?}", unsps);
+
     let oracle = code_reduction(oracle, code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
@@ -24,6 +29,6 @@ fn main() {
     println!("Actual:         {:?}", secret);
     println!("Found (FWHT):   {:?}", fwht_solution);
 
-    let gauss_solution = pooled_gauss_solve(oracle);
+    let gauss_solution = pooled_gauss_solve(oracle.clone());
     println!("Found (Gauss):  {:?}", gauss_solution);
 }

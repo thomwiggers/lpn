@@ -58,8 +58,10 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     debug_assert_eq!((&original_secret * &m.transposed()) + e, c_prime);
     oracle.secret = &(&m * &original_secret) + &c_prime;
 
-    debug_assert_eq!((&oracle.secret + &c_prime) * m.transposed().inverted(),
-                     original_secret);
+    debug_assert_eq!(
+        (&oracle.secret + &c_prime) * m.transposed().inverted(),
+        original_secret
+    );
 
     let m_t_inv = m.inverted();
     // update the queries
@@ -87,8 +89,11 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
 }
 
 /// Undo the sparse secret reduction for secrets.
-pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector{
-    let m = &oracle.sparse_transform_matrix.clone().expect("Not a sparse oracle");
+pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector {
+    let m = &oracle
+        .sparse_transform_matrix
+        .clone()
+        .expect("Not a sparse oracle");
     let c_prime = &oracle.sparse_transform_vector.clone().unwrap();
 
     (secret + c_prime) * m.transposed().inverted()
@@ -100,12 +105,11 @@ pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector{
 /// $n' = n$
 /// $d' = d * bc$
 /// $d'_s$ depends on $d_s$ and $G$.
-pub fn code_reduction<'a, T: BinaryCode<'a> + Sync>(
-    mut oracle: LpnOracle,
-    code: T,
-) -> LpnOracle {
-    assert_ne!(oracle.delta_s, 0.0,
-               "This reduction only works for sparse secrets!");
+pub fn code_reduction<'a, T: BinaryCode<'a> + Sync>(mut oracle: LpnOracle, code: T) -> LpnOracle {
+    assert_ne!(
+        oracle.delta_s, 0.0,
+        "This reduction only works for sparse secrets!"
+    );
     assert_eq!(
         oracle.k as usize,
         code.length(),

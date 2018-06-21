@@ -1,6 +1,6 @@
-use std::collections::HashSet;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
+use std::collections::HashSet;
 use std::mem;
 
 static N: usize = 100000;
@@ -53,7 +53,7 @@ pub trait BinaryCode<'a> {
     }
 
     /// Get or compute the bc of a code
-    fn bias(&self, delta: f64) -> f64{
+    fn bias(&self, delta: f64) -> f64 {
         let mut distances = Vec::with_capacity(N);
         if 2f64.powi(self.length() as i32) > 1.5 * N as f64 {
             let mut seen = HashSet::new();
@@ -73,7 +73,9 @@ pub trait BinaryCode<'a> {
         }
 
         let count = distances.len();
-        let sum = distances.into_iter().fold(0f64, |acc, dist| acc + delta.powi(dist));
+        let sum = distances
+            .into_iter()
+            .fold(0f64, |acc, dist| acc + delta.powi(dist));
 
         sum / (count as f64)
     }
