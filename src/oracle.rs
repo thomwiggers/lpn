@@ -50,6 +50,7 @@ impl LpnOracle {
             delta: 1f64 - 2f64 * tau,
             delta_s: 0f64, // uniformly random
             sparse_transform_matrix: None,
+            sparse_transform_vector: None,
         }
     }
 
