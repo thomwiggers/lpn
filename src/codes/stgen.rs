@@ -222,11 +222,13 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
                 let (ep_lo, ep_hi) = split_binvec(ep, k_sum - ki);
                 for e_prime in vectors_up_to(max_weight as usize, ni + ki) {
                     // find x'G st xG + b == e'
-                    let x_prime = small_code.decode_to_message(&(&b_tmp + &e_prime));
-                    // XXX should this be the case?
-                    if &small_code.encode(&x_prime) + &e_prime != b_tmp {
+                    let mut x_code = small_code.decode_to_code(&(&b_tmp + &e_prime));
+                    if &x_code + &e_prime != b_tmp {
                         continue;
                     }
+                    // rename to be more accurate
+                    x_code.truncate(ki);
+                    let x_prime = x_code;
                     let (e_prime_lo, e_prime_hi) = split_binvec(e_prime, ki);
                     let mut e_new = BinVector::with_capacity(ni + ki);
                     e_new.extend_from_binvec(&ep_lo);
