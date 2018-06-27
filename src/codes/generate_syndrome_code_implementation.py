@@ -52,7 +52,7 @@ def generate_code_implementation(name, code):
 
     testcases = []
     seen = set()
-    for i in range(min(2**k, 200)):
+    for i in range(min(2**k, 20)):
         m = None
         while m is None or m in seen:
             m = random_vector(GF(2), k)
@@ -65,7 +65,7 @@ def generate_code_implementation(name, code):
             'encoded': encoded,
             'errorvecs': [],
         }
-        for errors in range(1, max_error + 1):
+        for errors in range(1, max_error):
             chan = channels.StaticErrorRateChannel(
                 GF(2)**code.length(), errors)
             testcase['errorvecs'].append(tuple(chan.transmit(encoded)))
