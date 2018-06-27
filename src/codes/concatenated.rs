@@ -12,16 +12,16 @@ use std::sync::Mutex;
 ///
 /// It will construct the generator matrix lazily and use the encode and
 /// decode mechanism of the 'child' codes.
-pub struct ConcatenatedCode<'a, 'c: 'a> {
-    codes: Vec<&'a BinaryCode<'c>>,
+pub struct ConcatenatedCode<'a> {
+    codes: Vec<&'a BinaryCode>,
     init: Mutex<bool>,
     generator: UnsafeCell<*mut BinMatrix>,
 }
 
-unsafe impl<'a, 'b> Sync for ConcatenatedCode<'a, 'b> {}
+unsafe impl<'a> Sync for ConcatenatedCode<'a> {}
 
-impl<'codes, 'code> ConcatenatedCode<'codes, 'code> {
-    pub fn new(codes: Vec<&'codes BinaryCode<'code>>) -> ConcatenatedCode<'codes, 'code> {
+impl<'codes> ConcatenatedCode<'codes> {
+    pub fn new(codes: Vec<&'codes dyn BinaryCode>) -> ConcatenatedCode<'codes> {
         ConcatenatedCode {
             codes,
             init: Mutex::new(false),
@@ -30,7 +30,7 @@ impl<'codes, 'code> ConcatenatedCode<'codes, 'code> {
     }
 }
 
-impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
+impl<'codes, 'code> BinaryCode for ConcatenatedCode<'codes> {
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }
@@ -39,7 +39,7 @@ impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
         self.codes.iter().fold(0usize, |a, c| a + c.dimension())
     }
 
-    fn generator_matrix(&self) -> &'codes BinMatrix {
+    fn generator_matrix(&self) -> &BinMatrix {
         debug_assert_ne!(
             self.codes.len(),
             0,
@@ -64,7 +64,7 @@ impl<'codes, 'code> BinaryCode<'codes> for ConcatenatedCode<'codes, 'code> {
         unsafe { (*(self.generator.get())).as_ref().unwrap() }
     }
 
-    fn parity_check_matrix(&self) -> &'static BinMatrix {
+    fn parity_check_matrix(&self) -> &BinMatrix {
         panic!("Not yet implemented");
     }
 
@@ -106,7 +106,7 @@ mod tests {
     use codes::hamming::*;
     use m4ri_rust::friendly::BinVector;
 
-    fn get_code() -> ConcatenatedCode<'static, 'static> {
+    fn get_code() -> ConcatenatedCode<'static> {
         let codes: Vec<&BinaryCode<'static>> = vec![&HammingCode7_4, &HammingCode3_1];
         ConcatenatedCode::new(codes)
     }

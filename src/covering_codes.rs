@@ -105,7 +105,7 @@ pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector {
 /// $n' = n$
 /// $d' = d * bc$
 /// $d'_s$ depends on $d_s$ and $G$.
-pub fn code_reduction<'a, T: BinaryCode<'a> + Sync>(mut oracle: LpnOracle, code: T) -> LpnOracle {
+pub fn code_reduction<T: BinaryCode + Sync>(mut oracle: LpnOracle, code: T) -> LpnOracle {
     assert_ne!(
         oracle.delta_s, 0.0,
         "This reduction only works for sparse secrets!"

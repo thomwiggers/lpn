@@ -15,8 +15,8 @@ use std::sync::Mutex;
 ///
 /// It will construct the generator matrix lazily and use the encode and
 /// decode mechanism of the 'child' codes.
-pub struct StGenCode<'a, 'c: 'a> {
-    codes: Vec<&'a BinaryCode<'c>>,
+pub struct StGenCode<'codes> {
+    codes: Vec<&'codes dyn BinaryCode>,
     noises: Vec<BinMatrix>,
     init: Mutex<bool>,
     generator: UnsafeCell<*mut BinMatrix>,
@@ -25,16 +25,16 @@ pub struct StGenCode<'a, 'c: 'a> {
     wb: u32,
 }
 
-unsafe impl<'a, 'b> Sync for StGenCode<'a, 'b> {}
+unsafe impl<'a> Sync for StGenCode<'a> {}
 
-impl<'codes, 'code> StGenCode<'codes, 'code> {
+impl<'codes, 'code> StGenCode<'codes> {
     /// Construct a new stgencode
     pub fn new(
-        codes: Vec<&'codes BinaryCode<'code>>,
+        codes: Vec<&'codes dyn BinaryCode>,
         w0: u32,
         l_max: usize,
         wb: u32,
-    ) -> StGenCode<'codes, 'code> {
+    ) -> StGenCode<'codes> {
         debug_assert_ne!(codes.len(), 0, "need at least 1 code");
         let mut noises = Vec::with_capacity(codes.len() - 1);
         let mut k_sum = codes[0].dimension();
@@ -74,7 +74,7 @@ impl<'codes, 'code> StGenCode<'codes, 'code> {
     }
 }
 
-impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
+impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }
@@ -83,7 +83,7 @@ impl<'codes, 'code> BinaryCode<'codes> for StGenCode<'codes, 'code> {
         self.codes.iter().fold(0usize, |a, c| a + c.dimension())
     }
 
-    fn generator_matrix(&self) -> &'codes BinMatrix {
+    fn generator_matrix(&self) -> &BinMatrix {
         debug_assert_ne!(
             self.codes.len(),
             0,

@@ -1,3 +1,5 @@
+//#![feature(nll)]
+
 extern crate fnv;
 extern crate itertools;
 extern crate m4ri_rust;

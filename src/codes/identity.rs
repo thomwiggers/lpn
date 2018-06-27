@@ -1,10 +1,20 @@
+use std::cmp;
 use codes::BinaryCode;
 use m4ri_rust::friendly::*;
 
+#[derive(Debug, Clone)]
 pub struct IdentityCode {
     k: usize,
     generator: BinMatrix,
 }
+
+impl cmp::PartialEq for IdentityCode {
+    fn eq(&self, other: &IdentityCode) -> bool {
+        self.k == other.k
+    }
+}
+
+impl cmp::Eq for IdentityCode {}
 
 impl IdentityCode {
     pub fn new(k: usize) -> IdentityCode {
@@ -15,7 +25,8 @@ impl IdentityCode {
     }
 }
 
-impl<'a, 'c: 'a> BinaryCode<'a> for &'c IdentityCode {
+impl BinaryCode for IdentityCode
+{
     fn length(&self) -> usize {
         self.k
     }
@@ -24,12 +35,11 @@ impl<'a, 'c: 'a> BinaryCode<'a> for &'c IdentityCode {
         self.k
     }
 
-    fn generator_matrix(&self) -> &'a BinMatrix {
+    fn generator_matrix(&self) -> &BinMatrix {
         &self.generator
     }
 
-
-    fn parity_check_matrix(&self) -> &'a BinMatrix {
+    fn parity_check_matrix(&self) -> &BinMatrix {
         panic!("Doesn't have one");
     }
 

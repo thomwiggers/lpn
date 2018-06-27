@@ -43,7 +43,7 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
 
         vector_partitions.par_iter_mut().for_each(|partition| {
             if let Some(first) = partition.pop() {
-                for mut v in partition.iter_mut() {
+                for v in partition.iter_mut() {
                     v.a += &first.a;
                     v.s ^= first.s;
                 }

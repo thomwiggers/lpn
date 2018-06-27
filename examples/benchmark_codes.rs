@@ -3,12 +3,7 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
 
-use itertools::Itertools;
 use lpn::codes::*;
-use m4ri_rust::friendly::*;
-use rayon::prelude::*;
-use std::collections::HashSet;
-use std::mem;
 
 static K: usize = 128;
 
@@ -20,11 +15,13 @@ fn main() {
         ("Hamming [31, 26]".to_owned(), &HammingCode31_26),
     ];
     codes.reserve(K);
-    let owned_codes = Vec::with_capacity(K);
-    for k in 0..K {
-        let new_code = IdentityCode::new(k);
-        codes.push((format!("Identity [{},{}]", k, k), &&new_code));
-        owned_codes.push(new_code);
+    for k in 1..K {
+        let code = IdentityCode::new(k);
+        let tuple: (String, &dyn BinaryCode) = (
+            format!("Identity [{}, {}]", k, k),
+            &&code
+        );
+        codes.push(tuple);
     }
 
 

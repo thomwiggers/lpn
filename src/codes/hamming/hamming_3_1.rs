@@ -22,7 +22,7 @@ fn init() {
             let matrix = Box::new(BinMatrix::new(vec![
                     BinVector::from_bools(&[true, false, true]),
                     BinVector::from_bools(&[false, true, true]),
-
+                    
             ]));
             PARITY_MATRIX = Box::into_raw(matrix);
         }
@@ -46,7 +46,7 @@ static ENCODE: [[bool; 3]; 2] = [
 ];
 
 
-impl BinaryCode<'static> for HammingCode3_1 {
+impl BinaryCode for HammingCode3_1 {
     fn length(&self) -> usize {
         3
     }
@@ -55,14 +55,14 @@ impl BinaryCode<'static> for HammingCode3_1 {
         1
     }
 
-    fn generator_matrix(&self) -> &'static BinMatrix {
+    fn generator_matrix(&self) -> &BinMatrix {
         init();
         unsafe {
             GENERATOR_MATRIX.as_ref().unwrap()
         }
     }
 
-    fn parity_check_matrix(&self) -> &'static BinMatrix {
+    fn parity_check_matrix(&self) -> &BinMatrix {
         init();
         unsafe {
             PARITY_MATRIX.as_ref().unwrap()

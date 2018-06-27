@@ -26,7 +26,7 @@ fn init() {
                     BinVector::from_bools(&[true, false, true, false, true, false, true]),
                     BinVector::from_bools(&[false, true, true, false, false, true, true]),
                     BinVector::from_bools(&[false, false, false, true, true, true, true]),
-
+                    
             ]));
             PARITY_MATRIX = Box::into_raw(matrix);
         }
@@ -184,7 +184,7 @@ static ENCODE: [[bool; 7]; 16] = [
 ];
 
 
-impl BinaryCode<'static> for HammingCode7_4 {
+impl BinaryCode for HammingCode7_4 {
     fn length(&self) -> usize {
         7
     }
@@ -193,14 +193,14 @@ impl BinaryCode<'static> for HammingCode7_4 {
         4
     }
 
-    fn generator_matrix(&self) -> &'static BinMatrix {
+    fn generator_matrix(&self) -> &BinMatrix {
         init();
         unsafe {
             GENERATOR_MATRIX.as_ref().unwrap()
         }
     }
 
-    fn parity_check_matrix(&self) -> &'static BinMatrix {
+    fn parity_check_matrix(&self) -> &BinMatrix {
         init();
         unsafe {
             PARITY_MATRIX.as_ref().unwrap()

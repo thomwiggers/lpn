@@ -14,7 +14,7 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     result
 }
 
-pub trait BinaryCode<'a> {
+pub trait BinaryCode {
     /// Length of the code
     fn length(&self) -> usize;
 
@@ -22,10 +22,10 @@ pub trait BinaryCode<'a> {
     fn dimension(&self) -> usize;
 
     /// Generator Matrix
-    fn generator_matrix(&self) -> &'a BinMatrix;
+    fn generator_matrix(&self) -> &BinMatrix;
 
     /// Parity check matrix
-    fn parity_check_matrix(&self) -> &'a BinMatrix;
+    fn parity_check_matrix(&self) -> &BinMatrix;
 
     /// Decode a codeword to the codeword space
     fn decode_to_code(&self, c: &BinVector) -> BinVector {

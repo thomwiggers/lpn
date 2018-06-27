@@ -39,7 +39,7 @@ fn init() {
 }
 
 
-impl BinaryCode<'static> for {{ name }}Code{{n}}_{{k}} {
+impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
     fn length(&self) -> usize {
         {{ n }}
     }
@@ -48,14 +48,14 @@ impl BinaryCode<'static> for {{ name }}Code{{n}}_{{k}} {
         {{ k }}
     }
 
-    fn generator_matrix(&self) -> &'static BinMatrix {
+    fn generator_matrix(&self) -> &BinMatrix {
         init();
         unsafe {
             GENERATOR_MATRIX.as_ref().unwrap()
         }
     }
 
-    fn parity_check_matrix(&self) -> &'static BinMatrix {
+    fn parity_check_matrix(&self) -> &BinMatrix {
         init();
         unsafe {
             PARITY_MATRIX.as_ref().unwrap()
