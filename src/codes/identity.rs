@@ -1,6 +1,6 @@
-use std::cmp;
 use codes::BinaryCode;
 use m4ri_rust::friendly::*;
+use std::cmp;
 
 #[derive(Debug, Clone)]
 pub struct IdentityCode {
@@ -25,8 +25,7 @@ impl IdentityCode {
     }
 }
 
-impl BinaryCode for IdentityCode
-{
+impl BinaryCode for IdentityCode {
     fn length(&self) -> usize {
         self.k
     }
@@ -42,7 +41,6 @@ impl BinaryCode for IdentityCode
     fn parity_check_matrix(&self) -> &BinMatrix {
         panic!("Doesn't have one");
     }
-
 
     fn decode_to_code(&self, c: &BinVector) -> BinVector {
         c.clone()

@@ -17,7 +17,7 @@ use std::sync::Mutex;
 /// decode mechanism of the 'child' codes.
 pub struct StGenCode<'codes> {
     codes: Vec<&'codes dyn BinaryCode>,
-    noises: Vec<BinMatrix>,
+    noises: Vec<Option<BinMatrix>>,
     init: Mutex<bool>,
     generator: UnsafeCell<*mut BinMatrix>,
     w0: u32,
@@ -25,9 +25,34 @@ pub struct StGenCode<'codes> {
     wb: u32,
 }
 
+impl<'codes> Clone for StGenCode<'codes> {
+    fn clone(&self) -> Self {
+        StGenCode {
+            codes: self.codes.clone(),
+            noises: self.noises.clone(),
+            init: Mutex::new(false),
+            generator: UnsafeCell::new(ptr::null_mut()),
+            w0: self.w0,
+            l_max: self.l_max,
+            wb: self.wb,
+        }
+    }
+}
+
+fn printgen(gen: &BinMatrix) {
+    println!("{}x{}", gen.nrows(), gen.ncols());
+    for i in 0..gen.nrows() {
+        print!("[");
+        for j in 0..gen.ncols() {
+            print!("{}, ", gen.bit(i, j) as u8);
+        }
+        println!("]");
+    }
+}
+
 unsafe impl<'a> Sync for StGenCode<'a> {}
 
-impl<'codes, 'code> StGenCode<'codes> {
+impl<'codes> StGenCode<'codes> {
     /// Construct a new stgencode
     pub fn new(
         codes: Vec<&'codes dyn BinaryCode>,
@@ -37,16 +62,20 @@ impl<'codes, 'code> StGenCode<'codes> {
     ) -> StGenCode<'codes> {
         debug_assert_ne!(codes.len(), 0, "need at least 1 code");
         let mut noises = Vec::with_capacity(codes.len() - 1);
+        noises.push(None); // first block always none
         let mut k_sum = codes[0].dimension();
         for code in codes.iter().skip(1) {
             let ni = code.length() - code.dimension();
-            let noise = BinMatrix::random(k_sum, ni);
+            let noise = if ni != 0 {
+                Some(BinMatrix::random(k_sum, ni))
+            } else {
+                None
+            };
             debug_assert_ne!(k_sum, 0);
-            debug_assert_eq!(noise.nrows(), k_sum);
             noises.push(noise);
             k_sum += code.dimension();
         }
-        debug_assert_eq!(noises.len(), codes.len() - 1);
+        debug_assert_eq!(noises.len(), codes.len());
         StGenCode {
             codes,
             noises,
@@ -74,7 +103,7 @@ impl<'codes, 'code> StGenCode<'codes> {
     }
 }
 
-impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
+impl<'codes> BinaryCode for StGenCode<'codes> {
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }
@@ -92,27 +121,53 @@ impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
         // check if we've initialized the generator
         {
             let get_code_bits = |code: &BinaryCode| {
-                (code.generator_matrix().get_window(
+                debug_assert_ne!(code.dimension(), code.length(),
+                                 "Would construct 0 matrix");
+                code.generator_matrix().get_window(
                     0,
                     code.dimension(),
                     code.dimension(),
                     code.length(),
-                ))
+                )
             };
-            let initialized: bool = *self.init.lock().unwrap();
-            if !initialized {
-                let b0 = get_code_bits(self.codes[0]);
-                debug_assert_eq!(b0.nrows(), self.codes[0].dimension());
-                let mut gen = b0.clone();
-                let mut ki = b0.nrows();
-                for (i, code) in self.codes.iter().skip(1).enumerate() {
+            let mut initialized = self.init.lock().unwrap();
+            if !*initialized {
+                let mut ki = 0;
+                let mut start = 0;
+                let mut gen = loop {
+                    let code = self.codes[start];
+                    ki += code.dimension();
+                    start += 1;
+                    if code.dimension() != code.length() {
+                        let b0 = get_code_bits(code);
+                        debug_assert_eq!(b0.nrows(), code.dimension());
+                        break if b0.nrows() != ki { // we skipped at least one block
+                            let noise_blk = self.noises[start-1].as_ref().unwrap(); // this must exist
+                            debug_assert_eq!(noise_blk.nrows(), ki-b0.nrows());
+                            debug_assert_eq!(noise_blk.ncols(), b0.ncols());
+                            let origin = noise_blk.stacked(&b0);
+                            origin
+                        } else {
+                            b0.clone()
+                        }
+                    }
+                };
+                for (i, code) in self.codes.iter().skip(1).enumerate().skip(start-1) {
                     debug_assert_eq!(gen.nrows(), ki);
+                    let ni = code.length() - code.dimension();
+                    if ni == 0 {
+                        ki += code.length();
+                        // add something to the bottom
+                        gen = gen.stacked(&BinMatrix::zero(code.dimension(), gen.ncols()));
+                        continue;
+                    }
                     let bi = get_code_bits(code.clone());
-                    let ni = bi.ncols();
                     debug_assert_eq!(bi.nrows(), code.dimension());
+                    debug_assert_eq!(bi.ncols(), ni);
                     let corner = (gen.nrows(), gen.ncols());
-                    let noise_block = &self.noises[i];
+                    let noise_block = self.noises[i+1].as_ref().unwrap();
                     debug_assert_eq!(noise_block.ncols(), ni);
+                    debug_assert_eq!(noise_block.nrows(), ki);
                     debug_assert_eq!(
                         noise_block.nrows(),
                         gen.nrows(),
@@ -127,15 +182,16 @@ impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
                 debug_assert_eq!(
                     gen.nrows(),
                     self.dimension(),
-                    "INT: The right part should have the size of the dimension"
+                    "INT: The right part should have $dimension rows"
                 );
                 let gen_box = Box::new(BinMatrix::identity(self.dimension()).augmented(&gen));
-                debug_assert_eq!(gen_box.nrows(), self.dimension());
-                debug_assert_eq!(gen_box.ncols(), self.length());
+                debug_assert_eq!(gen_box.nrows(), self.dimension(), "INT: rows incorrect");
+                debug_assert_eq!(gen_box.ncols(), self.length(), "INT: cols incorrect");
 
                 unsafe {
                     *(self.generator.get()) = Box::into_raw(gen_box);
                 }
+                *initialized = true;
             };
         }
         unsafe { (*(self.generator.get())).as_ref().unwrap() }
@@ -190,12 +246,11 @@ impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
                 b_tmp.clear();
                 b_tmp.extend_from_binvec(&b);
                 debug_assert!(
-                    b_tmp.capacity() < 10000000,
+                    b_tmp.capacity() < 100000,
                     "capacity is {}",
                     b_tmp.capacity()
                 );
-                if i > 0 {
-                    let block_noise = &self.noises[i - 1];
+                if let Some(block_noise) = self.noises[i].as_ref() {
                     debug_assert_eq!(
                         block_noise.nrows(),
                         xp.len(),
@@ -214,7 +269,7 @@ impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
                 let max_weight = if i > 0 {
                     min((ni + ki) as u32, min(wi - ep.count_ones(), self.wb))
                 } else {
-                    wi
+                    min(wi, self.wb)
                 };
                 debug_assert!(max_weight <= self.wb);
 
@@ -256,9 +311,10 @@ impl<'codes, 'code> BinaryCode for StGenCode<'codes> {
 
         if let Some((x, e)) = l_previous.into_iter().min_by_key(|(_x, e)| e.count_ones()) {
             debug_assert_eq!(
-                self.encode(&x),
-                &e + orig_c,
-                "This isn't a valid solution?!"
+                &(&self.encode(&x) + &e),
+                orig_c,
+                "This isn't a valid solution?! {:?} G + {:?} != {:?}",
+                &x, &e, orig_c,
             );
             x
         } else {
@@ -338,7 +394,7 @@ fn vectors_up_to(weight: usize, length: usize) -> WeightIterator {
 mod tests {
 
     use super::*;
-    use codes::hamming::*;
+    use codes::*;
     use m4ri_rust::friendly::BinVector;
 
     #[test]
@@ -379,15 +435,19 @@ mod tests {
         assert_eq!(generator.next(), None);
     }
 
-    fn get_code() -> StGenCode<'static, 'static> {
-        let codes: Vec<&BinaryCode<'static>> = vec![
+    lazy_static! {
+        static ref IDCODE: IdentityCode = IdentityCode::new(3);
+    }
+    fn get_code() -> StGenCode<'static> {
+        let codes: Vec<&dyn BinaryCode> = vec![
+            &*IDCODE,
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,
-            &HammingCode7_4,
+            &*IDCODE,
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,
@@ -408,6 +468,11 @@ mod tests {
         for (i, subcode) in code.codes.iter().enumerate() {
             let ki = subcode.dimension();
             let ni = subcode.length() - ki;
+            if ni == 0 {
+                // skip this one
+                row += ki;
+                continue;
+            }
             let window = gen.get_window(row, col, row + ki, col + ni);
             let other_window = subcode.generator_matrix().get_window(0, ki, ki, ni + ki);
             assert_eq!(window.nrows(), other_window.nrows());
@@ -425,8 +490,8 @@ mod tests {
             assert_eq!(window, other_window);
 
             // check noise blocks
-            if i > 0 {
-                let noise = &code.noises[i - 1];
+            if i > 0 && ni != 0 {
+                let noise = code.noises[i].as_ref().unwrap();
                 let window = gen.get_window(0, col, row, col + ni);
                 assert_eq!(window.nrows(), noise.nrows());
                 assert_eq!(window.ncols(), noise.ncols());
@@ -434,7 +499,6 @@ mod tests {
                 for i in 0..window.nrows() {
                     for j in 0..window.ncols() {
                         if window.bit(i, j) != noise.bit(i, j) {
-                            println!("bit {},{} unequal", i, j);
                             result = false;
                         }
                     }

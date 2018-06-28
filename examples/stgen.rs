@@ -5,8 +5,8 @@ extern crate rayon;
 use lpn::codes::*;
 use m4ri_rust::friendly::*;
 
-fn get_code() -> StGenCode<'static, 'static> {
-    let codes: Vec<&BinaryCode<'static>> = vec![
+fn get_code() -> StGenCode<'static> {
+    let codes: Vec<&dyn BinaryCode> = vec![
         &HammingCode7_4,
         &HammingCode7_4,
         &HammingCode7_4,

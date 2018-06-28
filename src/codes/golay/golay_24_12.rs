@@ -7,7 +7,7 @@ use std::boxed::Box;
 
 use fnv::FnvHashMap;
 
-
+#[derive(Debug)]
 pub struct GolayCode24_12;
 
 static INIT: Once = ONCE_INIT;
