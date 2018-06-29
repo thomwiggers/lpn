@@ -59,7 +59,7 @@ def generate_code_implementation(name, code):
             m.set_immutable()
         seen.add(m)
 
-        encoded = cs.encode(m)
+        encoded = m * cs.systematic_generator_matrix()
         testcase = {
             'm': m,
             'encoded': encoded,

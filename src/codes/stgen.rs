@@ -201,7 +201,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         panic!("Not yet implemented");
     }
 
-    fn decode_to_message(&self, c: &BinVector) -> BinVector {
+    fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         // track helpful variables
         let orig_c = c;
         let mut c = c.clone();
@@ -277,7 +277,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                 let (ep_lo, ep_hi) = split_binvec(ep, k_sum - ki);
                 for e_prime in vectors_up_to(max_weight as usize, ni + ki) {
                     // find x'G st xG + b == e'
-                    let mut x_code = small_code.decode_to_code(&(&b_tmp + &e_prime));
+                    let mut x_code = small_code.decode_to_code(&(&b_tmp + &e_prime))?;
                     if &x_code + &e_prime != b_tmp {
                         continue;
                     }
@@ -316,9 +316,9 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                 "This isn't a valid solution?! {:?} G + {:?} != {:?}",
                 &x, &e, orig_c,
             );
-            x
+            Ok(x)
         } else {
-            panic!("No result found!");
+            Err("No result found")
         }
     }
 }
@@ -520,7 +520,7 @@ mod tests {
         // idempotent
         assert_eq!(
             input,
-            code.decode_to_message(&code.encode(&input)),
+            code.decode_to_message(&code.encode(&input)).unwrap(),
             "not idempotent"
         );
     }

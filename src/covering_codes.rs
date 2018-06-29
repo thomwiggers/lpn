@@ -118,7 +118,7 @@ pub fn code_reduction<T: BinaryCode + Sync>(mut oracle: LpnOracle, code: T) -> L
 
     println!("Decoding queries");
     oracle.queries.par_iter_mut().for_each(|query| {
-        (*query).a = code.decode_to_message(&query.a);
+        (*query).a = code.decode_to_message(&query.a).expect("Couldn't decode??");
         debug_assert_eq!(query.a.len(), code.dimension());
     });
 

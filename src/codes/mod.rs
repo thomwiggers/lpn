@@ -29,12 +29,12 @@ pub trait BinaryCode {
     fn parity_check_matrix(&self) -> &BinMatrix;
 
     /// Decode a codeword to the codeword space
-    fn decode_to_code(&self, c: &BinVector) -> BinVector {
-        self.encode(&self.decode_to_message(c))
+    fn decode_to_code(&self, c: &BinVector) -> Result<BinVector, &str> {
+        Ok(self.encode(&self.decode_to_message(c)?))
     }
 
     /// Decode a codeword to the message space
-    fn decode_to_message(&self, c: &BinVector) -> BinVector;
+    fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str>;
 
     /// Encode a codeword
     fn encode(&self, c: &BinVector) -> BinVector {
@@ -63,13 +63,25 @@ pub trait BinaryCode {
                 if seen.contains(&v) {
                     continue;
                 }
-                distances.push((&v + &self.decode_to_code(&v)).count_ones() as i32);
-                seen.insert(v);
+                let decoded = self.decode_to_code(&v);
+                if let Ok(decoded) = decoded {
+                    distances.push((&v + &decoded).count_ones() as i32);
+                    seen.insert(v);
+                } else {
+                    println!("Decoding something failed");
+                    return 0.0;
+                }
             }
         } else {
             for i in 0..2usize.pow(self.length() as u32) {
                 let v = usize_to_binvec(i, self.length());
-                distances.push((&v + &self.decode_to_code(&v)).count_ones() as i32);
+                let decoded = self.decode_to_code(&v);
+                if let Ok(decoded) = decoded {
+                    distances.push((&v + &decoded).count_ones() as i32);
+                } else {
+                    println!("Decoding something failed");
+                    return 0.0;
+                }
             }
         }
 

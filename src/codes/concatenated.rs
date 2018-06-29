@@ -80,17 +80,17 @@ impl<'codes, 'code> BinaryCode for ConcatenatedCode<'codes> {
         encoded
     }
 
-    fn decode_to_message(&self, c: &BinVector) -> BinVector {
+    fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         let mut decoded = BinVector::with_capacity(self.dimension());
         let mut slice = c.clone();
         for code in self.codes.iter() {
             let next_decode = BinVector::from(slice.split_off(code.length()));
             debug_assert_eq!(slice.len(), code.length(), "Split length incorrect");
-            let decoded_slice = code.decode_to_message(&slice);
+            let decoded_slice = code.decode_to_message(&slice)?;
             decoded.extend_from_binvec(&decoded_slice);
             slice = next_decode;
         }
-        decoded
+        Ok(decoded)
     }
 
     fn bias(&self, delta: f64) -> f64 {
@@ -136,7 +136,7 @@ mod tests {
         // idempotent
         assert_eq!(
             input,
-            code.decode_to_message(&code.encode(&input)),
+            code.decode_to_message(&code.encode(&input)).unwrap(),
             "not idempotent"
         );
     }
@@ -147,8 +147,8 @@ mod tests {
 
         for _ in 0..100 {
             let v = BinVector::random(code.length());
-            let x = code.decode_to_message(&v);
-            let cw = code.decode_to_code(&v);
+            let x = code.decode_to_message(&v).unwrap();
+            let cw = code.decode_to_code(&v).unwrap();
             assert_eq!(&code.encode(&x), &cw);
             assert!((v + cw).count_ones() < 5);
         }

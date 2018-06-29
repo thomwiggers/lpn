@@ -42,12 +42,12 @@ impl BinaryCode for IdentityCode {
         panic!("Doesn't have one");
     }
 
-    fn decode_to_code(&self, c: &BinVector) -> BinVector {
-        c.clone()
+    fn decode_to_code(&self, c: &BinVector) -> Result<BinVector, &str> {
+        Ok(c.clone())
     }
 
-    fn decode_to_message(&self, c: &BinVector) -> BinVector {
-        c.clone()
+    fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
+        Ok(c.clone())
     }
 
     fn bias(&self, _delta: f64) -> f64 {

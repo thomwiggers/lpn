@@ -76,7 +76,7 @@ fn main() {
     //(0..100).into_par_iter().for_each(|_| {
     for _ in 0..10 {
         let i = BinVector::random(code.length());
-        code.decode_to_message(&i);
+        code.decode_to_message(&i).unwrap();
     }
     //});
 }

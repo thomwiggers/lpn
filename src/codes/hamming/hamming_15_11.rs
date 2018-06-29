@@ -34888,9 +34888,9 @@ impl BinaryCode for HammingCode15_11 {
         }
     }
 
-    fn decode_to_message(&self, c: &BinVector) -> BinVector {
+    fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         debug_assert_eq!(c.len(), self.length());
-        BinVector::from_bools(&SYNDROME[c.as_u32() as usize])
+        Ok(BinVector::from_bools(&SYNDROME[c.as_u32() as usize]))
     }
 
     /// Encode using lookup table
@@ -34921,15 +34921,15 @@ mod tests {
     fn decode() {
         let code = HammingCode15_11;
 
-        let codeword = code.decode_to_message(&BinVector::from_elem(15, true));
+        let codeword = code.decode_to_message(&BinVector::from_elem(15, true)).unwrap();
         assert_eq!(codeword, BinVector::from_elem(11, true));
 
         let mut vec = BinVector::from_elem(15, true);
         vec.set(0, false);
-        let codeword = code.decode_to_message(&vec);
+        let codeword = code.decode_to_message(&vec).unwrap();
         assert_eq!(codeword, BinVector::from_elem(11, true));
 
-        let vec = code.decode_to_code(&BinVector::from_elem(15, false));
+        let vec = code.decode_to_code(&BinVector::from_elem(15, false)).unwrap();
         assert_eq!(vec, BinVector::from_elem(15, false));
     }
 
