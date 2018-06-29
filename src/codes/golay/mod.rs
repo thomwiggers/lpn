@@ -6,4 +6,4 @@ macro_rules! useit {
 }
 
 useit!(golay_23_12);
-//useit!(golay_24_12);
+useit!(golay_24_12);
