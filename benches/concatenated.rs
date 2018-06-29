@@ -7,8 +7,8 @@ use lpn::codes::*;
 use m4ri_rust::friendly::*;
 use test::Bencher;
 
-fn get_code() -> ConcatenatedCode<'static, 'static> {
-    let codes: Vec<&BinaryCode<'static>> = vec![
+fn get_code() -> ConcatenatedCode<'static>  {
+    let codes: Vec<&BinaryCode> = vec![
         &HammingCode7_4,
         &HammingCode7_4,
         &HammingCode7_4,
@@ -37,6 +37,6 @@ fn decode(b: &mut Bencher) {
 
     b.iter(|| {
         let i = BinVector::random(code.length());
-        code.decode_to_message(&i)
+        code.decode_to_message(&i).unwrap()
     });
 }

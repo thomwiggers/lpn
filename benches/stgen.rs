@@ -8,8 +8,8 @@ mod stgen {
     use m4ri_rust::friendly::*;
     use test::Bencher;
 
-    fn get_code() -> StGenCode<'static, 'static> {
-        let codes: Vec<&BinaryCode<'static>> = vec![
+    fn get_code() -> StGenCode<'static> {
+        let codes: Vec<&BinaryCode> = vec![
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,
@@ -41,7 +41,7 @@ mod stgen {
 
         b.iter(|| {
             let i = BinVector::random(code.length());
-            code.decode_to_message(&i)
+            code.decode_to_message(&i).unwrap()
         });
     }
 
