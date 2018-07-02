@@ -91,12 +91,14 @@ impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
         {% endif %}
     }
 
-    {% if name == "Hamming" %}
-    // for hamming codes
+    /// We know how to give the bias directly for this code
     fn bias(&self, delta: f64) -> f64 {
+        {% if name == "Hamming" %}
         (1f64 + ({{ n }} as f64) * delta) / (({{ n }} + 1) as f64)
+        {% elif name == "Golay" and k == 23%}
+        (1.0 + 23.0 * delta + 253.0 * delta.powi(2) + 1771 * delta.powi(3))/2f64.powi(11)
+        {% endif %}
     }
-    {% endif %}
 }
 
 #[cfg(test)]

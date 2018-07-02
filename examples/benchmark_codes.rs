@@ -9,13 +9,17 @@ use rayon::prelude::*;
 
 use std::sync::*;
 
-const K: usize = 128;
+const K: usize = 32;
 const DELTA: f64 = 1.0 / 8.0;
 
 fn main() {
     let identities: Vec<IdentityCode> = (0..(K + 1))
         .into_iter()
-        .map(|k| IdentityCode::new(k))
+        .map(IdentityCode::new)
+        .collect();
+    let repetitions: Vec<RepetitionCode> = (0..(K + 1))
+        .into_iter()
+        .map(RepetitionCode::new)
         .collect();
     let mut codes: Vec<(String, &dyn BinaryCode)> = vec![
         ("Hamming [3, 1]".to_owned(), &HammingCode3_1),
@@ -23,10 +27,13 @@ fn main() {
         ("Hamming [15, 11]".to_owned(), &HammingCode15_11),
         ("Hamming [31, 26]".to_owned(), &HammingCode31_26),
         ("Golay [23, 12]".to_owned(), &GolayCode23_12),
+        ("Golay [24, 12]".to_owned(), &GolayCode23_12),
     ];
     codes.reserve(K);
     for k in 1..(K + 1) {
         let tuple: (_, &dyn BinaryCode) = (format!("Identity [{}, {}]", k, k), &identities[k]);
+        codes.push(tuple);
+        let tuple: (_, &dyn BinaryCode) = (format!("Repetition [{}, 1]", k), &repetitions[k]);
         codes.push(tuple);
     }
 
