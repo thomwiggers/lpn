@@ -1,6 +1,6 @@
 use m4ri_rust::friendly::*;
 use rand::distributions::{Bernoulli, Distribution};
-use rand::{self, Rng};
+use rand;
 use std::ops::Range;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -31,16 +31,7 @@ impl LpnOracle {
     pub fn new(k: u32, tau: f64) -> LpnOracle {
         debug_assert!(0.0 <= tau && tau < 1.0, "0 <= tau < 1");
         debug_assert!(k > 0, "k > 0");
-        let mut rng = rand::thread_rng();
-        let len = if k % 8 == 0 { k / 8 } else { k / 8 + 1 };
-
-        let mut secret_bytes: Vec<u8> = Vec::with_capacity(len as usize);
-        for _ in 0..len {
-            secret_bytes.push(rng.gen());
-        }
-        let mut secret = BinVector::from_bytes(&secret_bytes);
-        secret.truncate(k as usize);
-        debug_assert_eq!(secret.len(), k as usize);
+        let secret = BinVector::random(k as usize);
         println!("Constructed Oracle with k={}, τ={:0.5}", k, tau);
 
         LpnOracle {

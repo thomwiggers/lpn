@@ -47,8 +47,8 @@ impl<'codes, 'code> BinaryCode for ConcatenatedCode<'codes> {
         );
         // check if we've initialized the generator
         {
-            let initialized: bool = *self.init.lock().unwrap();
-            if !initialized {
+            let mut initialized = self.init.lock().unwrap();
+            if !*initialized {
                 let mut gen = Box::new(self.codes[0].generator_matrix().clone());
                 for code in self.codes.iter().skip(1) {
                     let corner = (gen.nrows(), gen.ncols());
@@ -59,6 +59,7 @@ impl<'codes, 'code> BinaryCode for ConcatenatedCode<'codes> {
                 unsafe {
                     *(self.generator.get()) = Box::into_raw(gen);
                 }
+                *initialized = true;
             };
         }
         unsafe { (*(self.generator.get())).as_ref().unwrap() }

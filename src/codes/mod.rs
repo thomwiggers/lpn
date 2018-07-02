@@ -115,3 +115,6 @@ pub use self::stgen::*;
 
 mod identity;
 pub use self::identity::*;
+
+mod repetition;
+pub use self::repetition::*;

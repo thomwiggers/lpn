@@ -39,17 +39,6 @@ impl<'codes> Clone for StGenCode<'codes> {
     }
 }
 
-fn printgen(gen: &BinMatrix) {
-    println!("{}x{}", gen.nrows(), gen.ncols());
-    for i in 0..gen.nrows() {
-        print!("[");
-        for j in 0..gen.ncols() {
-            print!("{}, ", gen.bit(i, j) as u8);
-        }
-        println!("]");
-    }
-}
-
 unsafe impl<'a> Sync for StGenCode<'a> {}
 
 impl<'codes> StGenCode<'codes> {

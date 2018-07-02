@@ -9,6 +9,7 @@ fnv = "^1.0.6"
 itertools = "^0.7.8"
 rayon = "1.0.1"
 lazy_static = "1"
+binomial-iter = "0.1.0"
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
