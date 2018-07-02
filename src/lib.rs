@@ -6,7 +6,8 @@ extern crate m4ri_rust;
 extern crate rand;
 extern crate rayon;
 #[cfg(test)]
-#[macro_use] extern crate lazy_static;
+#[macro_use]
+extern crate lazy_static;
 extern crate binomial_iter;
 
 pub mod bkw;

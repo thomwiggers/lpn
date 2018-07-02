@@ -1,8 +1,8 @@
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::collections::HashSet;
-use std::mem;
 use std::fmt;
+use std::mem;
 
 static N: usize = 100000;
 
@@ -93,7 +93,6 @@ pub trait BinaryCode {
         sum / (count as f64)
     }
 }
-
 
 impl fmt::Debug for BinaryCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

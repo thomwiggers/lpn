@@ -13,7 +13,10 @@ const K: usize = 128;
 const DELTA: f64 = 1.0 / 8.0;
 
 fn main() {
-    let identities: Vec<IdentityCode> = (0..(K+1)).into_iter().map(|k| IdentityCode::new(k)).collect();
+    let identities: Vec<IdentityCode> = (0..(K + 1))
+        .into_iter()
+        .map(|k| IdentityCode::new(k))
+        .collect();
     let mut codes: Vec<(String, &dyn BinaryCode)> = vec![
         ("Hamming [3, 1]".to_owned(), &HammingCode3_1),
         ("Hamming [7, 4]".to_owned(), &HammingCode7_4),
@@ -22,14 +25,14 @@ fn main() {
         ("Golay [23, 12]".to_owned(), &GolayCode23_12),
     ];
     codes.reserve(K);
-    for k in 1..(K+1) {
+    for k in 1..(K + 1) {
         let tuple: (_, &dyn BinaryCode) = (format!("Identity [{}, {}]", k, k), &identities[k]);
         codes.push(tuple);
     }
 
     let mut bias = [[0.0; K + 1]; K + 1];
     let stgen_bias = Arc::new(RwLock::new([[0.0; K + 1]; K + 1]));
-    let mut params: Vec<Vec<Vec<(_, &(dyn BinaryCode))>>> = vec![vec![Vec::new(); K+1]; K+1];
+    let mut params: Vec<Vec<Vec<(_, &(dyn BinaryCode))>>> = vec![vec![Vec::new(); K + 1]; K + 1];
 
     bias[1][1] = 0.0;
     params[1][1].push(("Identity [1, 1]".to_owned(), &identities[1]));
@@ -40,19 +43,19 @@ fn main() {
         bias[n][m] = code.bias(DELTA);
         params[n][m] = vec![(name.to_string(), *code)];
     }
-    let mut stgens: Vec<Vec<Option<StGenCode>>> = vec![vec![None; K+1]; K+1];
-    let mut names: Vec<Vec<Vec<_>>> = vec![vec![Vec::new(); K+1]; K+1];
+    let mut stgens: Vec<Vec<Option<StGenCode>>> = vec![vec![None; K + 1]; K + 1];
+    let mut names: Vec<Vec<Vec<_>>> = vec![vec![Vec::new(); K + 1]; K + 1];
 
     for j in 1..(K + 1) {
         for i in (j + 1)..(K + 1) {
             for (name, code) in &codes {
                 let n = code.length();
-                let m = code.dimension(); 
+                let m = code.dimension();
                 let (idx_x, idx_y) = ((i as isize) - (n as isize), (j as isize) - (m as isize));
                 if idx_x < 1 || idx_y < 1 {
                     continue;
                 }
-                let b_prior =  bias[idx_x as usize][idx_y as usize];
+                let b_prior = bias[idx_x as usize][idx_y as usize];
                 if (b_prior * bias[n][m]).abs() > bias[i][j].abs() {
                     bias[i][j] = b_prior * bias[n][m];
                     let mut new_params = params[idx_x as usize][idx_y as usize].clone();
@@ -64,9 +67,8 @@ fn main() {
         }
     }
 
-
-    for j in 1..(K+1) {
-        for i in 1..(K+1) {
+    for j in 1..(K + 1) {
+        for i in 1..(K + 1) {
             let (the_names, codes): (Vec<_>, Vec<_>) = params[i][j].clone().into_iter().unzip();
             if codes.len() > 1 {
                 names[i][j] = the_names;
@@ -75,11 +77,14 @@ fn main() {
         }
     }
 
-    for i in 1..(K+1) {
-        (1..(K+1)).into_par_iter().for_each(|j| {
+    for i in 1..(K + 1) {
+        (1..(K + 1)).into_par_iter().for_each(|j| {
             if bias[i][j] != 0.0 {
                 if names[i][j].len() > 1 {
-                    println!("Computing bias for [{}, {}] code with {:?}", i, j, names[i][j]);
+                    println!(
+                        "Computing bias for [{}, {}] code with {:?}",
+                        i, j, names[i][j]
+                    );
                     let stgen = stgens[i][j].as_ref().expect("What, no munny?");
                     stgen_bias.write().unwrap()[i][j] = stgen.bias(DELTA);
                 }
@@ -87,16 +92,23 @@ fn main() {
         });
     }
 
-    for i in 1..(K+1) {
-        for j in 1..(K+1) {
+    for i in 1..(K + 1) {
+        for j in 1..(K + 1) {
             if bias[i][j] == 0.0 {
                 continue;
             }
             let (names, _): (Vec<_>, Vec<_>) = params[i][j].clone().into_iter().unzip();
-            println!("[{}, {}] concatenated code with bc={:1.5e}: {:?}",
-                     i, j, bias[i][j], names);
+            println!(
+                "[{}, {}] concatenated code with bc={:1.5e}: {:?}",
+                i, j, bias[i][j], names
+            );
             if stgen_bias.read().unwrap()[i][j] > 0.0 {
-                println!("[{}, {}] stgen code has bc={:1.5e}", i, j, stgen_bias.read().unwrap()[i][j]);
+                println!(
+                    "[{}, {}] stgen code has bc={:1.5e}",
+                    i,
+                    j,
+                    stgen_bias.read().unwrap()[i][j]
+                );
             }
         }
     }

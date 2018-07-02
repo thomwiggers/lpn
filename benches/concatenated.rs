@@ -7,7 +7,7 @@ use lpn::codes::*;
 use m4ri_rust::friendly::*;
 use test::Bencher;
 
-fn get_code() -> ConcatenatedCode<'static>  {
+fn get_code() -> ConcatenatedCode<'static> {
     let codes: Vec<&BinaryCode> = vec![
         &HammingCode7_4,
         &HammingCode7_4,

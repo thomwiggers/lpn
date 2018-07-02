@@ -1,6 +1,6 @@
 use m4ri_rust::friendly::*;
-use rand::distributions::{Bernoulli, Distribution};
 use rand;
+use rand::distributions::{Bernoulli, Distribution};
 use std::ops::Range;
 
 #[derive(Debug, Clone, PartialEq)]
