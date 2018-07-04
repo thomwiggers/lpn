@@ -39,6 +39,10 @@ static ENCODE: [[bool; {{ n }}]; {{ 2**k }}] = [
 
 
 impl BinaryCode for HammingCode{{n}}_{{k}} {
+    fn name(&self) -> String {
+        "[{{ n }}, {{ k }}] Hamming code".to_owned()
+    }
+
     fn length(&self) -> usize {
         {{ n }}
     }

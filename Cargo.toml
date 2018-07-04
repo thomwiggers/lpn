@@ -10,6 +10,11 @@ itertools = "^0.7.8"
 rayon = "1.0.1"
 lazy_static = "1"
 binomial-iter = "0.1.0"
+num-rational = "0.2"
+num-bigint = "0.2"
+num-traits = "0.2"
+factorial = "0.1"
+
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
@@ -22,3 +27,6 @@ lto = true
 debug-assertions = false
 codegen-units = 1
 overflow-checks = false
+
+[replace]
+"num-bigint:0.2.0" = { git = "https://github.com/thomwiggers/num-bigint.git", branch = "pow" }

@@ -93,6 +93,26 @@ impl<'codes> StGenCode<'codes> {
 }
 
 impl<'codes> BinaryCode for StGenCode<'codes> {
+    fn name(&self) -> String {
+        let names = self.codes.iter().fold(
+            String::with_capacity(self.codes.iter().fold(0, |acc, c| acc + 2 + c.name().len())),
+            |mut s, code| {
+                s.push_str(&code.name());
+                s.push_str(", ");
+                s
+            },
+        );
+        format!(
+            "[{}, {}] StGen code with w0={}, wb={}, L={}, codes=[{}]",
+            self.length(),
+            self.dimension(),
+            self.w0,
+            self.wb,
+            self.l_max,
+            names,
+        )
+    }
+
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }

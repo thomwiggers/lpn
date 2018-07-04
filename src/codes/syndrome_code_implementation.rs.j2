@@ -40,6 +40,10 @@ fn init() {
 
 
 impl BinaryCode for {{ name }}Code{{n}}_{{k}} {
+    fn name(&self) -> String {
+        "[{{ n }}, {{ k }}] {{ name }} code".to_owned()
+    }
+
     fn length(&self) -> usize {
         {{ n }}
     }

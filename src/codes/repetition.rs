@@ -1,7 +1,9 @@
 use binomial_iter::BinomialIter;
-use codes::BinaryCode;
+use codes::{BinaryCode, N};
 use m4ri_rust::friendly::*;
 use std::cmp;
+
+use std::collections::HashSet;
 
 pub struct RepetitionCode {
     k: usize,
@@ -31,12 +33,16 @@ fn choose(n: usize, k: usize) -> f64 {
 }
 
 impl BinaryCode for RepetitionCode {
+    fn name(&self) -> String {
+        format!("[{k}, 1] trivial linear code", k = self.k)
+    }
+
     fn length(&self) -> usize {
         self.k
     }
 
     fn dimension(&self) -> usize {
-        self.k
+        1
     }
 
     fn generator_matrix(&self) -> &BinMatrix {
@@ -62,6 +68,9 @@ impl BinaryCode for RepetitionCode {
     ///
     /// https://eprint.iacr.org/2015/049
     fn bias(&self, delta: f64) -> f64 {
+        if self.k > 33 {
+            return self.measure_bias(delta);
+        }
         if self.k % 2 == 1 {
             // perfect code
             (0..((self.k - 1) / 2 + 1))
@@ -77,6 +86,29 @@ impl BinaryCode for RepetitionCode {
                     * choose(self.k, self.k / 2)
                     * delta.powi((self.k / 2) as i32)
         }
+    }
+}
+
+impl RepetitionCode {
+    fn measure_bias(&self, delta: f64) -> f64 {
+        let mut distances = Vec::with_capacity(N);
+        let mut seen = HashSet::with_capacity(N);
+        while seen.len() < cmp::min(N, 2usize.pow(self.length() as u32)) {
+            let v = BinVector::random(self.length());
+            if seen.contains(&v) {
+                continue;
+            }
+            let decoded = self.decode_to_code(&v).unwrap();
+            distances.push((&v + &decoded).count_ones() as i32);
+            seen.insert(v);
+        }
+
+        let count = distances.len();
+        let sum = distances
+            .into_iter()
+            .fold(0f64, |acc, dist| acc + delta.powi(dist));
+
+        sum / (count as f64)
     }
 }
 

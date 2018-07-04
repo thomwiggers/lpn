@@ -186,6 +186,10 @@ static ENCODE: [[bool; 7]; 16] = [
 
 
 impl BinaryCode for HammingCode7_4 {
+    fn name(&self) -> String {
+        "[7, 4] Hamming code".to_owned()
+    }
+
     fn length(&self) -> usize {
         7
     }

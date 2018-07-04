@@ -31,6 +31,23 @@ impl<'codes> ConcatenatedCode<'codes> {
 }
 
 impl<'codes, 'code> BinaryCode for ConcatenatedCode<'codes> {
+    fn name(&self) -> String {
+        let names = self.codes.iter().fold(
+            String::with_capacity(self.codes.iter().fold(0, |acc, c| acc + 2 + c.name().len())),
+            |mut s, code| {
+                s.push_str(&code.name());
+                s.push_str(", ");
+                s
+            },
+        );
+        format!(
+            "[{}, {}] Concatenated code codes=[{}]",
+            self.length(),
+            self.dimension(),
+            names,
+        )
+    }
+
     fn length(&self) -> usize {
         self.codes.iter().fold(0usize, |a, c| a + c.length())
     }

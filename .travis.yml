@@ -13,3 +13,5 @@ script:
   - cargo test --all -- --test-threads 1
 
 cache: cargo
+
+#  vim: set ft=yaml ts=2 sw=2 tw=0 et :

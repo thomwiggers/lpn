@@ -100,6 +100,10 @@ fn init() {
 
 
 impl BinaryCode for HammingCode31_26 {
+    fn name(&self) -> String {
+        "[31, 26] Hamming code".to_owned()
+    }
+
     fn length(&self) -> usize {
         31
     }
@@ -146,9 +150,11 @@ impl BinaryCode for HammingCode31_26 {
     }
 
     
-    // for hamming codes
+    /// We know how to give the bias directly for this code
     fn bias(&self, delta: f64) -> f64 {
+        
         (1f64 + (31 as f64) * delta) / ((31 + 1) as f64)
+        
     }
     
 }
@@ -187,160 +193,160 @@ mod tests {
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, false, true, false, false, true, false, true, false, false, false, true, true, false, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, false, true, false, false, true, false, true, false, false, false, true, true, false, false, true, true, false, true, false, true, true, false]);
+            let m = BinVector::from_bools(&[false, false, false, true, false, true, true, false, false, false, true, false, false, false, false, false, true, true, true, true, false, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, true, false, true, true, false, false, false, true, false, false, false, false, false, true, true, true, true, false, false, false, false, false, true, true, false, false, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, false, false, true, false, false, false, false, false, false, true, true, true, false, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, false, false, true, false, false, false, false, false, false, true, true, true, false, true, false, false, true, false, true, true, true, false]);
+            let m = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, true, true, true, false, true, true, false, false, false, true, true, true, true, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, true, true, true, false, true, true, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, false, false, true, true, true, true, true, true, false, false, true, true, false, true, true, true, true, true, false, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, true, true, true, true, true, true, false, false, true, true, false, true, true, true, true, true, false, true, true, true, false, false, true, true, true, false, true]);
+            let m = BinVector::from_bools(&[false, false, false, false, false, true, false, false, true, true, false, true, true, true, false, false, false, true, false, false, true, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, false, true, false, false, true, true, false, true, true, true, false, false, false, true, false, false, true, true, false, true, true, true, false, true, false, false, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, true, false, false, true, false, true, true, false, false, false, false, false, true, false, true, false, false, true, false, false, false, true, false, true, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, false, true, true, false, false, false, false, false, true, false, true, false, false, true, false, false, false, true, false, true, false, false, true, true, false, false]);
+            let m = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, false, true, false, true, false, true, true, false, true, true, true, false, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, false, true, false, true, false, true, true, false, true, true, true, false, false, false, true, false, true, false, true, false, false, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, false, true, true, false, true, true, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, false, true, true, false, true, true, true, false, false, true, true, true]);
+            let m = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, false, false, false, false, false, false, true, false, true, false, false, true, false, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, false, false, false, false, false, false, true, false, true, false, false, true, false, false, true, false, true, true, true, false, false, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, true, false, false, false, true, false, false, false, true, false, true, false, false, true, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, true, false, false, false, true, false, false, false, true, false, true, false, false, true, false, false, true, false, true, true, false, false]);
+            let m = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, true, false, true, true, true, false, false, false, true, false, true, false, true, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, true, false, true, true, true, false, false, false, true, false, true, false, true, false, false, false, true, true, false, false, false, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, true, true, true, true, true, false, true, true, false, true, true, false, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, true, true, true, true, true, false, true, true, false, true, true, false, false, true, false, false, false, false, false, false, false, true]);
+            let m = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, false, true, true, false, true, false, true, true, true, false, false, false, false, true, true, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, false, true, true, false, true, false, true, true, true, false, false, false, false, true, true, false, true, true, false, true, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, false, true, true, false, false, true, true, false, true, true, true, false, true, false, true, true]);
-            let encoded = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, false, true, true, false, false, true, true, false, true, true, true, false, true, false, true, true, true, true, true, true, false]);
+            let m = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, true, false, false, false, false, true, false, false, false, false, false, true, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, true, false, false, false, false, true, false, false, false, false, false, true, true, false, true, false, false, false, true, false, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, true, true, false, false, false, true, false, false, true, false, true, true, false, false, true, false, false, true, false, true, false, true, true, true, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, false, false, false, true, false, false, true, false, true, true, false, false, true, false, false, true, false, true, false, true, true, true, true, false, false, true, false, false]);
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, true, true, false, false, false, true, false, false, true, true, true, false, true, true, false, true, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, true, true, false, false, false, true, false, false, true, true, true, false, true, true, false, true, false, false, true, false, false, true, false, true, false]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, false, true, true, true, true, true, false, true, false, true, true, true, false, false, false, true, false, false, true, true, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, false, true, true, true, true, true, false, true, false, true, true, true, false, false, false, true, false, false, true, true, false, true, true, true, false, true, false, true, true, true]);
+            let m = BinVector::from_bools(&[true, false, true, true, false, true, true, false, true, true, true, true, true, false, false, true, true, false, true, false, true, false, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, false, true, true, false, true, true, true, true, true, false, false, true, true, false, true, false, true, false, false, true, true, true, true, false, false, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, true, false, false, false, true, true, true, false, false, false, false, false, true, true, true, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, true, false, false, false, true, true, true, false, false, false, false, false, true, true, true, false, false, true, false, true, true]);
+            let m = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, true, true, true, false, false, false, false, false, true, false, false, true, true, false, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, true, true, true, false, false, false, false, false, true, false, false, true, true, false, false, true, true, false, false, false, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, false, false, true, true, false, false, true, true, true, false, false, true, false, false, true, true, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, false, false, true, true, false, false, true, true, true, false, false, true, false, false, true, true, false, false, true, true, true, true]);
+            let m = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, false, true, true, false, false, false, true, true, true, true, false, true, true, false, true, false, true]);
+            let encoded = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, false, true, true, false, false, false, true, true, true, true, false, true, true, false, true, false, true, false, false, true, true, false]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, false, true, true, true, true, true, true, false, false, true, true, true, false, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, false, true, true, true, true, true, true, false, false, true, true, true, false, true, false, false, false, false, false, true, true]);
+            let m = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, false, false, true, false, false, true, true, true, false, false, false, true, false, true, false, true, true]);
+            let encoded = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, false, false, true, false, false, true, true, true, false, false, false, true, false, true, false, true, true, false, true, false, false, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, false, true, false, true, false, true, false, false, false, true, true, false, true, true, true, true, false, false, true, false, true, true, true, false, true]);
-            let encoded = BinVector::from_bools(&[true, false, true, false, true, false, true, false, false, false, true, true, false, true, true, true, true, false, false, true, false, true, true, true, false, true, false, true, true, true, false]);
+            let m = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, false, false, true, false, false, true, false, false, false, true, true, false, true, false, true, true, true]);
+            let encoded = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, false, false, true, false, false, true, false, false, false, true, true, false, true, false, true, true, true, true, false, true, false, false]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, false, true, false, true, true, false, true, false, false, false, true, true, false, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, false, true, false, true, true, false, true, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false]);
+            let m = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, false, true, false, true, false, true, true, true, false, true, true, true, false, true, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, false, true, false, true, false, true, true, true, false, true, true, true, false, true, false, false, false, false, false, false, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, true, false, false, true, false, false, false, true, true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, false, false, true, false, false, false, true, true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, false, false, false, false, false, true, true]);
+            let m = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, false, false, true, true, false, true, true, false, true, false, true, false, false, false, false, false, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, false, false, true, true, false, true, true, false, true, false, true, false, false, false, false, false, false, false, false, true, false, false]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, false, false, false, true, true, true, true, true, false, true, false, false, true, false, false, false, true]);
-            let encoded = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, false, false, false, true, true, true, true, true, false, true, false, false, true, false, false, false, true, true, false, false, false, false]);
+            let m = BinVector::from_bools(&[true, true, false, true, true, true, false, true, true, true, false, false, false, false, true, false, true, false, false, false, false, false, false, false, false, true]);
+            let encoded = BinVector::from_bools(&[true, true, false, true, true, true, false, true, true, true, false, false, false, false, true, false, true, false, false, false, false, false, false, false, false, true, true, true, false, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[true, true, false, true, true, true, false, true, true, false, false, false, true, false, false, false, false, false, true, false, false, true, true, true, false, false]);
-            let encoded = BinVector::from_bools(&[true, true, false, true, true, true, false, true, true, false, false, false, true, false, false, false, false, false, true, false, false, true, true, true, false, false, true, true, false, false, false]);
+            let m = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, true, false, false, true, false, true, false, true, true, false, false, true, true, false, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, true, false, false, true, false, true, false, true, true, false, false, true, true, false, true, false, false, true, true, false, true, false]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, false, false, false]);
-            let encoded = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, false, false, false, false, true, false, true, true]);
+            let m = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false, true, false]);
+            let encoded = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false, true, false, false, true, false, true, true]);
             assert_eq!(code.encode(&m), encoded);
             
         }
         
         {
             let code = HammingCode31_26;
-            let m = BinVector::from_bools(&[false, true, true, true, false, true, true, true, true, true, false, true, true, false, false, true, false, true, true, false, true, true, false, true, false, true]);
-            let encoded = BinVector::from_bools(&[false, true, true, true, false, true, true, true, true, true, false, true, true, false, false, true, false, true, true, false, true, true, false, true, false, true, false, true, true, false, true]);
+            let m = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, false, true, true, true, false, true, true, false, true, false, true, false, false, true, true, false, false]);
+            let encoded = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, false, true, true, true, false, true, true, false, true, false, true, false, false, true, true, false, false, true, false, true, true, false]);
             assert_eq!(code.encode(&m), encoded);
             
         }

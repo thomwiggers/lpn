@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use std::fmt;
 use std::mem;
 
-static N: usize = 100000;
+pub(crate) static N: usize = 100000;
 
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     let bytes = unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(c.to_be()) };
@@ -16,6 +16,9 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
 }
 
 pub trait BinaryCode {
+    /// Name of the code
+    fn name(&self) -> String;
+
     /// Length of the code
     fn length(&self) -> usize;
 
@@ -57,7 +60,7 @@ pub trait BinaryCode {
     fn bias(&self, delta: f64) -> f64 {
         let mut distances = Vec::with_capacity(N);
         if 2f64.powi(self.length() as i32) > 1.5 * N as f64 {
-            let mut seen = HashSet::new();
+            let mut seen = HashSet::with_capacity(N);
             while seen.len() < N {
                 let v = BinVector::random(self.length());
                 if seen.contains(&v) {

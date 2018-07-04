@@ -48,6 +48,10 @@ static ENCODE: [[bool; 3]; 2] = [
 
 
 impl BinaryCode for HammingCode3_1 {
+    fn name(&self) -> String {
+        "[3, 1] Hamming code".to_owned()
+    }
+
     fn length(&self) -> usize {
         3
     }

@@ -26,6 +26,10 @@ impl IdentityCode {
 }
 
 impl BinaryCode for IdentityCode {
+    fn name(&self) -> String {
+        format!("[{k}, {k}] trivial linear code", k = self.k)
+    }
+
     fn length(&self) -> usize {
         self.k
     }
