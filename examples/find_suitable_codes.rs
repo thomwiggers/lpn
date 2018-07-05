@@ -51,22 +51,33 @@ fn generate_code_recurse<'c>(
     if current_len > target_len || current_dim > k_max {
         return Vec::new();
     }
-    
+
     if current_len == target_len && current_dim >= k_min && current_dim <= k_max {
         return vec![current_combination];
     }
 
-    codes.iter().flat_map(|code| {
-        if current_combination.is_empty() {
-            println!("Working on starts with {}", code.name());
-        }
-        let new_len = code.length() + current_len;
-        let new_dim = code.dimension() + current_dim;
-        let mut new_combination: Vec<&dyn BinaryCode> = current_combination.clone();
-        new_combination.push(code.clone());
+    codes
+        .iter()
+        .flat_map(|code| {
+            if current_combination.is_empty() {
+                println!("Working on starts with {}", code.name());
+            }
+            let new_len = code.length() + current_len;
+            let new_dim = code.dimension() + current_dim;
+            let mut new_combination: Vec<&dyn BinaryCode> = current_combination.clone();
+            new_combination.push(code.clone());
 
-        generate_code_recurse(target_len, new_len, new_dim, codes, new_combination, k_min, k_max)
-    }).collect()
+            generate_code_recurse(
+                target_len,
+                new_len,
+                new_dim,
+                codes,
+                new_combination,
+                k_min,
+                k_max,
+            )
+        })
+        .collect()
 }
 
 fn run(k: usize, k_min: usize, k_max: usize) {

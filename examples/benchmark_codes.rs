@@ -5,9 +5,9 @@ extern crate m4ri_rust;
 extern crate rayon;
 extern crate time;
 
+use itertools::Itertools;
 use lpn::codes::*;
 use rayon::prelude::*;
-use itertools::Itertools;
 
 use std::sync::*;
 
@@ -89,7 +89,10 @@ fn main() {
     println!("Computing bias for StGen instances (threaded)");
 
     // zip (i, j)
-    ((1..(K + 1)).into_iter().cartesian_product((1..(K + 1)).into_iter()).collect::<Vec<_>>())
+    ((1..(K + 1))
+        .into_iter()
+        .cartesian_product((1..(K + 1)).into_iter())
+        .collect::<Vec<_>>())
         .into_par_iter()
         .for_each(|(i, j)| {
             if bias[i][j] != 0.0 {
@@ -97,7 +100,10 @@ fn main() {
                     let time_start = time::precise_time_s();
                     let bias = stgen.bias(DELTA);
                     let duration = time::precise_time_s() - time_start;
-                    println!("Bias for [{},{}] StGen is {}, found in {:2.3} s", i, j, bias, duration);
+                    println!(
+                        "Bias for [{},{}] StGen is {}, found in {:2.3} s",
+                        i, j, bias, duration
+                    );
                     stgen_bias.write().unwrap()[i][j] = bias;
                 }
             }
