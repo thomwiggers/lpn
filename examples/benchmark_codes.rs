@@ -3,6 +3,7 @@ extern crate itertools;
 extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
+extern crate time;
 
 use lpn::codes::*;
 use rayon::prelude::*;
@@ -11,6 +12,8 @@ use itertools::Itertools;
 use std::sync::*;
 
 const K: usize = 512;
+const K_MIN: usize = 266;
+const K_MAX: usize = 512;
 const DELTA: f64 = 1.0 / 8.0;
 
 fn main() {
@@ -22,8 +25,10 @@ fn main() {
         &HammingCode7_4,
         &HammingCode15_11,
         &HammingCode31_26,
+        &HammingCode63_57,
+        &HammingCode127_120,
         &GolayCode23_12,
-        &GolayCode23_12,
+        &GolayCode24_12,
     ];
     codes.reserve(K);
     for k in 1..(K + 1) {
@@ -46,8 +51,9 @@ fn main() {
     }
     let mut stgens: Vec<Vec<Option<StGenCode>>> = vec![vec![None; K + 1]; K + 1];
 
-    for j in 1..(K + 1) {
-        for i in (j + 1)..(K + 1) {
+    println!("Generating concatenatedcode combinations");
+    for j in 1..=K {
+        for i in (j + 1)..=K {
             for code in &codes {
                 let n = code.length();
                 let m = code.dimension();
@@ -67,14 +73,20 @@ fn main() {
         }
     }
 
-    for j in 1..(K + 1) {
-        for i in 1..(K + 1) {
+    println!("Creating StGen code instances");
+
+    //for i in 1..=K {
+    {
+        let i = K;
+        for j in K_MIN..=K_MAX {
             let codes = params[i][j].clone();
             if codes.len() > 1 {
-                stgens[i][j] = Some(StGenCode::new(codes, 300, 200, 4));
+                stgens[i][j] = Some(StGenCode::new(codes, 20, 200, 21));
             }
         }
     }
+
+    println!("Computing bias for StGen instances (threaded)");
 
     // zip (i, j)
     ((1..(K + 1)).into_iter().cartesian_product((1..(K + 1)).into_iter()).collect::<Vec<_>>())
@@ -82,14 +94,19 @@ fn main() {
         .for_each(|(i, j)| {
             if bias[i][j] != 0.0 {
                 if let Some(stgen) = stgens[i][j].as_ref() {
-                    println!("Computing bias for {}", stgen.name());
-                    stgen_bias.write().unwrap()[i][j] = stgen.bias(DELTA);
+                    let time_start = time::precise_time_s();
+                    let bias = stgen.bias(DELTA);
+                    let duration = time::precise_time_s() - time_start;
+                    println!("Bias for [{},{}] StGen is {}, found in {:2.3} s", i, j, bias, duration);
+                    stgen_bias.write().unwrap()[i][j] = bias;
                 }
             }
         });
 
-    for i in 1..(K + 1) {
-        for j in 1..(K + 1) {
+    //for i in 1..=K {
+    {
+        let i = K;
+        for j in 1..=K {
             if bias[i][j] == 0.0 {
                 continue;
             }
