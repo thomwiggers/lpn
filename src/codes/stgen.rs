@@ -8,13 +8,10 @@ use std::mem;
 use std::ptr;
 use std::sync::Mutex;
 
-/// 'Concatenated' Linear Codes
+/// 'Concatenated' Linear Codes with extra noise
 ///
 /// This struct allows to construct a Linear code from the direct sum
 /// of smaller codes.
-///
-/// It will construct the generator matrix lazily and use the encode and
-/// decode mechanism of the 'child' codes.
 pub struct StGenCode<'codes> {
     codes: Vec<&'codes dyn BinaryCode>,
     noises: Vec<Option<BinMatrix>>,

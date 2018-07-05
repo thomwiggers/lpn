@@ -10,6 +10,9 @@ extern crate rayon;
 extern crate lazy_static;
 extern crate binomial_iter;
 
+#[macro_use]
+extern crate objekt;
+
 pub mod bkw;
 pub mod covering_codes;
 pub mod gauss;

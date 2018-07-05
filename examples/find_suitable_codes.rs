@@ -1,134 +1,90 @@
-///! Try to find codes that work, using the
-///! assumptions we know from the Griesmer bounds
+#![feature(box_syntax)]
+extern crate itertools;
+extern crate lpn;
+#[macro_use]
+extern crate lazy_static;
 
-extern crate factorial;
-extern crate num_traits;
-extern crate num_rational;
-extern crate num_bigint;
+use std::env;
 
-use num_bigint::{BigInt, ToBigInt, ToBigUint};
-use num_rational::{BigRational, Ratio};
-use num_traits::{ToPrimitive, Pow, Zero};
-use factorial::Factorial;
+use itertools::Itertools;
+use lpn::codes::*;
 
 const K: usize = 512;
 
-macro_rules! one {
-    () => { Ratio::from_integer(1u32.to_bigint().unwrap()) }
+lazy_static! {
+    static ref IDENTITIES: Vec<IdentityCode> = (0..=K).into_iter().map(IdentityCode::new).collect();
+    static ref REPETITIONS: Vec<RepetitionCode> =
+        (0..=K).into_iter().map(RepetitionCode::new).collect();
 }
 
-macro_rules! two {
-    () => { Ratio::from_integer(2u32.to_bigint().unwrap()) }
-}
-
-macro_rules! half {
-    () => { Ratio::new(1u32.to_bigint().unwrap(), 2u32.to_bigint().unwrap()) }
-}
-macro_rules! delta {
-    () => { Ratio::new(1u32.to_bigint().unwrap(), 8u32.to_bigint().unwrap()) }
-}
-
-fn fact(n: usize) -> BigInt {
-    n.to_biguint().unwrap().factorial().to_bigint().unwrap()
-}
-
-fn choose(n: usize, k: usize) -> BigInt {
-    debug_assert!(n > k);
-    let num = fact(n);
-    let denom = fact(k) * fact(n - k);
-    num / denom
-}
-
-fn to_float(r: BigRational) -> f64 {
-    let (num, denom) = r.into();
-    num.to_f64().unwrap() / denom.to_f64().unwrap()
-}
-
-/// We possibly need something more perecise.
-fn powf(r: BigRational, exp: f64) -> BigRational {
-    let float = to_float(r);
-    debug_assert_ne!(float, 0f64);
-    BigRational::from_float(float.powf(exp)).unwrap()
-}
-
-fn bc(k_prime: usize) -> BigRational {
-    let delta_part = powf(half!() + half!()*delta!(), (K as f64)/(k_prime as f64));
-    (two!() * delta_part - one!()) / delta!()
-}
-
-fn quasi_perfect_code_bias(k_prime: usize, d: usize) -> BigRational {
-    let r = (d - 1) / 2;
-    two!().pow((k_prime as i32) - (K as i32))
-        * (0..=r).into_iter().fold(BigRational::zero(), |acc, w| {
-            acc + BigRational::from_integer(choose(K, w))
-                * (delta!().pow(w) - delta!().pow(r + 1))
-                * delta!().pow(r + 1)
-    })
-}
-
-fn perfect_code_bias(k_prime: usize, d: usize) -> BigRational {
-    let r = (d - 1) / 2;
-    two!().pow((k_prime as i32) - (K as i32))
-        * (0..=r).into_iter().fold(BigRational::zero(), |acc, w| {
-            acc + BigRational::from_integer(choose(K, w)) * delta!().pow(w)
-        })
-}
-
-#[allow(unused)]
-fn minimal_d_perfect(k_prime: usize) -> usize {
-    let bc_to_beat = bc(k_prime);
-    for i in 1..K {
-        if bc_to_beat <= perfect_code_bias(k_prime, i) {
-            return i;
-        }
+fn generate_codes(k: usize, k_min: usize, k_max: usize) {
+    let mut codes: Vec<&dyn BinaryCode> = vec![
+        &HammingCode3_1,
+        &HammingCode7_4,
+        &HammingCode15_11,
+        &HammingCode31_26,
+        &HammingCode63_57,
+        &HammingCode127_120,
+        &GolayCode23_12,
+        &GolayCode23_12,
+    ];
+    codes.reserve(2 * k_max);
+    for k in 1..=k_max {
+        codes.push(&IDENTITIES[k]);
+        codes.push(&REPETITIONS[k]);
     }
-    panic!("Haven't found bias");
+
+    let candidates = generate_code_recurse(k, 0, 0, &codes, Vec::new(), k_min, k_max);
+    println!("Found {} candidates", candidates.len());
 }
 
-#[allow(unused)]
-fn minimal_d_quasi_perfect(k_prime: usize) -> usize {
-    let bc_to_beat = bc(k_prime);
-    for i in 1..K {
-        if bc_to_beat <= quasi_perfect_code_bias(k_prime, i) {
-            return i;
-        }
+/// This uses exhaustive search, complexity is O(|codes|!)
+fn generate_code_recurse<'c>(
+    target_len: usize,
+    current_len: usize,
+    current_dim: usize,
+    codes: &Vec<&'c dyn BinaryCode>,
+    current_combination: Vec<&'c dyn BinaryCode>,
+    k_min: usize,
+    k_max: usize,
+) -> Vec<Vec<&'c dyn BinaryCode>> {
+    if current_len > target_len || current_dim > k_max {
+        return Vec::new();
     }
-    panic!("Haven't found bias");
+    
+    if current_len == target_len && current_dim >= k_min && current_dim <= k_max {
+        return vec![current_combination];
+    }
+
+    codes.iter().flat_map(|code| {
+        if current_combination.is_empty() {
+            println!("Working on starts with {}", code.name());
+        }
+        let new_len = code.length() + current_len;
+        let new_dim = code.dimension() + current_dim;
+        let mut new_combination: Vec<&dyn BinaryCode> = current_combination.clone();
+        new_combination.push(code.clone());
+
+        generate_code_recurse(target_len, new_len, new_dim, codes, new_combination, k_min, k_max)
+    }).collect()
 }
 
-#[allow(unused)]
-fn griesmer_bound(k_prime: usize) -> usize {
-    for d in (1..K).rev() {
-        if K >= (0..(k_prime-1)).into_iter().fold(0, |acc, i| {
-            BigRational::new(d.into(), 2u32.to_bigint().unwrap().pow(i)).ceil().to_integer().to_usize().unwrap()
-        }) {
-            return d;
-        }
-    }
-    panic!("Haven't found Griesmer bound!");
+fn run(k: usize, k_min: usize, k_max: usize) {
+    generate_codes(k, k_min, k_max);
 }
 
 fn main() {
-    println!("hi");
-}
+    println!("This function has O(k!) runtime. Are you sure?");
+    let args: Vec<_> = env::args().collect();
 
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_bc() {
-        for i in 0..K {
-            assert!(bc(i) != BigRational::from_integer(0u32.into()), "bc == 0 for i={}", i);
-        }
-        assert_eq!(bc(512), BigRational::from_integer(1u32.into()));
+    if args.len() != 4 {
+        println!("Got args: {:?}", args);
+        panic!("Insufficient args. Expect k k'_min k'_max");
     }
 
-    #[test]
-    fn test_bounds_work() {
-        for i in 1..K {
-            griesmer_bound(i);
-            minimal_d_quasi_perfect(i);
-            minimal_d_perfect(i);
-        }
-    }
+    let k = args[1].parse::<usize>().expect("Needs to be int");
+    let k_min = args[2].parse::<usize>().expect("Needs to be int");
+    let k_max = args[3].parse::<usize>().expect("Needs to be int");
+
+    run(k, k_min, k_max);
 }

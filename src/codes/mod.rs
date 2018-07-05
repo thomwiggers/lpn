@@ -4,6 +4,8 @@ use std::collections::HashSet;
 use std::fmt;
 use std::mem;
 
+use objekt;
+
 pub(crate) static N: usize = 100000;
 
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
@@ -15,7 +17,7 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     result
 }
 
-pub trait BinaryCode {
+pub trait BinaryCode: objekt::Clone {
     /// Name of the code
     fn name(&self) -> String;
 
@@ -96,6 +98,8 @@ pub trait BinaryCode {
         sum / (count as f64)
     }
 }
+
+clone_trait_object!(BinaryCode);
 
 impl fmt::Debug for BinaryCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

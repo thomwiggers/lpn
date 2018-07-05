@@ -8,6 +8,7 @@ use std::boxed::Box;
 use fnv::FnvHashMap;
 
 
+#[derive(Clone)]
 pub struct HammingCode63_57;
 
 static INIT: Once = ONCE_INIT;

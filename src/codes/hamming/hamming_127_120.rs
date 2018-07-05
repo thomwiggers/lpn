@@ -7,7 +7,7 @@ use std::boxed::Box;
 
 use fnv::FnvHashMap;
 
-
+#[derive(Clone)]
 pub struct HammingCode127_120;
 
 static INIT: Once = ONCE_INIT;

@@ -5,6 +5,7 @@ use std::cmp;
 
 use std::collections::HashSet;
 
+#[derive(Clone)]
 pub struct RepetitionCode {
     k: usize,
     generator: BinMatrix,

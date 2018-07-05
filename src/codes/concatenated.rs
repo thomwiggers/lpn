@@ -20,6 +20,16 @@ pub struct ConcatenatedCode<'a> {
 
 unsafe impl<'a> Sync for ConcatenatedCode<'a> {}
 
+impl<'codes> Clone for ConcatenatedCode<'codes> {
+    fn clone(&self) -> Self {
+        ConcatenatedCode {
+            codes: self.codes.clone(),
+            init: Mutex::new(false),
+            generator: UnsafeCell::new(ptr::null_mut()),
+        }
+    }
+}
+
 impl<'codes> ConcatenatedCode<'codes> {
     pub fn new(codes: Vec<&'codes dyn BinaryCode>) -> ConcatenatedCode<'codes> {
         ConcatenatedCode {
@@ -30,7 +40,7 @@ impl<'codes> ConcatenatedCode<'codes> {
     }
 }
 
-impl<'codes, 'code> BinaryCode for ConcatenatedCode<'codes> {
+impl<'codes> BinaryCode for ConcatenatedCode<'codes> {
     fn name(&self) -> String {
         let names = self.codes.iter().fold(
             String::with_capacity(self.codes.iter().fold(0, |acc, c| acc + 2 + c.name().len())),

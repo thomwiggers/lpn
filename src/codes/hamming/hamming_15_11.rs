@@ -4,7 +4,7 @@ use m4ri_rust::friendly::BinVector;
 use std::sync::{Once,ONCE_INIT};
 use std::boxed::Box;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct HammingCode15_11;
 
 static INIT: Once = ONCE_INIT;
