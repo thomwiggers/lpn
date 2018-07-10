@@ -4,7 +4,7 @@ use lpn::gauss::*;
 use lpn::oracle::LpnOracle;
 
 fn main() {
-    let mut oracle: LpnOracle = LpnOracle::new(32, 0.125f64);
+    let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
     oracle.get_queries(40555);
     let secret = oracle.secret.clone();
     let solution = pooled_gauss_solve(oracle);

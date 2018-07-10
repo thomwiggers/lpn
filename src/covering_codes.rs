@@ -14,7 +14,7 @@ use rand;
 /// $n' = n-k$
 /// $d' = d$
 /// $d'_s = d$
-pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
+pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
     println!("Reducing to a sparse secret");
     let k = oracle.k;
     let mut rng = rand::thread_rng();
@@ -50,7 +50,7 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     };
 
     // update the secret:
-    let original_secret = oracle.secret;
+    let original_secret = oracle.secret.clone();
     println!(
         "the secret prior to reduction to a sparse secret was: {:?}",
         original_secret
@@ -66,26 +66,26 @@ pub fn reduce_sparse_secret(mut oracle: LpnOracle) -> LpnOracle {
     let m_t_inv = m.inverted();
     // update the queries
     let secret = &oracle.secret.clone();
-    oracle.queries = oracle
-        .queries
-        .into_par_iter()
+
+    // remove the queries we took
+    for q in queries.into_iter() {
+        oracle.queries.remove_item(&q);
+    }
+
+    oracle.queries
+        .par_iter_mut()
         // remove the queries we took
-        .filter(|q| !queries.contains(q))
-        .map(|mut query| {
+        .for_each(|query| {
             let new_v = &query.a * &m_t_inv;
             query.s ^= &new_v * &c_prime;
             debug_assert_eq!(secret * &new_v ^ query.e, query.s);
             query.a = new_v;
-            query
-        })
-        .collect();
+        });
 
     oracle.sparse_transform_matrix = Some(m);
     oracle.sparse_transform_vector = Some(c_prime);
     oracle.delta_s = oracle.delta;
     oracle.secret.truncate(oracle.k as usize);
-
-    oracle
 }
 
 /// Undo the sparse secret reduction for secrets.
@@ -105,7 +105,7 @@ pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector {
 /// $n' = n$
 /// $d' = d * bc$
 /// $d'_s$ depends on $d_s$ and $G$.
-pub fn code_reduction<T: BinaryCode + Sync>(mut oracle: LpnOracle, code: T) -> LpnOracle {
+pub fn code_reduction<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: T) {
     assert_ne!(
         oracle.delta_s, 0.0,
         "This reduction only works for sparse secrets!"
@@ -132,6 +132,4 @@ pub fn code_reduction<T: BinaryCode + Sync>(mut oracle: LpnOracle, code: T) -> L
     println!("Computing new delta");
     oracle.delta = oracle.delta * code.bias(oracle.delta_s);
     println!("New delta = {}", oracle.delta);
-
-    oracle
 }

@@ -9,8 +9,8 @@ fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(25, 1.0 / 16.0);
     oracle.get_queries(800555);
     let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
-    let oracle = reduce_sparse_secret(oracle);
-    let oracle = code_reduction(oracle, code);
+    reduce_sparse_secret(&mut oracle);
+    code_reduction(&mut oracle, code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
     let solution = bkw_solve(oracle);

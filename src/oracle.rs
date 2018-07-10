@@ -62,7 +62,7 @@ impl LpnOracle {
         let tau = (1.0 - self.delta) / 2.0;
         let dist = Bernoulli::new(tau);
         for _ in 0..n {
-            let mut vector = BinVector::random(self.k as usize);
+            let vector = BinVector::random(self.k as usize);
             debug_assert_eq!(vector.len(), self.k as usize);
             let e = dist.sample(&mut rng);
 
@@ -76,12 +76,12 @@ impl LpnOracle {
     }
 }
 
-pub fn query_bits_range(v: &BinVector, range: Range<usize>) -> u64 {
+pub fn query_bits_range(v: &BinVector, range: &Range<usize>) -> u64 {
     // FIXME speed up
     let len = range.end - range.start;
     debug_assert!(len < 64, "Needs to fit in u64");
     let mut result = 0u64;
-    for (i, ri) in range.rev().enumerate() {
+    for (i, ri) in (range.clone()).rev().enumerate() {
         result ^= (v[ri] as u64) << i;
     }
     debug_assert_eq!(result >> len, 0);
@@ -95,10 +95,10 @@ mod test {
     #[test]
     fn bitrange() {
         let v = BinVector::from_bytes(&[0b10011101u8]);
-        assert_eq!(query_bits_range(&v, 0..3), 0b100);
-        assert_eq!(query_bits_range(&v, 2..4), 0b01);
-        assert_eq!(query_bits_range(&v, 3..4), 0b1);
-        assert_eq!(query_bits_range(&v, 3..5), 0b11);
-        assert_eq!(query_bits_range(&v, 3..8), 0b11101);
+        assert_eq!(query_bits_range(&v, &(0..3)), 0b100);
+        assert_eq!(query_bits_range(&v, &(2..4)), 0b01);
+        assert_eq!(query_bits_range(&v, &(3..4)), 0b1);
+        assert_eq!(query_bits_range(&v, &(3..5)), 0b11);
+        assert_eq!(query_bits_range(&v, &(3..8)), 0b11101);
     }
 }

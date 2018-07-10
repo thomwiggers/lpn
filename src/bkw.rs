@@ -2,7 +2,6 @@ use fnv::FnvHashMap;
 use m4ri_rust::friendly::BinVector;
 use oracle::query_bits_range;
 use oracle::*;
-use rayon::prelude::*;
 use std::default::Default;
 use std::ops;
 
@@ -13,7 +12,7 @@ use std::ops;
 /// $k' = k - (a-1) * b$
 /// $n' = n - (a-1)*2^b
 /// $d' = delta^{2*(a-1)}$
-pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
+pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
     let k = oracle.k;
     assert!(a * b <= k, "a*b <= k");
 
@@ -25,36 +24,31 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
         let maxj = 2usize.pow(b);
         let query_capacity = num_queries / maxj;
 
-        let mut vector_partitions = Vec::with_capacity(maxj);
+        let mut vector_partitions: Vec<Vec<&Query>> = Vec::with_capacity(maxj);
         // using [v; n] clones and won't set capacity correctly.
         for _ in 0..maxj {
             vector_partitions.push(Vec::with_capacity(query_capacity));
         }
+        let mut firsts: Vec<Option<&Query>> = vec![None; maxj];
 
         let bitrange: ops::Range<usize> = ((k - (b * i)) as usize)..((k - (b * (i - 1))) as usize);
-        for mut q in oracle.queries.into_iter() {
-            let idx = query_bits_range(&(q.a), bitrange.clone()) as usize;
-            if vector_partitions[idx].capacity() == 0 {
-                println!("Vector {} is full, will need to resize", idx);
-            }
+        let mut indexes = Vec::with_capacity(maxj);
+        for (j, q) in oracle.queries.iter_mut().enumerate() {
+            let idx = query_bits_range(&(q.a), &bitrange) as usize;
             q.a.truncate((k - (b * i)) as usize);
-            vector_partitions[idx].push(q);
-        }
-
-        vector_partitions.par_iter_mut().for_each(|partition| {
-            if let Some(first) = partition.pop() {
-                for v in partition.iter_mut() {
-                    v.a += &first.a;
-                    v.s ^= first.s;
-                }
+            if let Some(first) = firsts[idx] {
+                q.a += &first.a;
+                q.s ^= first.s;
+            } else {
+                firsts[idx] = Some(q);
+                indexes.push(j);
             }
-        });
-
-        oracle.queries = Vec::with_capacity(num_queries - maxj);
-        for partition in vector_partitions {
-            oracle.queries.extend(partition.into_iter());
         }
+        indexes.into_iter().for_each(|idx| {
+            oracle.queries.swap_remove(idx);
+        });
     }
+
     // Set the new k
     oracle.k = k - (a - 1) * b;
     oracle.secret.truncate(oracle.k as usize);
@@ -64,7 +58,6 @@ pub fn bkw_reduction(mut oracle: LpnOracle, a: u32, b: u32) -> LpnOracle {
         oracle.k
     );
 
-    oracle
 }
 
 pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
@@ -75,11 +68,12 @@ pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
         "Selecting all queries with hw=1 from {} queries",
         oracle.queries.len()
     );
+    let range = 0..(b);
     let queries = oracle
         .queries
         .into_iter()
         .filter(|q| q.count_ones() == 1)
-        .map(|q| (query_bits_range(&q.a, 0..(b)), q.s))
+        .map(|q| (query_bits_range(&q.a, &range), q.s))
         .collect::<Vec<(u64, bool)>>();
 
     // allocate smaller vec

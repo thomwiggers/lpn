@@ -1,4 +1,5 @@
-//#![feature(nll)]
+#![feature(nll)]
+#![feature(vec_remove_item)]
 
 extern crate fnv;
 extern crate itertools;

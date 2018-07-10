@@ -20,7 +20,7 @@ time = "0.1"
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"
-features = ["nightly", "strassen_mul"]
+features = ["strassen_mul"]
 #features = ["system_alloc"]
 
 [profile.release]

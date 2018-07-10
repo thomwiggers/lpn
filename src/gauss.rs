@@ -66,7 +66,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let mut tries = 0;
     let s_prime = loop {
         let (a, b) = loop {
-            let (mut a, b) = {
+            let (a, b) = {
                 let queries =
                     rand::seq::sample_iter(&mut rng, oracle.queries.iter(), k as usize).unwrap();
                 // replace by matrix directly?

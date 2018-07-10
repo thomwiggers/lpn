@@ -75,7 +75,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
 /// $k' = k - (a-1)*b$
 /// $n' = n(n-1) / 2^{b+1}$  (for a = 1)
 /// $\delta' = \delta^2$
-pub fn xor_reduction(mut oracle: LpnOracle, b: u32) -> LpnOracle {
+pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
     let k = oracle.k;
     assert!(b <= k);
 
@@ -94,8 +94,8 @@ pub fn xor_reduction(mut oracle: LpnOracle, b: u32) -> LpnOracle {
     }
 
     let bitrange: ops::Range<usize> = ((k - b) as usize)..(k as usize);
-    for mut q in oracle.queries.into_iter() {
-        let idx = query_bits_range(&(q.a), bitrange.clone()) as usize;
+    for mut q in oracle.queries.drain(..) {
+        let idx = query_bits_range(&(q.a), &bitrange) as usize;
         if vector_partitions[idx].capacity() == 0 {
             println!(
                 "Vector {} is full, will need to resize from {}",
@@ -119,7 +119,7 @@ pub fn xor_reduction(mut oracle: LpnOracle, b: u32) -> LpnOracle {
             .collect();
     });
 
-    oracle.queries = Vec::with_capacity(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
+    oracle.queries.reserve(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
     for partition in vector_partitions {
         oracle.queries.extend(partition.into_iter());
     }
@@ -134,8 +134,6 @@ pub fn xor_reduction(mut oracle: LpnOracle, b: u32) -> LpnOracle {
         oracle.queries.len(),
         oracle.k
     );
-
-    oracle
 }
 
 /// Solving using the Fast Walsh-Hamadard Transform
