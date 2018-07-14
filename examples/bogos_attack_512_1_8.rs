@@ -36,7 +36,7 @@ fn main() {
     iproduct!(initial_weight_range, l_max_range, weight_limit_range, weight_increase_range)
         .map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
         .collect::<Vec<StGenCode>>()
-        .into_par_iter()
+        .into_iter()
         .for_each(|stgen| {
             let start = time::precise_time_s();
             let bias = stgen.bias(1.0 / 8.0);

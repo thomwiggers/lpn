@@ -7,6 +7,9 @@ use std::cmp::min;
 use std::mem;
 use std::ptr;
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+use rayon::prelude::*;
 
 /// 'Concatenated' Linear Codes with extra noise
 ///
@@ -340,6 +343,30 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
             Ok(x)
         } else {
             Err("No result found")
+        }
+    }
+
+    fn bias(&self, delta: f64) -> f64 {
+        let failed = AtomicBool::new(false);
+        let result = (0..10000).into_par_iter().map(|_i| {
+            if failed.load(Ordering::Relaxed) {
+                return None;
+            }
+            let v = BinVector::random(self.length());
+            let decoded = self.decode_to_code(&v);
+            if let Ok(decoded) = decoded {
+                Some(delta.powi((&v + &decoded).count_ones() as i32))
+            } else {
+                failed.store(true, Ordering::Relaxed);
+                None
+            }
+        }).while_some().sum();
+
+        if !failed.load(Ordering::Relaxed) {
+            result
+        } else {
+            println!("Decoding failed");
+            0.0
         }
     }
 }
