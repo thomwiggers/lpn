@@ -24,7 +24,7 @@ fn main() {
 
     println!(
         "Bias of concatenated code: {:e}",
-        concatenated.bias(1.0 / 8.0)
+        concatenated.bias(1.0 - 2.0 * 1.0 / 8.0)
     );
 
     let initial_weight_range = 6..10;
@@ -38,7 +38,7 @@ fn main() {
         .into_iter()
         .for_each(|stgen| {
             let start = time::precise_time_s();
-            let bias = stgen.bias(1.0 / 8.0);
+            let bias = stgen.bias(1.0 - 2.0 * 1.0 / 8.0);
             let duration = time::precise_time_s() - start;
             println!(
                 "Bias of StGen code ({}, {}, {}, {}): {:e} in {} s",

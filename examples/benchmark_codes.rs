@@ -14,7 +14,7 @@ use std::sync::*;
 const K: usize = 512;
 const K_MIN: usize = 266;
 const K_MAX: usize = 512;
-const DELTA: f64 = 1.0 / 8.0;
+const DELTA: f64 = 0.75;
 
 fn main() {
     let identities: Vec<IdentityCode> = (0..(K + 1)).into_iter().map(IdentityCode::new).collect();
