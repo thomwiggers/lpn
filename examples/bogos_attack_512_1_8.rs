@@ -6,7 +6,6 @@ extern crate itertools;
 extern crate rayon;
 
 use lpn::codes::*;
-use rayon::prelude::*;
 
 fn main() {
     let subcodes: Vec<&dyn BinaryCode> = vec![
