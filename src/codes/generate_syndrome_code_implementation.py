@@ -88,6 +88,7 @@ if __name__ == "__main__":
     print("Hamming code 7")
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))
 
+if False:
     print("Bogos code [18, 6]")
     generate_code_implementation(
         "Bogosrnd",

@@ -4202,7 +4202,13 @@ impl BinaryCode for BogosrndCode19_7 {
         
     }
 
-    
+    fn bias(&self, delta: f64) -> f64 {
+        if delta == 0.75 {
+            0.336303114891052
+        } else {
+            panic!("need to enter the additional biases");
+        }
+    }
 }
 
 #[cfg(test)]

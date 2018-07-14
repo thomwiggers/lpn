@@ -8298,6 +8298,13 @@ impl BinaryCode for BogosrndCode19_6 {
         
     }
 
+    fn bias(&self, delta: f64) -> f64 {
+        if delta == 0.75 {
+            0.291754990816116
+        } else {
+            panic!("need to enter the additional biases");
+        }
+    }
     
 }
 

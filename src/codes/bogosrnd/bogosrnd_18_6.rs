@@ -4201,14 +4201,19 @@ impl BinaryCode for BogosrndCode18_6 {
         
     }
 
-    
+    fn bias(&self, delta: f64) -> f64 {
+        if delta == 0.75 {
+            0.323782920837402
+        } else {
+            panic!("need to enter the additional biases");
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use m4ri_rust::friendly::BinVector;
-
     #[test]
     fn size() {
         let code = BogosrndCode18_6.generator_matrix();
