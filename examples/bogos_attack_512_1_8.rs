@@ -30,7 +30,7 @@ fn main() {
 
     let initial_weight_range = 6..10;
     let l_max_range = (400..2000usize).into_iter().step_by(200);
-    let weight_limit_range = initial_weight_range.start()..15;
+    let weight_limit_range = initial_weight_range.start..15;
     let weight_increase_range = 4..10;
 
     iproduct!(initial_weight_range, l_max_range, weight_limit_range, weight_increase_range)
