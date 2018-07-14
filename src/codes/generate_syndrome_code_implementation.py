@@ -1,8 +1,9 @@
 #!/usr/bin/env sage
 """Script to generate small, lookup-table hamming code implementations"""
+from __future__ import print_function
 import itertools
 from jinja2 import Environment
-from sage.all import codes, GF, vector, ZZ, random_vector, channels
+from sage.all import codes, GF, vector, ZZ, random_vector, channels, matrix
 
 
 def boollist(lst):
@@ -43,33 +44,22 @@ def generate_code_implementation(name, code):
     max_error = code.decoder().maximum_error_weight()
 
     syndrome_map = {}
-    for (error, _) in vectors_up_to(max_error, code.length()):
-        he = tuple(cs.parity_check_matrix() * error)
-        syndrome_map[ZZ(he, base=2)] = tuple(error)
+    for (he, error) in cs.decoder().syndrome_table().items():
+        syndrome_map[ZZ(list(he), base=2)] = tuple(error)
 
     info['syndrome_map'] = syndrome_map
     info['info_set'] = cs.information_set()
 
     testcases = []
-    seen = set()
-    for i in range(min(2**k, 20)):
-        m = None
-        while m is None or m in seen:
-            m = random_vector(GF(2), k)
-            m.set_immutable()
-        seen.add(m)
-
-        encoded = m * cs.systematic_generator_matrix()
+    if 'might-error' in cs.decoder().decoder_type():
+        max_error -= 3
+    for _ in range(200):
+        randvec = random_vector(GF(2), code.length())
+        codeword = cs.decode_to_code(randvec)
         testcase = {
-            'm': m,
-            'encoded': encoded,
-            'errorvecs': [],
+            'randvec': randvec,
+            'codeword': codeword,
         }
-        for errors in range(1, max_error):
-            chan = channels.StaticErrorRateChannel(
-                GF(2)**code.length(), errors)
-            testcase['errorvecs'].append(tuple(chan.transmit(encoded)))
-
         testcases.append(testcase)
 
     info['testcases'] = testcases
@@ -86,8 +76,58 @@ if __name__ == "__main__":
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 2))
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 3))
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 4))
+    print("Hamming code 5")
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 5))
+    print("Hamming code 6")
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 6))
+
+    print("Golay code")
     generate_code_implementation("Golay", codes.GolayCode(GF(2), extended=False))
+    print("Golay code ext")
     generate_code_implementation("Golay", codes.GolayCode(GF(2), extended=True))
+    print("Hamming code 7")
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))
+
+    print("Bogos code [18, 6]")
+    generate_code_implementation(
+        "Bogosrnd",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1],
+                    [0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0],
+                    [0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
+                    [1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0],
+                    [0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+                    [0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1],
+                ])))
+    print("Bogos code [19, 7]")
+    generate_code_implementation(
+        "Bogosrnd",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0],
+                    [1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0],
+                    [0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+                    [0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+                    [0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+                    [0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1],
+                    [0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                ])))
+    print("Bogos code [19, 6]")
+    generate_code_implementation(
+        "Bogosrnd",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                    [0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1],
+                    [1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+                    [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+                    [1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0],
+                    [1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+                ])))

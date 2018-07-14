@@ -20,6 +20,7 @@ pub struct StGenCode<'codes> {
     w0: u32,
     l_max: usize,
     wb: u32,
+    w_inc: u32,
 }
 
 impl<'codes> Clone for StGenCode<'codes> {
@@ -32,6 +33,7 @@ impl<'codes> Clone for StGenCode<'codes> {
             w0: self.w0,
             l_max: self.l_max,
             wb: self.wb,
+            w_inc: self.w_inc,
         }
     }
 }
@@ -45,6 +47,7 @@ impl<'codes> StGenCode<'codes> {
         w0: u32,
         l_max: usize,
         wb: u32,
+        w_inc: u32,
     ) -> StGenCode<'codes> {
         debug_assert_ne!(codes.len(), 0, "need at least 1 code");
         let mut noises = Vec::with_capacity(codes.len() - 1);
@@ -70,6 +73,7 @@ impl<'codes> StGenCode<'codes> {
             w0,
             l_max,
             wb,
+            w_inc,
         }
     }
 
@@ -86,6 +90,11 @@ impl<'codes> StGenCode<'codes> {
     /// Get the round weight limit
     pub fn wb(&self) -> u32 {
         self.wb
+    }
+
+    /// Get the round weight increase
+    pub fn w_inc(&self) -> u32 {
+        self.w_inc
     }
 }
 
@@ -225,6 +234,8 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         let mut b = BinVector::with_capacity(20);
         let mut b_tmp = BinVector::with_capacity(20);
         for i in 0..self.codes.len() {
+            #[cfg(not(feature = "nodebug"))]
+            println!("Stgen decoding round {}", i);
             // set helpful vars
             let small_code = self.codes[i];
             let ki = small_code.dimension();
@@ -306,8 +317,10 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
             // swap
             l_next = mem::replace(&mut l_previous, l_next);
 
+            #[cfg(not(feature = "nodebug"))]
+            println!("List length {}", l_previous.len());
             if l_previous.len() < self.l_max {
-                wi += 1;
+                wi += self.w_inc;
             } else {
                 l_previous
                     .sort_unstable_by(|(_, e1), (_, e2)| e1.count_ones().cmp(&e2.count_ones()));
@@ -463,7 +476,7 @@ mod tests {
             &HammingCode7_4,
             &HammingCode7_4,
         ];
-        StGenCode::new(codes, 3, 100, 3)
+        StGenCode::new(codes, 3, 100, 3, 1)
     }
 
     #[test]

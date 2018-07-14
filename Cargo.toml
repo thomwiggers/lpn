@@ -17,6 +17,8 @@ factorial = "0.1"
 objekt = "0.1"
 time = "0.1"
 
+[features]
+nodebug = []
 
 [dependencies.m4ri-rust]
 git = "https://github.com/thomwiggers/m4ri-rust.git"

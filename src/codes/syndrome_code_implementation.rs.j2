@@ -121,37 +121,14 @@ mod tests {
     }
 
     #[test]
-    fn decode() {
-        let code = {{ name }}Code{{n}}_{{k}};
-
-        let codeword = code.decode_to_message(&BinVector::from_elem({{n}}, true)).unwrap();
-        assert_eq!(codeword, BinVector::from_elem({{k}}, true));
-
-        let mut vec = BinVector::from_elem({{n}}, true);
-        vec.set(0, false);
-        let codeword = code.decode_to_message(&vec).unwrap();
-        assert_eq!(codeword, BinVector::from_elem({{k}}, true));
-
-        let vec = code.decode_to_code(&BinVector::from_elem({{n}}, false)).unwrap();
-        assert_eq!(vec, BinVector::from_elem({{n}}, false));
-    }
-
-    #[test]
-    fn encode_decode_tests() {
+    fn random_decode_tests() {
 
         {% for testcase in testcases %}
         {
             let code = {{ name}}Code{{n}}_{{ k }};
-            let m = BinVector::from_bools(&[{{ testcase.m|boollist }}]);
-            let encoded = BinVector::from_bools(&[{{ testcase.encoded|boollist }}]);
-            assert_eq!(code.encode(&m), encoded);
-            {% for errorvec in testcase.errorvecs %}
-            {
-                let errored = BinVector::from_bools(&[{{ errorvec|boollist }}]);
-                assert_eq!(&m, &code.decode_to_message(&errored).unwrap(), "decode to msg failed");
-                assert_eq!(encoded, code.decode_to_code(&errored).unwrap(), "decode to code failed");
-            }
-            {% endfor %}
+            let randvec = BinVector::from_bools(&[{{ testcase.randvec|boollist }}]);
+            let codeword = BinVector::from_bools(&[{{ testcase.codeword|boollist }}]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         {% endfor %}
     }
