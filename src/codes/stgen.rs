@@ -348,7 +348,8 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
 
     fn bias(&self, delta: f64) -> f64 {
         let failed = AtomicBool::new(false);
-        let result = (0..10000).into_par_iter().map(|_i| {
+        let n = 10000;
+        let result = (0..n).into_par_iter().map(|_i| {
             if failed.load(Ordering::Relaxed) {
                 return None;
             }
@@ -360,7 +361,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                 failed.store(true, Ordering::Relaxed);
                 None
             }
-        }).while_some().sum();
+        }).while_some().sum::<f64>() / (n as f64);
 
         if !failed.load(Ordering::Relaxed) {
             result
