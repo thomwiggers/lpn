@@ -41,7 +41,7 @@ fn main() {
             let bias = stgen.bias(1.0 - 2.0 * 1.0 / 8.0);
             let duration = time::precise_time_s() - start;
             println!(
-                "Bias of StGen code ({}, {}, {}, {}): {:e} in {} s",
+                "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
                 stgen.w0(),
                 stgen.l_max(),
                 stgen.wb(),

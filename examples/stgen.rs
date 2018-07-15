@@ -66,7 +66,7 @@ fn get_code() -> StGenCode<'static> {
         &HammingCode7_4,
         &HammingCode7_4,
     ];
-    StGenCode::new(codes, 3, 100, 3)
+    StGenCode::new(codes, 3, 100, 3, 2)
 }
 
 fn main() {

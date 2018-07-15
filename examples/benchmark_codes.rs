@@ -81,7 +81,7 @@ fn main() {
         for j in K_MIN..=K_MAX {
             let codes = params[i][j].clone();
             if codes.len() > 1 {
-                stgens[i][j] = Some(StGenCode::new(codes, 20, 200, 21));
+                stgens[i][j] = Some(StGenCode::new(codes, 20, 200, 21, 3));
             }
         }
     }
