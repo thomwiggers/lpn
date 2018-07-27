@@ -3,6 +3,8 @@ use rand;
 use rand::distributions::{Bernoulli, Distribution};
 use std::ops::Range;
 
+use rayon::prelude::*;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Query {
     pub a: BinVector,
@@ -58,21 +60,23 @@ impl LpnOracle {
         let len = if k % 8 == 0 { k / 8 } else { k / 8 + 1 };
         debug_assert!(len > 0);
 
-        let mut rng = rand::thread_rng();
         let tau = (1.0 - self.delta) / 2.0;
         let dist = Bernoulli::new(tau);
-        for _ in 0..n {
-            let vector = BinVector::random(self.k as usize);
-            debug_assert_eq!(vector.len(), self.k as usize);
-            let e = dist.sample(&mut rng);
+        let secret = self.secret.clone();
+        self.queries.par_extend(
+            (0..n).into_par_iter().map(|_| {
+                let mut rng = rand::thread_rng();
+                let vector = BinVector::random(k);
+                debug_assert_eq!(vector.len(), k);
+                let e = dist.sample(&mut rng);
 
-            let query = Query {
-                s: &self.secret * &vector ^ e,
-                a: vector,
-                e,
-            };
-            self.queries.push(query);
-        }
+                Query {
+                    s: &secret * &vector ^ e,
+                    a: vector,
+                    e,
+                }
+            })
+        );
     }
 }
 

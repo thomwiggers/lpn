@@ -23,7 +23,8 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Target secret weight <= {}", c);
     println!("Building (Am, b) with length {}", m);
     let (am, bm) = {
-        let queries = rand::seq::sample_iter(&mut rng, oracle.queries.iter(), m).unwrap();
+        let queries = rand::seq::sample_iter(&mut rng, oracle.queries.iter(), m)
+                .expect(&format!("Need {} queries for Test()", m));
         let mut b = BinVector::with_capacity(m);
         (
             BinMatrix::new(
