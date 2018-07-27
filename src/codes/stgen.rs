@@ -366,7 +366,6 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         if !failed.load(Ordering::Relaxed) {
             result
         } else {
-            println!("Decoding failed");
             0.0
         }
     }
