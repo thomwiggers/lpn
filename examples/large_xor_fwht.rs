@@ -6,7 +6,7 @@ use lpn::oracle::LpnOracle;
 
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(128, 1.0 / 32.0);
-    oracle.get_queries(2000);
+    oracle.get_samples(2000);
     xor_reduction(&mut oracle, 8);
     bkw_reduction(&mut oracle, 2, 8);
     bkw_reduction(&mut oracle, 2, 8);

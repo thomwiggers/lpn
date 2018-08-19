@@ -19,10 +19,10 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
     let k = oracle.k;
     let mut rng = rand::thread_rng();
     // get M, e, c'
-    let (m, c_prime, e, queries) = loop {
-        let (a, b, e, queries) = {
-            let queries =
-                rand::seq::sample_iter(&mut rng, oracle.queries.iter().cloned(), k as usize)
+    let (m, c_prime, e, samples) = loop {
+        let (a, b, e, samples) = {
+            let samples =
+                rand::seq::sample_iter(&mut rng, oracle.samples.iter().cloned(), k as usize)
                     .unwrap();
             // replace by matrix directly?
             let mut b = BinVector::with_capacity(k as usize);
@@ -30,7 +30,7 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
             (
                 // vectors on the columns
                 BinMatrix::new(
-                    queries
+                    samples
                         .iter()
                         .map(|q| {
                             b.push(q.s);
@@ -41,11 +41,11 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
                 ),
                 b,
                 e,
-                queries,
+                samples,
             )
         };
         if a.clone().echelonize() == k as usize {
-            break (a, b, e, queries);
+            break (a, b, e, samples);
         }
     };
 
@@ -64,17 +64,17 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
     );
 
     let m_t_inv = m.inverted();
-    // update the queries
+    // update the samples
     let secret = &oracle.secret.clone();
 
-    // remove the queries we took
-    for q in queries.into_iter() {
-        oracle.queries.remove_item(&q);
+    // remove the samples we took
+    for q in samples.into_iter() {
+        oracle.samples.remove_item(&q);
     }
 
-    oracle.queries
+    oracle.samples
         .par_iter_mut()
-        // remove the queries we took
+        // remove the samples we took
         .for_each(|query| {
             let new_v = &query.a * &m_t_inv;
             query.s ^= &new_v * &c_prime;
@@ -116,8 +116,8 @@ pub fn code_reduction<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: T) {
         "The length of the code does not match the problem size!"
     );
 
-    println!("Decoding queries");
-    oracle.queries.par_iter_mut().for_each(|query| {
+    println!("Decoding samples");
+    oracle.samples.par_iter_mut().for_each(|query| {
         (*query).a = code.decode_to_message(&query.a).expect("Couldn't decode??");
         debug_assert_eq!(query.a.len(), code.dimension());
     });

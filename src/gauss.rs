@@ -23,12 +23,12 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Target secret weight <= {}", c);
     println!("Building (Am, b) with length {}", m);
     let (am, bm) = {
-        let queries = rand::seq::sample_iter(&mut rng, oracle.queries.iter(), m)
-                .expect(&format!("Need {} queries for Test()", m));
+        let samples = rand::seq::sample_iter(&mut rng, oracle.samples.iter(), m)
+                .expect(&format!("Need {} samples for Test()", m));
         let mut b = BinVector::with_capacity(m);
         (
             BinMatrix::new(
-                queries
+                samples
                     .into_iter()
                     .map(|q| {
                         b.push(q.s);
@@ -68,13 +68,13 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let s_prime = loop {
         let (a, b) = loop {
             let (a, b) = {
-                let queries =
-                    rand::seq::sample_iter(&mut rng, oracle.queries.iter(), k as usize).unwrap();
+                let samples =
+                    rand::seq::sample_iter(&mut rng, oracle.samples.iter(), k as usize).unwrap();
                 // replace by matrix directly?
                 let mut b = BinVector::with_capacity(k as usize);
                 (
                     BinMatrix::new(
-                        queries
+                        samples
                             .into_iter()
                             .map(|q| {
                                 b.push(q.s);

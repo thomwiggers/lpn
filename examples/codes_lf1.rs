@@ -12,7 +12,7 @@ use m4ri_rust::friendly::BinVector;
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 8.0);
     oracle.secret = BinVector::from_function(15, |x| x % 2 == 0);
-    oracle.get_queries(100000);
+    oracle.get_samples(100000);
     //let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     let code = HammingCode15_11;
     reduce_sparse_secret(&mut oracle);

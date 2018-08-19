@@ -19,10 +19,10 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
 /// Use the vector-matrix product version of the fwht
 pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     // get the (a, c) samples as matrix A and vector c
-    let n_prime = oracle.queries.len();
-    assert!(n_prime > 0, "What, no queries?");
+    let n_prime = oracle.samples.len();
+    assert!(n_prime > 0, "What, no samples?");
 
-    let b = oracle.queries[0].a.len();
+    let b = oracle.samples[0].a.len();
     assert!(b < 21, "Don't use too large b! b = {}", b);
     assert!(b > 0, "Wtf, b = 0?");
 
@@ -32,7 +32,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         (
             BinMatrix::new(
                 oracle
-                    .queries
+                    .samples
                     .into_iter()
                     .map(|q| {
                         c.push(q.s);
@@ -68,7 +68,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     candidate_vector
 }
 
-/// This is the LF2 reduction. This reduction grows the number of queries.
+/// This is the LF2 reduction. This reduction grows the number of samples.
 ///
 /// Applies a single round reduction
 ///
@@ -79,8 +79,8 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
     let k = oracle.k;
     assert!(b <= k);
 
-    let num_queries = oracle.queries.len();
-    println!("Xor-reduce iteration, {} queries", num_queries);
+    let num_samples = oracle.samples.len();
+    println!("Xor-reduce iteration, {} samples", num_samples);
     // Partition into V_j
     // max j:
     let maxj = 2usize.pow(b);
@@ -88,13 +88,13 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
     // using [v; n] clones and won't set capacity correctly.
     let mut vector_partitions = Vec::with_capacity(maxj);
     // num / 2^b choose 2
-    let query_capacity = ((num_queries / maxj) * (num_queries / maxj - 1)) / 2;
+    let query_capacity = ((num_samples / maxj) * (num_samples / maxj - 1)) / 2;
     for _ in 0..maxj {
         vector_partitions.push(Vec::with_capacity(query_capacity));
     }
 
     let bitrange: ops::Range<usize> = ((k - b) as usize)..(k as usize);
-    for mut q in oracle.queries.drain(..) {
+    for mut q in oracle.samples.drain(..) {
         let idx = query_bits_range(&(q.a), &bitrange) as usize;
         if vector_partitions[idx].capacity() == 0 {
             println!(
@@ -119,9 +119,9 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
             .collect();
     });
 
-    oracle.queries.reserve(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
+    oracle.samples.reserve(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
     for partition in vector_partitions {
-        oracle.queries.extend(partition.into_iter());
+        oracle.samples.extend(partition.into_iter());
     }
 
     // Set the new k
@@ -130,8 +130,8 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
     oracle.delta = oracle.delta.powi(2);
 
     println!(
-        "Xor-reduce iterations done, {} queries now, k' = {}",
-        oracle.queries.len(),
+        "Xor-reduce iterations done, {} samples now, k' = {}",
+        oracle.samples.len(),
         oracle.k
     );
 }
@@ -141,10 +141,10 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
 /// LPN by Tramer (Bogos Tramer Vaudenay 2015)
 pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
     println!("FWHT solving...");
-    debug_assert_eq!(oracle.queries[0].a.len() as u32, oracle.k);
+    debug_assert_eq!(oracle.samples[0].a.len() as u32, oracle.k);
 
     let mut majority_counter = vec![0i64; 2usize.pow(oracle.k)];
-    oracle.queries.into_iter().for_each(|q| {
+    oracle.samples.into_iter().for_each(|q| {
         majority_counter[q.a.as_u64() as usize] += if q.s { -1 } else { 1 };
     });
 

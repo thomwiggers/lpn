@@ -16,7 +16,7 @@ fn main() {
     ]);
     assert_eq!(secret.len(), 25);
     let mut oracle: LpnOracle = LpnOracle::new_with_secret(secret, 1.0 / 8.0);
-    oracle.get_queries(100555);
+    oracle.get_samples(100555);
     let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     reduce_sparse_secret(&mut oracle);
     code_reduction(&mut oracle, code);

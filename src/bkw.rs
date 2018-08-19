@@ -17,12 +17,12 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
     assert!(a * b <= k, "a*b <= k");
 
     for i in 1..a {
-        let num_queries = oracle.queries.len();
-        println!("BKW iteration {}, {} queries left", i, num_queries);
+        let num_samples = oracle.samples.len();
+        println!("BKW iteration {}, {} samples left", i, num_samples);
         // Partition into V_j
         // max j:
         let maxj = 2usize.pow(b);
-        let query_capacity = num_queries / maxj;
+        let query_capacity = num_samples / maxj;
 
         let mut vector_partitions: Vec<Vec<&Query>> = Vec::with_capacity(maxj);
         // using [v; n] clones and won't set capacity correctly.
@@ -33,7 +33,7 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
 
         let bitrange: ops::Range<usize> = ((k - (b * i)) as usize)..((k - (b * (i - 1))) as usize);
         let mut indexes = Vec::with_capacity(maxj);
-        for (j, q) in oracle.queries.iter_mut().enumerate() {
+        for (j, q) in oracle.samples.iter_mut().enumerate() {
             let idx = query_bits_range(&(q.a), &bitrange) as usize;
             q.a.truncate((k - (b * i)) as usize);
             if let Some(first) = firsts[idx] {
@@ -45,7 +45,7 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
             }
         }
         indexes.into_iter().for_each(|idx| {
-            oracle.queries.swap_remove(idx);
+            oracle.samples.swap_remove(idx);
         });
     }
 
@@ -53,8 +53,8 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
     oracle.k = k - (a - 1) * b;
     oracle.secret.truncate(oracle.k as usize);
     println!(
-        "BKW iterations done, {} queries left, k' = {}",
-        oracle.queries.len(),
+        "BKW iterations done, {} samples left, k' = {}",
+        oracle.samples.len(),
         oracle.k
     );
 
@@ -62,15 +62,15 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
 
 pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
     println!("BKW Solver");
-    let b = oracle.queries[0].a.len();
+    let b = oracle.samples[0].a.len();
     debug_assert!(b <= 20, "Don't run BKW on too large b!");
     println!(
-        "Selecting all queries with hw=1 from {} queries",
-        oracle.queries.len()
+        "Selecting all samples with hw=1 from {} samples",
+        oracle.samples.len()
     );
     let range = 0..(b);
-    let queries = oracle
-        .queries
+    let samples = oracle
+        .samples
         .into_iter()
         .filter(|q| q.count_ones() == 1)
         .map(|q| (query_bits_range(&q.a, &range), q.s))
@@ -83,10 +83,10 @@ pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
         FnvHashMap::with_capacity_and_hasher(b, Default::default());
 
     println!(
-        "Sorting out and counting {} queries for majority selection",
-        queries.len()
+        "Sorting out and counting {} samples for majority selection",
+        samples.len()
     );
-    for query in queries.into_iter() {
+    for query in samples.into_iter() {
         debug_assert_eq!(query.0.count_ones(), 1);
         let count = counts.entry(query.0).or_insert(0);
         *count += 1;

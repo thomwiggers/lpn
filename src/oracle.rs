@@ -20,7 +20,7 @@ impl Query {
 
 #[derive(Clone)]
 pub struct LpnOracle {
-    pub queries: Vec<Query>,
+    pub samples: Vec<Query>,
     pub secret: BinVector,
     pub k: u32,
     pub delta: f64,
@@ -37,7 +37,7 @@ impl LpnOracle {
         println!("Constructed Oracle with k={}, τ={:0.5}", k, tau);
 
         LpnOracle {
-            queries: vec![],
+            samples: vec![],
             secret,
             k,
             delta: 1f64 - 2f64 * tau,
@@ -53,9 +53,9 @@ impl LpnOracle {
         lpn
     }
 
-    pub fn get_queries(&mut self, n: usize) {
-        println!("Getting {} queries", n);
-        self.queries.reserve(n);
+    pub fn get_samples(&mut self, n: usize) {
+        println!("Getting {} samples", n);
+        self.samples.reserve(n);
         let k = self.k as usize;
         let len = if k % 8 == 0 { k / 8 } else { k / 8 + 1 };
         debug_assert!(len > 0);
@@ -63,7 +63,7 @@ impl LpnOracle {
         let tau = (1.0 - self.delta) / 2.0;
         let dist = Bernoulli::new(tau);
         let secret = self.secret.clone();
-        self.queries.par_extend(
+        self.samples.par_extend(
             (0..n).into_par_iter().map(|_| {
                 let mut rng = rand::thread_rng();
                 let vector = BinVector::random(k);
