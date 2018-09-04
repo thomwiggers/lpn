@@ -21,3 +21,4 @@ See also https://thomwiggers.nl/research/msc-thesis/
 * Bogos, Tramer and Vaudenay. On solving LPN using BKW and variants – implementation and analysis. *Cryptography and Communications*, 2016.
 * Bogos and Vaudenay. Optimization of LPN solving algorithms. *ASIACRYPT 2015*, Springer, 2016.
 * Esser, Kübler and May. LPN Decoded. *CRYPTO 2017*, Springer, 2017.
+* Samardjiska and Gligoroski. Approaching Maximum Embedding Efficiency on Small Covers Using Staricase-Generator Codes. *2015 IEEE International Symposium on Information Theory*, 2015.
