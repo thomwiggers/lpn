@@ -35,7 +35,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
                     .samples
                     .into_iter()
                     .map(|q| {
-                        c.push(q.s);
+                        c.push(q.c);
                         q.a
                     })
                     .collect(),
@@ -113,7 +113,7 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
             .tuple_combinations()
             .map(|(v1, v2)| Query {
                 a: &v1.a + &v2.a,
-                s: v1.s ^ v2.s,
+                c: v1.c ^ v2.c,
                 e: v1.e ^ v2.e,
             })
             .collect();
@@ -145,7 +145,7 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
 
     let mut majority_counter = vec![0i64; 2usize.pow(oracle.k)];
     oracle.samples.into_iter().for_each(|q| {
-        majority_counter[q.a.as_u64() as usize] += if q.s { -1 } else { 1 };
+        majority_counter[q.a.as_u64() as usize] += if q.c { -1 } else { 1 };
     });
 
     fwht(majority_counter.as_mut_slice(), oracle.k);

@@ -31,7 +31,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
                 samples
                     .into_iter()
                     .map(|q| {
-                        b.push(q.s);
+                        b.push(q.c);
                         q.a.clone()
                     })
                     .collect(),
@@ -77,7 +77,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
                         samples
                             .into_iter()
                             .map(|q| {
-                                b.push(q.s);
+                                b.push(q.c);
                                 q.a.clone()
                             })
                             .collect(),

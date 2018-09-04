@@ -33,7 +33,7 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
                     samples
                         .iter()
                         .map(|q| {
-                            b.push(q.s);
+                            b.push(q.c);
                             e.push(q.e);
                             q.a.clone()
                         })
@@ -77,8 +77,8 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
         // remove the samples we took
         .for_each(|query| {
             let new_v = &query.a * &m_t_inv;
-            query.s ^= &new_v * &c_prime;
-            debug_assert_eq!(secret * &new_v ^ query.e, query.s);
+            query.c ^= &new_v * &c_prime;
+            debug_assert_eq!(secret * &new_v ^ query.e, query.c);
             query.a = new_v;
         });
 

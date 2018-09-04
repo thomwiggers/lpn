@@ -38,7 +38,7 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
             q.a.truncate((k - (b * i)) as usize);
             if let Some(first) = firsts[idx] {
                 q.a += &first.a;
-                q.s ^= first.s;
+                q.c ^= first.c;
             } else {
                 firsts[idx] = Some(q);
                 indexes.push(j);
@@ -73,7 +73,7 @@ pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
         .samples
         .into_iter()
         .filter(|q| q.count_ones() == 1)
-        .map(|q| (query_bits_range(&q.a, &range), q.s))
+        .map(|q| (query_bits_range(&q.a, &range), q.c))
         .collect::<Vec<(u64, bool)>>();
 
     // allocate smaller vec

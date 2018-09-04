@@ -6,9 +6,10 @@ use std::ops::Range;
 use rayon::prelude::*;
 
 #[derive(Debug, Clone, PartialEq)]
+/// <a, secret> + e = s
 pub struct Query {
     pub a: BinVector,
-    pub s: bool,
+    pub c: bool,
     pub e: bool,
 }
 
@@ -71,7 +72,7 @@ impl LpnOracle {
                 let e = dist.sample(&mut rng);
 
                 Query {
-                    s: &secret * &vector ^ e,
+                    c: &secret * &vector ^ e,
                     a: vector,
                     e,
                 }
