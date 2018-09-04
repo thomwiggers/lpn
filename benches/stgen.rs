@@ -22,7 +22,7 @@ mod stgen {
             &HammingCode7_4,
             &HammingCode7_4,
         ];
-        StGenCode::new(codes, 5, 100, 4)
+        StGenCode::new(codes, 5, 100, 4, 1)
     }
 
     #[bench]
