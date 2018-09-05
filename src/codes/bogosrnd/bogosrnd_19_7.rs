@@ -8,6 +8,7 @@ use std::boxed::Box;
 use fnv::FnvHashMap;
 
 
+/// [19, 7] random code by Bogos and Vaudenay
 #[derive(Clone)]
 pub struct BogosrndCode19_7;
 

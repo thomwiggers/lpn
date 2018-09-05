@@ -4,6 +4,9 @@ use m4ri_rust::friendly::BinVector;
 use std::sync::{Once,ONCE_INIT};
 use std::boxed::Box;
 
+/// [{{n}}, {{k}}] Hamming code
+/// 
+/// Decodes using direct lookup tables
 #[derive(Debug)]
 pub struct HammingCode{{n}}_{{k}};
 

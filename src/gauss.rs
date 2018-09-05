@@ -1,10 +1,11 @@
-//! Defines the (Pooled) Gauss solving algorithms by Esser, Kübler and May
+//! Defines the Pooled Gauss solving algorithms by Esser, Kübler and May
 use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use oracle::LpnOracle;
 use rand;
 
+/// Solves an LPN problem using Pooled Gauss
 pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let k = oracle.k;
     let alpha = 0.5f64.powi(k as i32);

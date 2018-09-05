@@ -1,5 +1,4 @@
-/// These codes are from the supplemental material of
-/// Bogos and Vaudenay, 2016 which appeared at Asiacrypt
+//! Random codes from the supplemental material of Bogos and Vaudenay, 2016 which appeared at Asiacrypt
 macro_rules! useit {
     ($name:ident) => {
         mod $name;
