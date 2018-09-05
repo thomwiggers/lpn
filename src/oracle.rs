@@ -10,13 +10,13 @@ use rayon::prelude::*;
 ///
 /// `<a, s> + e = c`
 #[derive(Debug, Clone, PartialEq)]
-pub struct Query {
+pub struct Sample {
     pub a: BinVector,
     pub c: bool,
     pub e: bool,
 }
 
-impl Query {
+impl Sample {
     /// Get the Hamming weight of the sample
     pub fn count_ones(&self) -> u32 {
         self.a.count_ones()
@@ -28,7 +28,7 @@ impl Query {
 /// We need to obtain the queries needed before applying reductions or transformations.
 #[derive(Clone)]
 pub struct LpnOracle {
-    pub samples: Vec<Query>,
+    pub samples: Vec<Sample>,
     pub secret: BinVector,
     pub k: u32,
     pub delta: f64,
@@ -84,7 +84,7 @@ impl LpnOracle {
             debug_assert_eq!(vector.len(), k);
             let e = dist.sample(&mut rng);
 
-            Query {
+            Sample {
                 c: &secret * &vector ^ e,
                 a: vector,
                 e,

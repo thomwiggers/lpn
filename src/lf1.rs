@@ -2,7 +2,7 @@
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use oracle::{query_bits_range, LpnOracle, Query};
+use oracle::{query_bits_range, LpnOracle, Sample};
 use rayon::prelude::*;
 use std::mem;
 use std::ops;
@@ -113,7 +113,7 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
         *partition = partition
             .iter()
             .tuple_combinations()
-            .map(|(v1, v2)| Query {
+            .map(|(v1, v2)| Sample {
                 a: &v1.a + &v2.a,
                 c: v1.c ^ v2.c,
                 e: v1.e ^ v2.e,

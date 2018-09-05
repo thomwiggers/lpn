@@ -35,12 +35,12 @@ fn bkw_reduce(oracle: &mut LpnOracle, a: u32, b: u32) {
         let maxj = 2usize.pow(b);
         let query_capacity = num_samples / maxj;
 
-        let mut vector_partitions: Vec<Vec<&Query>> = Vec::with_capacity(maxj);
+        let mut vector_partitions: Vec<Vec<&Sample>> = Vec::with_capacity(maxj);
         // using [v; n] clones and won't set capacity correctly.
         for _ in 0..maxj {
             vector_partitions.push(Vec::with_capacity(query_capacity));
         }
-        let mut firsts: Vec<Option<&Query>> = vec![None; maxj];
+        let mut firsts: Vec<Option<&Sample>> = vec![None; maxj];
 
         let bitrange: ops::Range<usize> = ((k - (b * i)) as usize)..((k - (b * (i - 1))) as usize);
         let mut indexes = Vec::with_capacity(maxj);
