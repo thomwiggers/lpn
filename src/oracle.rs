@@ -11,8 +11,11 @@ use rayon::prelude::*;
 /// `<a, s> + e = c`
 #[derive(Debug, Clone, PartialEq)]
 pub struct Sample {
+    /// The vector of this sample
     pub a: BinVector,
+    /// The noisy inner product
     pub c: bool,
+    /// The noise bit
     pub e: bool,
 }
 
@@ -28,12 +31,21 @@ impl Sample {
 /// We need to obtain the queries needed before applying reductions or transformations.
 #[derive(Clone)]
 pub struct LpnOracle {
+    /// The samples held by this oracle.
+    ///
+    /// Can be obtained via `get_samples`
     pub samples: Vec<Sample>,
+    /// The secret of this problem
     pub secret: BinVector,
+    /// The size of this problem
     pub k: u32,
+    /// The bias of this problem
     pub delta: f64,
+    /// The bias of the secret
     pub delta_s: f64,
+    /// The transformation matrix used by the sparse secret reduction
     pub(crate) sparse_transform_matrix: Option<BinMatrix>,
+    /// The vector used by the sparse secret reduction
     pub(crate) sparse_transform_vector: Option<BinVector>,
 }
 

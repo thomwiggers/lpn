@@ -1,6 +1,6 @@
 [package]
 name = "lpn"
-version = "0.1.0"
+version = "0.1.1"
 description = "Software to study attacks on the Learning Parity with Noise problem"
 repository = "https://github.com/thomwiggers/lpn"
 website = "https://thomwiggers.nl/research/msc-thesis/"
