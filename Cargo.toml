@@ -2,6 +2,7 @@
 name = "lpn"
 version = "0.1.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
+license = 'MIT'
 
 [dependencies]
 rand = "^0.5.0"
@@ -15,14 +16,11 @@ num-bigint = "0.2"
 num-traits = "0.2"
 factorial = "0.1"
 time = "0.1"
+m4ri_rust = "0.1"
 
 [features]
+default = ['nodebug']
 nodebug = []
-
-[dependencies.m4ri-rust]
-git = "https://github.com/thomwiggers/m4ri-rust.git"
-features = ["strassen_mul"]
-#features = ["system_alloc"]
 
 [profile.release]
 opt-level = 3
@@ -30,6 +28,3 @@ lto = true
 debug-assertions = false
 codegen-units = 1
 overflow-checks = false
-
-[replace]
-"num-bigint:0.2.0" = { git = "https://github.com/thomwiggers/num-bigint.git", branch = "pow" }
