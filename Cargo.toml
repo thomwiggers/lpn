@@ -1,6 +1,9 @@
 [package]
 name = "lpn"
 version = "0.1.0"
+description = "Software to study attacks on the Learning Parity with Noise problem"
+repository = "https://github.com/thomwiggers/lpn"
+website = "https://thomwiggers.nl/research/msc-thesis/"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 license = 'MIT'
 
