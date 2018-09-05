@@ -1,4 +1,3 @@
-#![feature(iterator_step_by)]
 extern crate lpn;
 extern crate time;
 #[macro_use]
@@ -29,25 +28,29 @@ fn main() {
 
     let initial_weight_range = 8..10;
     let l_max_range = (600..=1000usize).into_iter().step_by(200);
-    let weight_limit_range = (initial_weight_range.start+1)..15;
+    let weight_limit_range = (initial_weight_range.start + 1)..15;
     let weight_increase_range = 5..10;
 
-    iproduct!(initial_weight_range, l_max_range, weight_limit_range, weight_increase_range)
-        .map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
-        .collect::<Vec<StGenCode>>()
-        .into_iter()
-        .for_each(|stgen| {
-            let start = time::precise_time_s();
-            let bias = stgen.bias(1.0 - 2.0 * 1.0 / 8.0);
-            let duration = time::precise_time_s() - start;
-            println!(
-                "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
-                stgen.w0(),
-                stgen.l_max(),
-                stgen.wb(),
-                stgen.w_inc(),
-                bias,
-                duration,
-            );
-        });
+    iproduct!(
+        initial_weight_range,
+        l_max_range,
+        weight_limit_range,
+        weight_increase_range
+    ).map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
+    .collect::<Vec<StGenCode>>()
+    .into_iter()
+    .for_each(|stgen| {
+        let start = time::precise_time_s();
+        let bias = stgen.bias(1.0 - 2.0 * 1.0 / 8.0);
+        let duration = time::precise_time_s() - start;
+        println!(
+            "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
+            stgen.w0(),
+            stgen.l_max(),
+            stgen.wb(),
+            stgen.w_inc(),
+            bias,
+            duration,
+        );
+    });
 }

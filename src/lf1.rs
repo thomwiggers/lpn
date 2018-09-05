@@ -1,3 +1,4 @@
+//! Defines the algorithms from the Levieil and Fouque paper (LF1, LF2)
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
@@ -16,6 +17,8 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     result
 }
 
+/// Recover the secret through the FWHT
+///
 /// Use the vector-matrix product version of the fwht
 pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     // get the (a, c) samples as matrix A and vector c
@@ -37,8 +40,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
                     .map(|q| {
                         c.push(q.c);
                         q.a
-                    })
-                    .collect(),
+                    }).collect(),
             ),
             c,
         )
@@ -75,7 +77,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
 /// $k' = k - (a-1)*b$
 /// $n' = n(n-1) / 2^{b+1}$  (for a = 1)
 /// $\delta' = \delta^2$
-pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
+pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
     let k = oracle.k;
     assert!(b <= k);
 
@@ -115,11 +117,12 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
                 a: &v1.a + &v2.a,
                 c: v1.c ^ v2.c,
                 e: v1.e ^ v2.e,
-            })
-            .collect();
+            }).collect();
     });
 
-    oracle.samples.reserve(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
+    oracle
+        .samples
+        .reserve(vector_partitions.iter().fold(0, |acc, x| acc + x.len()));
     for partition in vector_partitions {
         oracle.samples.extend(partition.into_iter());
     }
@@ -130,15 +133,16 @@ pub fn xor_reduction(oracle: &mut LpnOracle, b: u32) {
     oracle.delta = oracle.delta.powi(2);
 
     println!(
-        "Xor-reduce iterations done, {} samples now, k' = {}",
+        "Xor-reduce iteration done, {} samples now, k' = {}",
         oracle.samples.len(),
         oracle.k
     );
 }
 
 /// Solving using the Fast Walsh-Hamadard Transform
+///
 /// This section of code is based on the implementation of
-/// LPN by Tramer (Bogos Tramer Vaudenay 2015)
+/// LPN by Tramer (Bogos, Tramer, Vaudenay 2015)
 pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
     println!("FWHT solving...");
     debug_assert_eq!(oracle.samples[0].a.len() as u32, oracle.k);

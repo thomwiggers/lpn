@@ -7,7 +7,6 @@ macro_rules! useit {
     };
 }
 
-
 useit!(bogosrnd_18_6);
 useit!(bogosrnd_19_6);
 useit!(bogosrnd_19_7);

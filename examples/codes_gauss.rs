@@ -1,11 +1,11 @@
 extern crate lpn;
-extern crate time;
 extern crate rayon;
+extern crate time;
 
-use lpn::oracle::*;
-use lpn::gauss::*;
-use lpn::covering_codes::*;
 use lpn::codes::*;
+use lpn::covering_codes::*;
+use lpn::gauss::*;
+use lpn::oracle::*;
 
 fn main() {
     let repcode5 = RepetitionCode::new(5);
@@ -23,14 +23,13 @@ fn main() {
 
     let mut oracle: LpnOracle = LpnOracle::new(256, 1.0 / 8.0);
     oracle.get_samples(900);
-    reduce_sparse_secret(&mut oracle);
+    sparse_secret_reduce(&mut oracle);
 
     let secret = oracle.secret.clone();
-    code_reduction(&mut oracle, concatenated);
+    code_reduce(&mut oracle, concatenated);
 
     let solution = pooled_gauss_solve(oracle);
 
     println!("Found:  {:?}", solution);
     println!("Actual: {:?}", secret);
-
 }

@@ -1,12 +1,10 @@
 #![feature(box_syntax)]
-extern crate itertools;
 extern crate lpn;
 #[macro_use]
 extern crate lazy_static;
 
 use std::env;
 
-use itertools::Itertools;
 use lpn::codes::*;
 
 const K: usize = 512;
@@ -76,8 +74,7 @@ fn generate_code_recurse<'c>(
                 k_min,
                 k_max,
             )
-        })
-        .collect()
+        }).collect()
 }
 
 fn run(k: usize, k_min: usize, k_max: usize) {

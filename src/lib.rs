@@ -1,6 +1,7 @@
+//! This library provides everything you need to program attacks on LPN
+//! as if you were writing them on paper.
 #![feature(nll)]
 #![feature(vec_remove_item)]
-
 extern crate fnv;
 extern crate itertools;
 extern crate m4ri_rust;

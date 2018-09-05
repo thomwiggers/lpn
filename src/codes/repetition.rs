@@ -5,6 +5,7 @@ use std::cmp;
 
 use std::collections::HashSet;
 
+/// A $[k, 1]$ repetition code
 #[derive(Clone)]
 pub struct RepetitionCode {
     k: usize,
@@ -20,6 +21,7 @@ impl cmp::PartialEq for RepetitionCode {
 impl cmp::Eq for RepetitionCode {}
 
 impl RepetitionCode {
+    /// Create a new $[k, 1]$ repetition code
     pub fn new(k: usize) -> RepetitionCode {
         RepetitionCode {
             k,
@@ -78,7 +80,8 @@ impl BinaryCode for RepetitionCode {
                 .into_iter()
                 .fold(0f64, |acc, w| {
                     acc + choose(self.k, w) * delta.powi(w as i32)
-                }) / 2f64.powi((self.k - 1) as i32)
+                })
+                / 2f64.powi((self.k - 1) as i32)
         } else {
             (0..(self.k / 2)).into_iter().fold(0f64, |acc, w| {
                 acc + choose(self.k, w) * delta.powi(w as i32)

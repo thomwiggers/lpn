@@ -1,3 +1,4 @@
+//! Describes the LPN problem oracle on which we apply reductions and solving algorithms
 use m4ri_rust::friendly::*;
 use rand;
 use rand::distributions::{Bernoulli, Distribution};
@@ -5,8 +6,10 @@ use std::ops::Range;
 
 use rayon::prelude::*;
 
+/// Represents a sample in the oracle
+///
+/// `<a, s> + e = c`
 #[derive(Debug, Clone, PartialEq)]
-/// <a, secret> + e = s
 pub struct Query {
     pub a: BinVector,
     pub c: bool,
@@ -14,11 +17,15 @@ pub struct Query {
 }
 
 impl Query {
+    /// Get the Hamming weight of the sample
     pub fn count_ones(&self) -> u32 {
         self.a.count_ones()
     }
 }
 
+/// This struct represents the oracle of the LPN problem.
+///
+/// We need to obtain the queries needed before applying reductions or transformations.
 #[derive(Clone)]
 pub struct LpnOracle {
     pub samples: Vec<Query>,
@@ -26,11 +33,12 @@ pub struct LpnOracle {
     pub k: u32,
     pub delta: f64,
     pub delta_s: f64,
-    pub sparse_transform_matrix: Option<BinMatrix>,
-    pub sparse_transform_vector: Option<BinVector>,
+    pub(crate) sparse_transform_matrix: Option<BinMatrix>,
+    pub(crate) sparse_transform_vector: Option<BinVector>,
 }
 
 impl LpnOracle {
+    /// Create a new LPN problem with a random secret
     pub fn new(k: u32, tau: f64) -> LpnOracle {
         debug_assert!(0.0 <= tau && tau < 1.0, "0 <= tau < 1");
         debug_assert!(k > 0, "k > 0");
@@ -48,12 +56,18 @@ impl LpnOracle {
         }
     }
 
+    /// Create a new LPN problem with a set secret
     pub fn new_with_secret(secret: BinVector, tau: f64) -> LpnOracle {
         let mut lpn = Self::new(secret.len() as u32, tau);
         lpn.secret = secret;
         lpn
     }
 
+    /// Get new samples from the oracle
+    ///
+    /// These samples are stored in ``oracle.samples``
+    ///
+    /// Uses parallelism
     pub fn get_samples(&mut self, n: usize) {
         println!("Getting {} samples", n);
         self.samples.reserve(n);
@@ -64,24 +78,22 @@ impl LpnOracle {
         let tau = (1.0 - self.delta) / 2.0;
         let dist = Bernoulli::new(tau);
         let secret = self.secret.clone();
-        self.samples.par_extend(
-            (0..n).into_par_iter().map(|_| {
-                let mut rng = rand::thread_rng();
-                let vector = BinVector::random(k);
-                debug_assert_eq!(vector.len(), k);
-                let e = dist.sample(&mut rng);
+        self.samples.par_extend((0..n).into_par_iter().map(|_| {
+            let mut rng = rand::thread_rng();
+            let vector = BinVector::random(k);
+            debug_assert_eq!(vector.len(), k);
+            let e = dist.sample(&mut rng);
 
-                Query {
-                    c: &secret * &vector ^ e,
-                    a: vector,
-                    e,
-                }
-            })
-        );
+            Query {
+                c: &secret * &vector ^ e,
+                a: vector,
+                e,
+            }
+        }));
     }
 }
 
-pub fn query_bits_range(v: &BinVector, range: &Range<usize>) -> u64 {
+pub(crate) fn query_bits_range(v: &BinVector, range: &Range<usize>) -> u64 {
     // FIXME speed up
     let len = range.end - range.start;
     debug_assert!(len < 64, "Needs to fit in u64");

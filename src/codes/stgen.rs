@@ -6,8 +6,8 @@ use std::cell::UnsafeCell;
 use std::cmp::min;
 use std::mem;
 use std::ptr;
-use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Mutex;
 
 use rayon::prelude::*;
 
@@ -349,19 +349,23 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
     fn bias(&self, delta: f64) -> f64 {
         let failed = AtomicBool::new(false);
         let n = 10000;
-        let result = (0..n).into_par_iter().map(|_i| {
-            if failed.load(Ordering::Relaxed) {
-                return None;
-            }
-            let v = BinVector::random(self.length());
-            let decoded = self.decode_to_code(&v);
-            if let Ok(decoded) = decoded {
-                Some(delta.powi((&v + &decoded).count_ones() as i32))
-            } else {
-                failed.store(true, Ordering::Relaxed);
-                None
-            }
-        }).while_some().sum::<f64>() / (n as f64);
+        let result = (0..n)
+            .into_par_iter()
+            .map(|_i| {
+                if failed.load(Ordering::Relaxed) {
+                    return None;
+                }
+                let v = BinVector::random(self.length());
+                let decoded = self.decode_to_code(&v);
+                if let Ok(decoded) = decoded {
+                    Some(delta.powi((&v + &decoded).count_ones() as i32))
+                } else {
+                    failed.store(true, Ordering::Relaxed);
+                    None
+                }
+            }).while_some()
+            .sum::<f64>()
+            / (n as f64);
 
         if !failed.load(Ordering::Relaxed) {
             result

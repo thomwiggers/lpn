@@ -6,9 +6,9 @@ use lpn::oracle::LpnOracle;
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
     oracle.get_samples(1000);
-    xor_reduction(&mut oracle, 8);
-    xor_reduction(&mut oracle, 8);
-    xor_reduction(&mut oracle, 8);
+    xor_reduce(&mut oracle, 8);
+    xor_reduce(&mut oracle, 8);
+    xor_reduce(&mut oracle, 8);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
     let lf1_solution = lf1_solve(oracle.clone());

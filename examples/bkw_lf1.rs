@@ -7,7 +7,9 @@ use lpn::oracle::LpnOracle;
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
     oracle.get_samples(100555);
-    bkw_reduction(&mut oracle, 4, 8);
+    for _ in 0..3 {
+        partition_reduce(&mut oracle, 8);
+    }
     let secret = oracle.secret.clone();
     let lf1_solution = lf1_solve(oracle.clone());
     let fwht_solution = fwht_solve(oracle);

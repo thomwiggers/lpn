@@ -1,3 +1,4 @@
+//! Defines the (Pooled) Gauss solving algorithms by Esser, Kübler and May
 use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
@@ -24,7 +25,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Building (Am, b) with length {}", m);
     let (am, bm) = {
         let samples = rand::seq::sample_iter(&mut rng, oracle.samples.iter(), m)
-                .expect(&format!("Need {} samples for Test()", m));
+            .expect(&format!("Need {} samples for Test()", m));
         let mut b = BinVector::with_capacity(m);
         (
             BinMatrix::new(
@@ -33,8 +34,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
                     .map(|q| {
                         b.push(q.c);
                         q.a.clone()
-                    })
-                    .collect(),
+                    }).collect(),
             ),
             b.as_column_matrix(),
         )
@@ -79,8 +79,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
                             .map(|q| {
                                 b.push(q.c);
                                 q.a.clone()
-                            })
-                            .collect(),
+                            }).collect(),
                     ),
                     b,
                 )

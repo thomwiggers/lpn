@@ -1,3 +1,4 @@
+//! Implements the covering codes reduction and sparse secret transformation
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use oracle::LpnOracle;
@@ -14,7 +15,7 @@ use rand;
 /// $n' = n-k$
 /// $d' = d$
 /// $d'_s = d$
-pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
+pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     println!("Reducing to a sparse secret");
     let k = oracle.k;
     let mut rng = rand::thread_rng();
@@ -36,8 +37,7 @@ pub fn reduce_sparse_secret(oracle: &mut LpnOracle) {
                             b.push(q.c);
                             e.push(q.e);
                             q.a.clone()
-                        })
-                        .collect(),
+                        }).collect(),
                 ),
                 b,
                 e,
@@ -105,7 +105,7 @@ pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector {
 /// $n' = n$
 /// $d' = d * bc$
 /// $d'_s$ depends on $d_s$ and $G$.
-pub fn code_reduction<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: T) {
+pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: T) {
     assert_ne!(
         oracle.delta_s, 0.0,
         "This reduction only works for sparse secrets!"

@@ -2,6 +2,7 @@ use codes::BinaryCode;
 use m4ri_rust::friendly::*;
 use std::cmp;
 
+/// $[k, k]$ Identity code
 #[derive(Debug, Clone)]
 pub struct IdentityCode {
     k: usize,
@@ -17,6 +18,7 @@ impl cmp::PartialEq for IdentityCode {
 impl cmp::Eq for IdentityCode {}
 
 impl IdentityCode {
+    /// Create a new instance of a $[k, k]$ code.
     pub fn new(k: usize) -> IdentityCode {
         IdentityCode {
             k,

@@ -1,4 +1,3 @@
-#![feature(iterator_step_by)]
 extern crate lpn;
 extern crate time;
 #[macro_use]
@@ -29,32 +28,33 @@ fn main() {
     assert_eq!(concatenated.dimension(), 64);
 
     let delta = 1.0 - 2.0 * 1.0 / 8.0;
-    println!(
-        "Bias of concatenated code: {:e}",
-        concatenated.bias(delta)
-    );
+    println!("Bias of concatenated code: {:e}", concatenated.bias(delta));
 
     let initial_weight_range = 1..4;
     let l_max_range = (200..1000usize).into_iter().step_by(200);
     let weight_limit_range = initial_weight_range.start..5;
     let weight_increase_range = 1..3;
 
-    iproduct!(initial_weight_range, l_max_range, weight_limit_range, weight_increase_range)
-        .map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
-        .collect::<Vec<StGenCode>>()
-        .into_iter()
-        .for_each(|stgen| {
-            let start = time::precise_time_s();
-            let bias = stgen.bias(delta);
-            let duration = time::precise_time_s() - start;
-            println!(
-                "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
-                stgen.w0(),
-                stgen.l_max(),
-                stgen.wb(),
-                stgen.w_inc(),
-                bias,
-                duration,
-            );
-        });
+    iproduct!(
+        initial_weight_range,
+        l_max_range,
+        weight_limit_range,
+        weight_increase_range
+    ).map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
+    .collect::<Vec<StGenCode>>()
+    .into_iter()
+    .for_each(|stgen| {
+        let start = time::precise_time_s();
+        let bias = stgen.bias(delta);
+        let duration = time::precise_time_s() - start;
+        println!(
+            "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
+            stgen.w0(),
+            stgen.l_max(),
+            stgen.wb(),
+            stgen.w_inc(),
+            bias,
+            duration,
+        );
+    });
 }

@@ -92,11 +92,10 @@ fn main() {
     ((1..(K + 1))
         .into_iter()
         .cartesian_product((1..(K + 1)).into_iter())
-        .collect::<Vec<_>>())
-        .into_par_iter()
-        .for_each(|(i, j)| {
-            if bias[i][j] != 0.0 {
-                /*
+        .collect::<Vec<_>>()).into_par_iter()
+    .for_each(|(i, j)| {
+        if bias[i][j] != 0.0 {
+            /*
                 if let Some(stgen) = stgens[i][j].as_ref() {
                     let time_start = time::precise_time_s();
                     let bias = stgen.bias(DELTA);
@@ -107,8 +106,8 @@ fn main() {
                     );
                     stgen_bias.write().unwrap()[i][j] = bias;
                 }*/
-            }
-        });
+        }
+    });
 
     //for i in 1..=K {
     {

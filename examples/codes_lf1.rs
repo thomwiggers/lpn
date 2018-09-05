@@ -15,13 +15,13 @@ fn main() {
     oracle.get_samples(100000);
     //let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     let code = HammingCode15_11;
-    reduce_sparse_secret(&mut oracle);
+    sparse_secret_reduce(&mut oracle);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
     let unsps = unsparse_secret(&oracle, &secret);
     println!("unsparsed s:    {:?}", unsps);
 
-    code_reduction(&mut oracle, code);
+    code_reduce(&mut oracle, code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
 

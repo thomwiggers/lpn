@@ -1,3 +1,4 @@
+//! Defines the algorithms from the classic Blum, Kalai and Wasserman paper
 use fnv::FnvHashMap;
 use m4ri_rust::friendly::BinVector;
 use oracle::query_bits_range;
@@ -5,14 +6,24 @@ use oracle::*;
 use std::default::Default;
 use std::ops;
 
-/// The reduction from BKW
+/// The full BKW solving algorithm.
 ///
-/// also known as partition-reduce in the Bogos/Vaudenay extra material
+/// Does `a-1` applications of `partition-reduce(8)` and solves via majority.
 ///
 /// $k' = k - (a-1) * b$
 /// $n' = n - (a-1)*2^b
 /// $d' = delta^{2*(a-1)}$
-pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
+pub fn bkw(mut oracle: LpnOracle, a: u32, b: u32) -> BinVector {
+    bkw_reduce(&mut oracle, a, b);
+    majority(oracle)
+}
+
+/// Reduces the LPN problem size using the reduction from Blum, Kalai and Wasserman.
+pub fn partition_reduce(oracle: &mut LpnOracle, b: u32) {
+    bkw_reduce(oracle, 2, b);
+}
+
+fn bkw_reduce(oracle: &mut LpnOracle, a: u32, b: u32) {
     let k = oracle.k;
     assert!(a * b <= k, "a*b <= k");
 
@@ -57,11 +68,11 @@ pub fn bkw_reduction(oracle: &mut LpnOracle, a: u32, b: u32) {
         oracle.samples.len(),
         oracle.k
     );
-
 }
 
-pub fn bkw_solve(oracle: LpnOracle) -> BinVector {
-    println!("BKW Solver");
+/// Recover the secret using the majority strategy from BKW
+pub fn majority(oracle: LpnOracle) -> BinVector {
+    println!("BKW Solver: majority");
     let b = oracle.samples[0].a.len();
     debug_assert!(b <= 20, "Don't run BKW on too large b!");
     println!(

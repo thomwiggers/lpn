@@ -1,9 +1,11 @@
+//! This module defines Linear codes for the covering-codes reduction.
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::collections::HashSet;
 use std::fmt;
 use std::mem;
 
+/// Sample size to estimate the covering radius
 pub(crate) static N: usize = 100;
 
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
@@ -15,6 +17,7 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     result
 }
 
+/// Generic binary linear code API
 pub trait BinaryCode {
     /// Name of the code
     fn name(&self) -> String;
