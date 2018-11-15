@@ -88,6 +88,38 @@ if __name__ == "__main__":
     print("Hamming code 7")
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 7))
 
+    print("MDS codes")
+    generate_code_implementation(
+        "Mds",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [1, 0, 1],
+                    [0, 1, 0],
+                ])))
+    generate_code_implementation(
+        "Mds",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [1, 0, 0, 1],
+                    [0, 1, 0, 1],
+                    [0, 0, 1, 1],
+                ])))
+    generate_code_implementation(
+        "Mds",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [1, 0, 0, 0, 1],
+                    [0, 1, 0, 0, 1],
+                    [0, 0, 1, 0, 1],
+                    [0, 0, 0, 1, 1],
+                ])))
+
 if False:
     print("Bogos code [18, 6]")
     generate_code_implementation(

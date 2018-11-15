@@ -126,3 +126,6 @@ pub use self::repetition::*;
 
 mod bogosrnd;
 pub use self::bogosrnd::*;
+
+mod mds;
+pub use self::mds::*;
