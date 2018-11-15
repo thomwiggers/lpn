@@ -119,6 +119,16 @@ if __name__ == "__main__":
                     [0, 0, 1, 0, 1],
                     [0, 0, 0, 1, 1],
                 ])))
+    generate_code_implementation(
+        "Custom",
+        codes.LinearCode(
+            matrix(
+                GF(2),
+                [
+                    [1, 0, 0, 1, 1],
+                    [0, 1, 0, 1, 1],
+                    [0, 0, 1, 1, 1],
+                ])))
 
 if False:
     print("Bogos code [18, 6]")
