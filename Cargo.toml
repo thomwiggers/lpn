@@ -6,6 +6,7 @@ repository = "https://github.com/thomwiggers/lpn"
 homepage = "https://thomwiggers.nl/research/msc-thesis/"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 license = 'MIT'
+edition = '2018'
 
 [dependencies]
 rand = "^0.5.0"
@@ -29,5 +30,5 @@ nodebug = []
 opt-level = 3
 lto = true
 debug-assertions = false
-codegen-units = 1
+#codegen-units = 1
 overflow-checks = false
