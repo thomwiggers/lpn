@@ -1,5 +1,5 @@
 use binomial_iter::BinomialIter;
-use codes::BinaryCode;
+use crate::codes::BinaryCode;
 use itertools::{Combinations, Itertools};
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
@@ -469,7 +469,7 @@ fn vectors_up_to(weight: usize, length: usize) -> WeightIterator {
 mod tests {
 
     use super::*;
-    use codes::*;
+    use crate::codes::*;
     use m4ri_rust::friendly::BinVector;
 
     #[test]

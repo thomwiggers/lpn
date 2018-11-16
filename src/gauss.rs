@@ -2,7 +2,7 @@
 use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use oracle::LpnOracle;
+use crate::oracle::LpnOracle;
 use rand;
 
 /// Solves an LPN problem using Pooled Gauss

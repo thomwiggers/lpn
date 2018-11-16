@@ -1,4 +1,4 @@
-use codes::BinaryCode;
+use crate::codes::BinaryCode;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::cell::UnsafeCell;
@@ -131,7 +131,7 @@ impl<'codes> BinaryCode for ConcatenatedCode<'codes> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codes::hamming::*;
+    use crate::codes::hamming::*;
     use m4ri_rust::friendly::BinVector;
 
     fn get_code() -> ConcatenatedCode<'static> {

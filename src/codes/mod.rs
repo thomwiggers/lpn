@@ -129,3 +129,6 @@ pub use self::bogosrnd::*;
 
 mod mds;
 pub use self::mds::*;
+
+mod custom;
+pub use self::custom::*;

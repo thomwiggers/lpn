@@ -1,4 +1,4 @@
-use codes::BinaryCode;
+use crate::codes::BinaryCode;
 use m4ri_rust::friendly::*;
 use std::cmp;
 

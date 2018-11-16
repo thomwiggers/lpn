@@ -2,7 +2,7 @@
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use oracle::{query_bits_range, LpnOracle, Sample};
+use crate::oracle::{query_bits_range, LpnOracle, Sample};
 use rayon::prelude::*;
 use std::mem;
 use std::ops;
