@@ -36,7 +36,8 @@ fn main() {
         l_max_range,
         weight_limit_range,
         weight_increase_range
-    ).map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
+    )
+    .map(|(w0, l_max, wb, w_inc)| StGenCode::new(subcodes.clone(), w0, l_max, wb, w_inc))
     .collect::<Vec<StGenCode>>()
     .into_iter()
     .for_each(|stgen| {

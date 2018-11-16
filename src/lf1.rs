@@ -40,7 +40,8 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
                     .map(|q| {
                         c.push(q.c);
                         q.a
-                    }).collect(),
+                    })
+                    .collect(),
             ),
             c,
         )
@@ -117,7 +118,8 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
                 a: &v1.a + &v2.a,
                 c: v1.c ^ v2.c,
                 e: v1.e ^ v2.e,
-            }).collect();
+            })
+            .collect();
     });
 
     oracle

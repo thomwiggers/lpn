@@ -37,7 +37,8 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
                             b.push(q.c);
                             e.push(q.e);
                             q.a.clone()
-                        }).collect(),
+                        })
+                        .collect(),
                 ),
                 b,
                 e,
@@ -72,7 +73,8 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
         oracle.samples.remove_item(&q);
     }
 
-    oracle.samples
+    oracle
+        .samples
         .par_iter_mut()
         // remove the samples we took
         .for_each(|query| {

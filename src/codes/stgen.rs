@@ -1,3 +1,4 @@
+use binomial_iter::BinomialIter;
 use codes::BinaryCode;
 use itertools::{Combinations, Itertools};
 use m4ri_rust::friendly::BinMatrix;
@@ -98,6 +99,27 @@ impl<'codes> StGenCode<'codes> {
     /// Get the round weight increase
     pub fn w_inc(&self) -> u32 {
         self.w_inc
+    }
+
+    /// Get the complexity of decoding
+    pub fn decoding_complexity(&self) -> u64 {
+        (0..self.codes.len())
+            .map(|i| {
+                // FIXME(Thom): do I use 'extra' length or full length
+                let ni = self.codes[i].length() as u32;
+                self.codes[0..i]
+                    .iter()
+                    .map(|c| c.dimension() as u64)
+                    .sum::<u64>()
+                    * (ni as u64)
+                    + BinomialIter::new(ni, 0)
+                        .iter_inc_k()
+                        .take((self.wb as usize) + 1)
+                        .map(|(_, b)| b as u64)
+                        .sum::<u64>()
+            })
+            .sum::<u64>()
+            * (self.l_max as u64)
     }
 }
 
@@ -363,7 +385,8 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                     failed.store(true, Ordering::Relaxed);
                     None
                 }
-            }).while_some()
+            })
+            .while_some()
             .sum::<f64>()
             / (n as f64);
 

@@ -74,7 +74,8 @@ fn generate_code_recurse<'c>(
                 k_min,
                 k_max,
             )
-        }).collect()
+        })
+        .collect()
 }
 
 fn run(k: usize, k_min: usize, k_max: usize) {
