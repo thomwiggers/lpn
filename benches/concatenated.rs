@@ -5,7 +5,7 @@ extern crate test;
 
 use lpn::codes::*;
 use m4ri_rust::friendly::*;
-use test::Bencher;
+use crate::test::Bencher;
 
 fn get_code() -> ConcatenatedCode<'static> {
     let codes: Vec<&BinaryCode> = vec![

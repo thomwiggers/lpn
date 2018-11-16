@@ -8,7 +8,7 @@ macro_rules! bench_code {
         mod $name {
             use lpn::codes::*;
             use m4ri_rust::friendly::*;
-            use test::Bencher;
+            use crate::test::Bencher;
 
             #[bench]
             fn random_vector_dimension(b: &mut Bencher) {
