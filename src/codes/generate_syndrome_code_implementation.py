@@ -130,7 +130,7 @@ if __name__ == "__main__":
                     [0, 0, 1, 1, 1],
                 ])))
 
-if False:
+if True:
     print("Bogos code [18, 6]")
     generate_code_implementation(
         "Bogosrnd",

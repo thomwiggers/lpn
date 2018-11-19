@@ -6,7 +6,7 @@ use std::cmp;
 use std::collections::HashSet;
 
 /// A $[k, 1]$ repetition code
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct RepetitionCode {
     k: usize,
     generator: BinMatrix,

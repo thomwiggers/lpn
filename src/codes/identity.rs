@@ -3,7 +3,7 @@ use m4ri_rust::friendly::*;
 use std::cmp;
 
 /// $[k, k]$ Identity code
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct IdentityCode {
     k: usize,
     generator: BinMatrix,

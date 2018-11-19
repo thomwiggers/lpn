@@ -1,15 +1,18 @@
-use crate::codes::BinaryCode;
-use std::default::Default;
-use m4ri_rust::friendly::BinMatrix;
-use m4ri_rust::friendly::BinVector;
-use std::sync::{Once,ONCE_INIT};
 use std::boxed::Box;
+use std::default::Default;
+use std::sync::{Once,ONCE_INIT};
 
 use fnv::FnvHashMap;
 
+use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::BinVector;
 
-/// [19, 7] random code by Bogos and Vaudenay
-#[derive(Clone)]
+use crate::codes::BinaryCode;
+
+/// ``[19, 7]`` Bogosrnd code
+///
+/// Decodes using Syndrome decoding
+#[derive(Clone, Serialize)]
 pub struct BogosrndCode19_7;
 
 static INIT: Once = ONCE_INIT;
@@ -4203,13 +4206,7 @@ impl BinaryCode for BogosrndCode19_7 {
         
     }
 
-    fn bias(&self, delta: f64) -> f64 {
-        if delta == 0.75 {
-            0.336303114891052
-        } else {
-            panic!("need to enter the additional biases");
-        }
-    }
+    
 }
 
 #[cfg(test)]
@@ -4223,1408 +4220,1408 @@ mod tests {
         assert_eq!(code.ncols(), 19);
         assert_eq!(code.nrows(), 7);
     }
-    
+
     #[test]
     fn random_decode_tests() {
 
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, true, true, false, true, false, false, true, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, true, true, false, false, true, false, false, true, false, false, true, true, true]);
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, true, false, false, true, true, true, false, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, false, false, true, true, false, false, false, true, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, true, false, false, false, true, true, true, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, false, false, true, true, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, true, true, true, false, false, false, true, true, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, false, false, true, false, true, true, false, true, true, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, false, true, true, false, true, true, false, false, true, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, true, true, true, true, false, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, true, false, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, false, true, true, true, true, false, true, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, true, true, true, true, false, true, true, true, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, true, false, true, false, true, true, true, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, true, true, false, true, true, false, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, false, false, true, false, false, true, false, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, true, false, false, false, false, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false, true, false, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, true, true, true, true, true, true, false, true, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, true, true, true, true, false, true, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, false, true, false, true, false, false, false, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, true, false, false, false, true, true, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, true, true, true, false, false, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, true, false, false, true, false, true, true, true, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, true, false, false, false, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, true, true, false, true, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false, false, true, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false, false, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, false, false, false, true, false, false, false, false, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, true, false, false, false, false, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, false, true, true, false, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, false, true, false, true, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, false, false, true, false, true, false, false, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, false, true, false, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, false, false, true, false, true, false, true, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, true, false, false, true, true, false, true, false, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, true, true, true, true, false, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, true, true, true, true, false, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, false, false, false, true, true, true, false, false, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, true, false, false, true, false, true, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, true, false, false, false, true, false, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, true, true, true, false, true, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, true, true, false, false, false, true, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, true, true, true, true, false, false, true, false, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, false, true, true, true, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, true, true, false, false, true, false, true, false, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, false, false, true, true, false, true, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, true, false, false, true, false, true, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, true, true, false, false, false, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, false, false, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, false, false, true, false, false, false, false, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, false, true, true, false, true, true, true, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false, false, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, true, true, false, true, false, false, true, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, true, true, true, false, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, true, false, true, true, false, false, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, false, true, true, false, true, true, false, false, true, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, true, false, false, true, true, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, false, false, true, false, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, true, false, true, true, false, true, true, true, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, false, false, true, false, false, true, true, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, false, false, false, false, true, false, false, true, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, false, true, false, true, false, false, false, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, false, false, true, false, true, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, false, true, false, false, false, true, true, false, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, true, false, false, true, true, false, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, false, true, false, true, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, true, false, true, false, true, true, false, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, true, false, false, false, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, false, false, false, false, true, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, true, false, false, true, true, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, true, true, false, true, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, false, true, true, false, true, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, true, false, true, true, true, true, true, false, false, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, true, false, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, true, false, true, false, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, true, false, false, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, true, true, true, true, false, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, true, false, false, false, true, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, false, false, true, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, true, true, false, false, false, false, false, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, true, true, true, false, false, false, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, false, false, false, true, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, false, false, true, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, false, true, true, true, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, false, true, false, false, true, true, false, false, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, false, false, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, false, true, false, false, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, false, false, false, true, false, true, false, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, false, false, false, true, false, true, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, true, true, false, true, false, true, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, true, true, true, true, true, false, true, false, false, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, false, false, true, true, true, true, true, true, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, true, true, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, false, true, false, false, true, false, true, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, true, true, false, true, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, false, true, true, true, true, true, false, true, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, false, true, true, true, false, false, false, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, true, false, true, false, true, true, true, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, false, true, false, true, false, true, false, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, true, false, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, true, true, false, true, true, false, true, true, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, true, true, true, false, false, true, true, false, true, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, true, true, false, false, true, true, false, true, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, false, false, true, false, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, false, true, true, true, false, true, true, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, false, true, true, true, true, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, true, true, false, true, false, true, true, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, true, true, false, false, false, false, false, false, true, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, true, true, false, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, false, true, false, true, true, true, true, true, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, true, true, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, true, false, true, true, false, false, false, false, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, false, false, true, false, false, false, false, false, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, false, true, true, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, true, true, false, true, false, true, false, true, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, false, true, false, true, true, false, true, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, false, true, true, false, false, true, true, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, false, true, true, true, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, true, true, false, false, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, true, true, false, true, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, true, false, false, true, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, true, false, true, true, false, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, true, true, true, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, false, false, true, true, true, true, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, true, false, false, true, false, true, true, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, false, false, false, true, false, true, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, true, false, true, true, false, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, true, true, true, true, false, true, true, true, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, false, true, true, false, true, false, true, false, true, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, true, false, true, true, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, false, true, true, true, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, true, false, false, true, false, false, false, false, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, false, false, true, false, false, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, false, false, false, true, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, false, true, false, false, false, true, false, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, true, true, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, true, false, true, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, true, true, false, true, false, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, true, false, true, true, false, false, false, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, true, false, true, false, false, true, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, true, false, true, false, true, false, false, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, false, false, true, true, true, true, true, false, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, true, true, true, true, false, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, false, true, false, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false, true, false, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, false, true, true, true, true, false, true, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, true, true, true, true, true, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, true, true, true, true, true, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, true, false, true, true, true, false, true, true, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, true, true, false, true, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, true, true, false, true, false, false, false, true, false, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, true, true, false, true, true, true, false, false, true, false, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, true, false, false, false, true, false, false, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, false, true, true, true, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, true, false, false, true, true, false, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, true, true, true, false, true, false, false, false, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, false, false, true, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, false, false, false, false, true, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, true, true, true, true, true, true, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, false, false, true, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, true, false, true, true, false, true, false, false, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, false, true, true, true, false, false, true, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, true, false, false, false, true, true, false, false, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, true, false, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, true, false, true, true, false, false, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, true, true, true, false, false, true, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, true, false, false, true, true, true, false, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, false, false, true, true, true, true, true, true, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, true, true, false, false, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, true, true, false, true, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, false, false, true, false, false, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, true, false, true, false, true, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, false, false, false, false, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false, true, false, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, true, true, false, true, false, true, false, true, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, true, false, true, true, false, true, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, true, true, true, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, true, true, true, false, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, true, false, false, true, false, true, false, true, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, true, false, true, false, true, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, false, true, true, false, true, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, true, false, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, true, false, false, true, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, false, true, true, true, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, true, false, false, true, true, true, true, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, true, true, true, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, true, false, false, false, true, false, false, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, false, true, false, false, true, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, true, false, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, false, false, false, false, true, true, false, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, false, false, true, false, false, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, false, false, false, false, true, false, false, true, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, true, true, true, true, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, false, false, true, true, true, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, false, false, false, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, false, true, false, true, true, true, false, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, true, true, true, false, true, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, true, true, false, false, false, true, false, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, false, false, false, false, true, false, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, false, false, false, true, false, true, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, true, true, true, false, true, false, false, false, false, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, true, true, false, true, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, true, true, true, true, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, false, true, true, true, true, false, false, false, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, false, false, true, true, true, false, false, false, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, true, false, false, false, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, true, true, false, false, false, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, true, true, false, false, false, true, true, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, true, true, false, false, false, true, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, true, false, false, true, true, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, true, true, true, true, false, true, false, true, false, true, false, true, false]);
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, true, true, true, true, false, true, false, false, true, false, true, false]);
             let codeword = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, true, false, false, false, true, false, true, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, false, false, true, false, false, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, false, false, true, false, false, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, false, false, false, true, false, true, true, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, true, false, true, true, true, true, true, false, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, true, false, false, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, true, false, false, true, false, true, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, true, true, true, false, true, false, false, false, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, true, true, false, true, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, false, false, true, true, true, false, false, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, false, true, false, false, true, true, true, false, true, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, true, false, true, false, true, true, true, true, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, false, false, false, true, false, true, true, true, true, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, false, false, true, false, true, true, false, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, false, true, true, false, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, true, false, true, true, false, true, true, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, true, true, false, false, false, false, true, true, false, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, false, true, true, false, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, false, false, false, false, false, true, true, true, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, false, false, false, false, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, false, false, true, false, false, false, false, false, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, true, false, true, false, true, true, true, false, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, true, true, true, false, false, false, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, false, true, false, true, false, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, false, false, true, false, true, false, true, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, false, false, false, false, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, false, true, true, true, false, false, false, false, true, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, false, false, false, false, false, true, true, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, true, true, true, true, false, false, false, false, false, true, true, false]);
+            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, true, true, true, false, true, true, true, true, true, false]);
             let codeword = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, true, true, false, false, true, true, false, true, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, false, true, false, false, true, true, false, false, true, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, false, true, false, true, false, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, false, true, true, false, false, false, true, false, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, true, true, true, false, false, false, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, true, true, false, false, false, true, true, true, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, true, false, true, true, true, true, true, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, true, true, false, false, false, false, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, false, true, true, true, false, false, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, false, false, true, false, true, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, false, true, false, false, false, false, true, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, true, true, true, false, false, false, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, false, false, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, true, true, false, false, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, false, true, false, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, false, true, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, true, false, false, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, true, true, false, false, false, true, true, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, false, true, true, false, false, false, true, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, true, true, false, false, false, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, true, false, false, false, false, true, true, false, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, true, false, false, false, false, false, false, true, false, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, true, true, false, false, false, false, true, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, true, true, false, false, false, true, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, true, false, true, true, false, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, true, true, false, false, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, false, true, false, false, true, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, false, true, true, true, false, false, true, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false, false, false, true, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, false, true, false, true, false, false, true, true, false, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, true, false, true, true, true, false, true, true, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, true, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, true, true, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, true, false, true, false, true, false, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, false, false, false, true, true, false, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, false, true, true, true, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, false, false, true, true, false, true, false, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, true, true, true, true, false, false, true, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, true, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, true, false, false, true, true, false, false, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, false, false, true, false, false, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, false, false, true, true, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, true, true, true, false, true, true, true, false, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, true, false, true, true, true, false, true, true, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, true, false, false, true, false, false, false, false, true, false, false, false]);
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, true, true, true, false, false, false, false, false, true, false, true, false]);
             let codeword = BinVector::from_bools(&[true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, true, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, true, true, false, true, true, true, false, false, true]);
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, true, false, false, false, true, false, true, true, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, true, true, true, false, false, true, false, true, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, false, true, true, false, true, true, true, true, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, false, false, false, false, true, false, true, true, true, true, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, true, false, false, false, true, true, true, true, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, true, true, true, true, true, false, false, true, true, true, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, false, true, true, false, false, true, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, true, true, false, false, false, true, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, false, true, false, false, true, true, false, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, false, false, true, false, false, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, false, true, false, false, true, false, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, false, true, false, false, true, false, true, true, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, true, true, false, true, true, true, true, true, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, true, false, true, false, true, true, true, false, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, true, true, true, true, false, true, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, false, false, true, false, true, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, false, true, true, true, true, true, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, true, false, true, true, false, true, false, false, true, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, false, false, true, true, false, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, true, false, false, true, false, true, false, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, true, false, false, false, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, false, false, false, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, true, true, false, true, false, false, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, true, true, true, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, true, false, false, false, true, false, false, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, true, false, true, false, true, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, true, true, true, true, false, true, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, false, true, false, false, false, true, false, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, true, false, false, false, false, true, false, true, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, true, true, false, false, false, false, true, false, true, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, false, true, false, false, true, false, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, true, false, false, false, true, true, false, true, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, true, false, true, true, true, true, true, true, false, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, false, true, true, true, false, false, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, false, false, true, true, true, false, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, false, true, true, true, true, true, false, true, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, true, true, false, false, false, true, true, false, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, true, false, true, true, false, false, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, true, true, false, false, false, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, true, true, false, true, false, true, true, false, false, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, true, false, false, false, true, false, true, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, true, true, true, false, false, true, false, false, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, false, false, true, true, false, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, true, false, true, true, true, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, true, false, true, true, false, true, true, true, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, false, true, true, false, false, false, true, true, false, true]);
             let codeword = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, true, true, false, false, false, true, true, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, false, true, true, false, true, true, true, false, true, true]);
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, true, false, true, false, false, true, true, true, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, false, false, true, false, false, true, true, true, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, true, false, false, true, false, true, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, true, true, false, false, true, false, false, false, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, false, false, true, false, false, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, true, true, false, false, true, false, false, true, false, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, false, true, true, true, true, false, true, true, false, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, false, false, true, true, false, false, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, false, false, true, true, false, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, true, false, false, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false, true, false, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false, true, false, false, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, false, false, false, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, true, true, true, true, true, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, true, true, true, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, false, true, false, true, true, true, false, false, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, false, true, true, true, true, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, true, true, true, false, false, true, false, true, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, true, true, true, false, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, true, false, false, false, true, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, false, true, false, false, false, true, false, false, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, true, true, true, true, false, false, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, true, false, false, false, true, true, true, false, true, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, false, true, true, false, true, false, true, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, false, false, true, true, false, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, true, true, true, false, false, true, true, true, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, true, true, true, true, false, false, true, false, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, false, false, true, false, false, true, false, false, true, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, true, false, true, true, false, false, false, true, false, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, true, false, false, false, true, false, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, false, true, false, false, true, false, false, true, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, false, false, true, false, false, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, true, false, true, false, true, false, false, true, false, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, false, true, false, false, true, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, true, false, true, true, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, true, false, false, true, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, true, true, true, true, true, false, true, false, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, false, true, true, false, true, false, true, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, true, true, true, true, false, true, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, false, false, true, false, false, false, true, false, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, true, true, false, false, true, false, false, false, false, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, false, false, false, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, false, true, true, false, true, false, true, false, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, true, false, false, false, true, false, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, false, true, false, false, false, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, true, false, false, false, true, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, true, false, true, false, true, true, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, true, false, true, false, false, true, false, false, false, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, true, false, false, true, true, false, true, false, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, true, true, false, true, true, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, false, false, false, true, true, true, false, true, false, true, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, true, false, false, false, true, false, true, false, true, false, true, true, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, false, true, true, false, false, true, false, false, true, true, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, true, true, true, true, true, true, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, true, true, true, true, false, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, true, true, true, true, false, false, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, true, true, false, true, true, false, false, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, false, true, true, true, true, true, false, true, false, false, false, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, false, true, true, true, false, true, false, false, false, false, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, false, true, true, true, true, true, false, true, true, true, false, true, false]);
             let codeword = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, true, true, true, false, false, true, true, false, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = BogosrndCode19_7;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, false, true, false, true, false, true, true, false, true, false, false, true, true]);
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, true, false, true, true, true, true, true, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, false, false, false, true, true, true, true, false, false, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, false, true, true, false, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, true, true, false, true, true, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, false, false, true, false, true, false, true, false, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, true, false, false, true, false, true, false, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, false, true, true, false, true, false, true, false, true, false, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, true, true, true, false, false, false, true, false, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, true, false, false, true, true, true, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, false, false, true, false, false, true, true, true, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, false, true, false, true, false, false, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, false, true, true, true, true, false, false, true, true, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, true, false, false, false, true, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, false, false, true, true, true, true, false, true, false, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, true, true, true, true, false, true, false, false, false, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, true, true, true, true, false, true, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, true, true, false, true, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, true, true, true, true, false, false, false, true, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, true, false, false, true, true, true, true, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, true, true, false, true, true, true, true, false, true, true, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, true, true, true, true, true, true, false, false, true, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, true, false, true, true, true, true, false, true, true, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, false, true, false, true, true, true, false, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, true, false, true, true, false, true, true, true, false, false, true, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, true, false, false, false, true, false, true, false, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, true, false, false, true, true, true, false, true, true, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, false, false, true, false, true, true, false, false, true, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, false, true, true, true, false, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, false, true, false, true, true, true, true, true, true, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, true, true, true, false, true, false, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, true, true, true, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, true, true, false, false, true, true, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, false, false, true, false, false, true, true, true, false, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, true, true, true, false, true, false, true, true, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, true, true, false, true, false, false, false, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, true, true, true, false, true, false, false, false, false, true, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, false, true, true, false, true, true, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, false, false, true, false, true, false, false, false, true, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, true, false, true, false, true, true, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, false, true, true, false, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, true, false, false, true, true, false, false, true, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, true, true, false, false, false, true, true, true, true, true, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, true, false, false, true, true, true, true, true, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, true, true, true, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, false, true, false, false, true, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, false, true, true, false, false, false, false, true, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false, false, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, false, false, false, false, false, false, true, true, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, false, false, true, false, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, false, true, true, true, true, false, true, true, true, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, true, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, true, true, true, false, true, true, false, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, true, true, false, false, true, false, true, false, true, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, true, false, false, true, true, true, false, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, false, true, false, true, false, true, true, true, false, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, false, true, true, true, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, false, false, false, true, true, false, false, true, true, true, true, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, true, false, false, true, true, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, false, true, true, true, true, false, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, true, false, false, false, true, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, true, true, false, false, true, false, true, true, false, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, true, true, false, true, false, true, true, false, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, true, true, false, false, false, true, true, true, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, true, false, false, true, true, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, false, false, true, true, false, false, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, true, true, false, false, false, false, true, true, true, false, false, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, false, true, true, true, true, true, false, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, false, true, false, false, true, true, true, true, false, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, true, true, true, false, true, true, false, false, false, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, false, false, true, true, true, true, false, true, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, false, true, true, true, false, true, true, true, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, true, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, false, true, true, false, false, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, false, false, true, false, true, false, false, false, true, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, false, false, true, true, false, false, false, true, false, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, true, false, true, true, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, false, false, false, true, true, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, true, true, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, true, true, false, false, false, false, true, false, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, false, false, true, false, false, true, false, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, true, true, false, false, false, false, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, true, true, true, false, false, false, true, true, true, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, true, false, false, false, false, false, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, false, false, false, true, false, false, false, false, true, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, false, true, false, false, false, false, false, false, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, false, false, false, false, false, false, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, false, true, true, false, false, true, true, true, true, false, false, true, true]);
             let codeword = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, true, false, false, false, true, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, false, false, true, true, false, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, false, true, false, true, false, true, true, true, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, false, false, true, false, true, false, true, true, true, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, false, false, false, false, true, false, true, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, false, false, false, true, true, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, false, true, false, false, true, true, true, false, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, false, true, false, true, false, true, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, true, false, false, false, false, false, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, false, true, true, true, false, true, false, false, false, false, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, true, false, false, false, false, false, false, true, true, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, false, false, true, true, false, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, false, true, true, false, false, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, true, false, true, true, true, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, false, false, true, true, false, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, false, false, true, false, false, false, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, true, true, true, true, false, true, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, false, true, false, false, true, true, false, false, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, false, true, true, true, true, true, false, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, true, false, true, true, false, true, true, false, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, true, true, true, true, false, true, true, false, false, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, false, false, false, false, true, false, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, false, false, false, true, false, true, false, false, true, false, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, false, false, true, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, true, false, false, false, true, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, true, false, false, false, false, false, true, true, false, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, false, true, false, false, true, true, false, true, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, true, true, false, true, true, false, false, true, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, true, true, false, true, true, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, true, true, false, false, false, true, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, false, true, false, true, false, false, false, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, true, true, false, false, false, true, false, false, false, true, true, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, true, true, true, false, false, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, true, false, true, false, true, true, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, false, false, false, true, false, true, false, true, false, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, false, true, false, false, true, false, true, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, true, false, true, true, true, false, true, true, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, false, false, true, true, true, false, false, true, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, true, true, false, true, true, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, true, true, false, true, true, false, true, true, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, false, true, true, true, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, true, false, false, false, false, false, false, false, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, false, false, false, false, true, true, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, true, true, false, false, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, false, false, true, false, true, true, false, false, true, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, true, true, true, true, false, true, true, true, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, false, true, false, false, true, false, true, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, false, false, false, false, true, false, true, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, true, false, false, true, true, false, false, true, true, false, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, true, true, false, true, true, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, true, true, false, true, false, false, true, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, false, true, true, true, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, false, true, true, true, true, false, true, true, true, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, true, true, false, true, true, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, true, true, false, true, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, false, false, true, true, false, false, true, true, true, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, true, false, false, false, true, true, true, false, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, false, false, true, true, false, false, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, true, false, false, true, true, false, false, false, false, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, true, true, false, false, false, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, true, true, false, false, true, false, false, false, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, false, true, true, true, false, false, true, true, false, false, false, true, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, false, false, true, true, false, false, true, false, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, false, false, true, true, false, false, false, false, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, true, true, false, false, false, true, false, true, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, true, true, true, false, false, false, false, false, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, true, false, false, true, false, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false, false, true, false, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, true, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, false, true, true, false, true, false, false, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, true, true, true, false, true, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, true, true, false, false, true, false, true, false, true, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, true, false, false, true, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, true, true, false, false, false, false, true, false, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, true, true, true, false, false, false, false, false, true, false, false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, false, false, false, true, true, false, false, false, true, false, false, true, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, true, false, true, false, false, true, true, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, false, true, true, false, false, false, false, true, true, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, false, false, true, true, true, false, false, false, false, true, true, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, true, false, true, true, true, false, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, true, true, false, true, false, true, true, true, false, true, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, true, true, true, false, true, false, true, true, false, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, true, true, true, false, true, false, false, true, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, true, true, false, false, false, false, false, false, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, true, false, true, false, false, true, false, true, false, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, false, false, false, true, false, false, true, false, true, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, false, false, false, false, true, false, false, false, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, false, true, true, false, false, true, true, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, false, true, false, true, false, false, false, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, false, true, true, true, true, true, false, true, false, false, false, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, true, true, true, true, true, false, true, false, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, false, false, true, true, true, true, false, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, false, true, false, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, false, true, false, false, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, false, false, false, false, false, false, false, true, false, true, true, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, false, true, false, false, false, true, true, true, true, false, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, false, false, true, true, false, false, false, false, false, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, true, false, false, true, true, true, false, true, true, true, false, true, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, true, false, false, true, true, false, true, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, false, false, true, true, true, true, true, false, true, false, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, false, false, true, false, true, false, true, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, true, true, false, true, true, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, false, true, true, true, true, true, true, true, false, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, false, true, true, true, true, false, false, true, false, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, true, true, true, false, true, false, false, false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, false, true, true, false, false, true, false, false, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, true, true, true, true, false, false, true, false, false, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, false, true, false, false, true, true, false, false, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = BogosrndCode19_7;
+            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, true, false, false, false, true, true, true, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, true, false, false, false, true, true, true, true, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         

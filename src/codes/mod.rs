@@ -6,7 +6,7 @@ use std::fmt;
 use std::mem;
 
 /// Sample size to estimate the covering radius
-pub(crate) static N: usize = 100;
+pub(crate) static N: usize = 10000;
 
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
     let bytes = unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(c.to_be()) };
@@ -18,7 +18,8 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
 }
 
 /// Generic binary linear code API
-pub trait BinaryCode {
+pub trait BinaryCode
+{
     /// Name of the code
     fn name(&self) -> String;
 
@@ -103,6 +104,14 @@ pub trait BinaryCode {
 impl fmt::Debug for BinaryCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}] Binary Code", self.length(), self.dimension())
+    }
+}
+
+impl serde::Serialize for &dyn BinaryCode {
+    fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error> 
+        where S: serde::ser::Serializer
+    {
+        ser.serialize_str(&self.name())
     }
 }
 

@@ -1,16 +1,18 @@
-use codes::BinaryCode;
-use std::default::Default;
-use m4ri_rust::friendly::BinMatrix;
-use m4ri_rust::friendly::BinVector;
-use std::sync::{Once,ONCE_INIT};
 use std::boxed::Box;
+use std::default::Default;
+use std::sync::{Once,ONCE_INIT};
 
 use fnv::FnvHashMap;
 
-/// [{{n}}, {{k}}] {{ name }} code
+use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::BinVector;
+
+use crate::codes::BinaryCode;
+
+/// ``[{{n}}, {{k}}]`` {{ name }} code
 ///
 /// Decodes using Syndrome decoding
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct {{ name }}Code{{n}}_{{k}};
 
 static INIT: Once = ONCE_INIT;

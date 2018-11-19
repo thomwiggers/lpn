@@ -1,13 +1,15 @@
-use crate::codes::BinaryCode;
-use m4ri_rust::friendly::BinMatrix;
-use m4ri_rust::friendly::BinVector;
 use std::sync::{Once,ONCE_INIT};
 use std::boxed::Box;
 
-/// [15, 11] Hamming code
+use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::BinVector;
+
+use crate::codes::BinaryCode;
+
+/// ``[15, 11]`` Hamming code
 /// 
 /// Decodes using direct lookup tables
-#[derive(Debug)]
+#[derive(Debug,Serialize,Deserialize)]
 pub struct HammingCode15_11;
 
 static INIT: Once = ONCE_INIT;

@@ -12,10 +12,23 @@ use std::sync::Mutex;
 ///
 /// It will construct the generator matrix lazily and use the encode and
 /// decode mechanism of the 'child' codes.
+#[derive(Serialize)]
 pub struct ConcatenatedCode<'a> {
     codes: Vec<&'a BinaryCode>,
+    #[serde(skip, default="default_mutex")]
     init: Mutex<bool>,
+    #[serde(skip, default="default_generator")]
     generator: UnsafeCell<*mut BinMatrix>,
+}
+
+#[allow(dead_code)]
+fn default_mutex() -> Mutex<bool> {
+    Mutex::new(false)
+}
+
+#[allow(dead_code)]
+fn default_generator() -> UnsafeCell<*mut BinMatrix>{
+    UnsafeCell::new(ptr::null_mut())
 }
 
 unsafe impl<'a> Sync for ConcatenatedCode<'a> {}

@@ -16,15 +16,28 @@ use rayon::prelude::*;
 ///
 /// This struct allows to construct a Linear code from the direct sum
 /// of smaller codes.
+#[derive(Serialize)]
 pub struct StGenCode<'codes> {
     codes: Vec<&'codes dyn BinaryCode>,
     noises: Vec<Option<BinMatrix>>,
+    #[serde(skip, default = "default_mutex")]
     init: Mutex<bool>,
+    #[serde(skip, default = "default_generator")]
     generator: UnsafeCell<*mut BinMatrix>,
     w0: u32,
     l_max: usize,
     wb: u32,
     w_inc: u32,
+}
+
+#[allow(dead_code)]
+fn default_mutex() -> Mutex<bool> {
+    Mutex::new(false)
+}
+
+#[allow(dead_code)]
+fn default_generator() -> UnsafeCell<*mut BinMatrix> {
+    UnsafeCell::new(ptr::null_mut())
 }
 
 impl<'codes> Clone for StGenCode<'codes> {
@@ -103,6 +116,9 @@ impl<'codes> StGenCode<'codes> {
 
     /// Get the complexity of decoding
     pub fn decoding_complexity(&self) -> u64 {
+        if self.codes.len() == 1 {
+            return 1;
+        }
         (0..self.codes.len())
             .map(|i| {
                 // FIXME(Thom): do I use 'extra' length or full length

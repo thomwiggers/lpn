@@ -12,6 +12,10 @@ extern crate rayon;
 extern crate lazy_static;
 extern crate binomial_iter;
 
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+
 pub mod bkw;
 pub mod covering_codes;
 pub mod gauss;

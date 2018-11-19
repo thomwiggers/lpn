@@ -1,16 +1,18 @@
-use crate::codes::BinaryCode;
-use std::default::Default;
-use m4ri_rust::friendly::BinMatrix;
-use m4ri_rust::friendly::BinVector;
-use std::sync::{Once,ONCE_INIT};
 use std::boxed::Box;
+use std::default::Default;
+use std::sync::{Once,ONCE_INIT};
 
 use fnv::FnvHashMap;
 
-/// [3, 2] Mds code
+use m4ri_rust::friendly::BinMatrix;
+use m4ri_rust::friendly::BinVector;
+
+use crate::codes::BinaryCode;
+
+/// ``[3, 2]`` Mds code
 ///
 /// Decodes using Syndrome decoding
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct MdsCode3_2;
 
 static INIT: Once = ONCE_INIT;
@@ -115,680 +117,8 @@ mod tests {
         
         {
             let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[true, false, true]);
             let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
@@ -808,505 +138,8 @@ mod tests {
         
         {
             let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[true, true, false]);
             let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
@@ -1340,6 +173,167 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[false, true, false]);
             let codeword = BinVector::from_bools(&[false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
@@ -1354,8 +348,99 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[false, false, false]);
             let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
@@ -1368,8 +453,288 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[false, false, false]);
             let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
@@ -1403,6 +768,20 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[false, true, false]);
             let codeword = BinVector::from_bools(&[false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
@@ -1410,8 +789,8 @@ mod tests {
         
         {
             let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
@@ -1419,27 +798,6 @@ mod tests {
             let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[true, false, false]);
             let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = MdsCode3_2;
-            let randvec = BinVector::from_bools(&[false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
@@ -1459,6 +817,90 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[false, false, false]);
             let codeword = BinVector::from_bools(&[false, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
@@ -1467,6 +909,104 @@ mod tests {
         {
             let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
             let codeword = BinVector::from_bools(&[true, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
@@ -1494,6 +1034,90 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[true, true, false]);
             let codeword = BinVector::from_bools(&[false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
@@ -1501,7 +1125,210 @@ mod tests {
         
         {
             let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
             let codeword = BinVector::from_bools(&[false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
@@ -1510,6 +1337,181 @@ mod tests {
             let code = MdsCode3_2;
             let randvec = BinVector::from_bools(&[true, false, false]);
             let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, true, true]);
+            let codeword = BinVector::from_bools(&[true, true, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[false, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, false]);
+            let codeword = BinVector::from_bools(&[false, false, false]);
+            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
+        }
+        
+        {
+            let code = MdsCode3_2;
+            let randvec = BinVector::from_bools(&[true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
