@@ -1,3 +1,4 @@
+#![allow(clippy::mutex_atomic)]
 use crate::codes::BinaryCode;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
@@ -159,14 +160,14 @@ mod tests {
         assert_eq!(code.length(), 7 + 3, "Length wrong");
         assert_eq!(code.dimension(), 4 + 1, "Dimension wrong");
 
-        let mut input = BinVector::from_bytes(&[0b10101000]);
+        let mut input = BinVector::from_bytes(&[0b1010_1000]);
         input.truncate(5);
         assert_eq!(
             input,
             BinVector::from_bools(&[true, false, true, false, true])
         );
 
-        let mut encoded = BinVector::from_bytes(&[0b10101011, 0b11000000]);
+        let mut encoded = BinVector::from_bytes(&[0b1010_1011, 0b1100_0000]);
         encoded.truncate(10);
         assert_eq!(
             *encoded,

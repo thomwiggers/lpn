@@ -17,9 +17,9 @@ const K_MAX: usize = 512;
 const DELTA: f64 = 0.75;
 
 fn main() {
-    let identities: Vec<IdentityCode> = (0..(K + 1)).into_iter().map(IdentityCode::new).collect();
+    let identities: Vec<IdentityCode> = (0..=K).map(IdentityCode::new).collect();
     let repetitions: Vec<RepetitionCode> =
-        (0..(K + 1)).into_iter().map(RepetitionCode::new).collect();
+        (0..=K).map(RepetitionCode::new).collect();
     let mut codes: Vec<&dyn BinaryCode> = vec![
         &HammingCode3_1,
         &HammingCode7_4,
@@ -31,7 +31,7 @@ fn main() {
         &GolayCode24_12,
     ];
     codes.reserve(K);
-    for k in 1..(K + 1) {
+    for k in 1..=K {
         codes.push(&identities[k]);
         codes.push(&repetitions[k]);
     }
@@ -89,9 +89,8 @@ fn main() {
     println!("Computing bias for StGen instances (threaded)");
 
     // zip (i, j)
-    ((1..(K + 1))
-        .into_iter()
-        .cartesian_product((1..(K + 1)).into_iter())
+    ((1..=K)
+        .cartesian_product(1..=K)
         .collect::<Vec<_>>())
     .into_par_iter()
     .for_each(|(i, j)| {

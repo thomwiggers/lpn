@@ -6,7 +6,7 @@ use lpn::oracle::LpnOracle;
 
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
-    oracle.get_samples(100555);
+    oracle.get_samples(100_555);
     for _ in 0..3 {
         partition_reduce(&mut oracle, 8);
     }

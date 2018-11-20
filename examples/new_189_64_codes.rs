@@ -17,10 +17,10 @@ fn main() {
     subcodes.push(hamcode);
     subcodes.push(hamcode);
     subcodes.push(&repcode4);
-    (0..50).into_iter().for_each(|_| {
+    (0..50).for_each(|_| {
         subcodes.push(&repcode3);
     });
-    (0..4).into_iter().for_each(|_| {
+    (0..4).for_each(|_| {
         subcodes.push(&repcode5);
     });
     let concatenated = ConcatenatedCode::new(subcodes.clone());
@@ -31,7 +31,7 @@ fn main() {
     println!("Bias of concatenated code: {:e}", concatenated.bias(delta));
 
     let initial_weight_range = 1..4;
-    let l_max_range = (200..1000usize).into_iter().step_by(200);
+    let l_max_range = (200..=1000usize).step_by(200);
     let weight_limit_range = initial_weight_range.start..5;
     let weight_increase_range = 1..3;
 

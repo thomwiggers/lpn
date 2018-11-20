@@ -123,11 +123,11 @@ mod test {
 
     #[test]
     fn bitrange() {
-        let v = BinVector::from_bytes(&[0b10011101u8]);
-        assert_eq!(query_bits_range(&v, &(0..3)), 0b100);
-        assert_eq!(query_bits_range(&v, &(2..4)), 0b01);
-        assert_eq!(query_bits_range(&v, &(3..4)), 0b1);
-        assert_eq!(query_bits_range(&v, &(3..5)), 0b11);
-        assert_eq!(query_bits_range(&v, &(3..8)), 0b11101);
+        let v = BinVector::from_bytes(&[0b1001_1101u8]);
+        assert_eq!(query_bits_range(&v, &(0..3)), 0b0000_0100);
+        assert_eq!(query_bits_range(&v, &(2..4)), 0b0000_0001);
+        assert_eq!(query_bits_range(&v, &(3..4)), 0b0000_0001);
+        assert_eq!(query_bits_range(&v, &(3..5)), 0b0000_0011);
+        assert_eq!(query_bits_range(&v, &(3..8)), 0b0001_1101);
     }
 }

@@ -118,6 +118,7 @@ mod test {
     use super::*;
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn test_bias_even() {
         let code = RepetitionCode::new(2);
         let delta = 1.0 / 8.0;
@@ -141,6 +142,7 @@ mod test {
     }
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn test_bias_odd() {
         let delta = 1.0 / 8.0;
         let code = RepetitionCode::new(3);

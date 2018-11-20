@@ -10,9 +10,8 @@ use lpn::codes::*;
 const K: usize = 512;
 
 lazy_static! {
-    static ref IDENTITIES: Vec<IdentityCode> = (0..=K).into_iter().map(IdentityCode::new).collect();
-    static ref REPETITIONS: Vec<RepetitionCode> =
-        (0..=K).into_iter().map(RepetitionCode::new).collect();
+    static ref IDENTITIES: Vec<IdentityCode> = (0..=K).map(IdentityCode::new).collect();
+    static ref REPETITIONS: Vec<RepetitionCode> = (0..=K).map(RepetitionCode::new).collect();
 }
 
 fn generate_codes(k: usize, k_min: usize, k_max: usize) {
@@ -41,7 +40,7 @@ fn generate_code_recurse<'c>(
     target_len: usize,
     current_len: usize,
     current_dim: usize,
-    codes: &Vec<&'c dyn BinaryCode>,
+    codes: &[&'c dyn BinaryCode],
     current_combination: Vec<&'c dyn BinaryCode>,
     k_min: usize,
     k_max: usize,
@@ -63,7 +62,7 @@ fn generate_code_recurse<'c>(
             let new_len = code.length() + current_len;
             let new_dim = code.dimension() + current_dim;
             let mut new_combination: Vec<&dyn BinaryCode> = current_combination.clone();
-            new_combination.push(code.clone());
+            new_combination.push(*code);
 
             generate_code_recurse(
                 target_len,

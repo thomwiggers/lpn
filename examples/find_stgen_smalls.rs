@@ -19,9 +19,9 @@ const L_MAX: usize = 1200;
 const L_STEP: usize = 200;
 
 lazy_static! {
-    static ref IDENTITIES: Vec<IdentityCode> = (1..=4).into_iter().map(IdentityCode::new).collect();
+    static ref IDENTITIES: Vec<IdentityCode> = (1..=4).map(IdentityCode::new).collect();
     static ref REPETITIONS: Vec<RepetitionCode> =
-        (2..=4).into_iter().map(RepetitionCode::new).collect();
+        (2..=4).map(RepetitionCode::new).collect();
 }
 
 fn generate_codes(n_max: usize) {
@@ -42,16 +42,15 @@ fn generate_codes(n_max: usize) {
 /// This uses exhaustive search, complexity is O(|codes|!)
 ///
 /// n: number of codes
-fn generate_codes_all_same<'c>(codes: &Vec<&'c dyn BinaryCode>, max_n: usize) {
+fn generate_codes_all_same<'c>(codes: &[&'c dyn BinaryCode], max_n: usize) {
     let mut bests = Vec::with_capacity(codes.len() * max_n);
     for code in codes.iter() {
         for l in (L_MIN..=L_MAX).step_by(L_STEP) {
-            for wb in (WB_MIN..=WB_MAX) {
-                for w0 in (W0_MIN..=W0_MAX) {
+            for wb in WB_MIN..=WB_MAX {
+                for w0 in W0_MIN..=W0_MAX {
                     for n in 1..=max_n {
                         let blocks = std::iter::repeat(*code).take(n).collect::<Vec<_>>();
                         let best_stgen = (0..STGENS)
-                            .into_iter()
                             .map(|_| {
                                 let code = StGenCode::new(blocks.clone(), w0, l, wb, WINC);
                                 println!("Measuring {}", code.name());

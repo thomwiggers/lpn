@@ -207,7 +207,7 @@ mod tests {
             BinVector::from_bools(&[false, false, true, false])
         );
 
-        let a = 0x00_00_00_00__00_00_00_01usize;
+        let a = 0x0000_0000_0000_0001usize;
         let binvec = usize_to_binvec(a, 50);
         for i in 0..49 {
             assert_eq!(binvec.get(i), Some(false), "bit {} isn't 0", i);

@@ -6,7 +6,7 @@ use m4ri_rust::friendly::BinVector;
 use rand;
 
 /// Solves an LPN problem using Pooled Gauss
-#[allow(clippy::many_single_char_names)]
+#[allow(clippy::many_single_char_names, clippy::needless_pass_by_value)]
 pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let k = oracle.k;
     let alpha = 0.5f64.powi(k as i32);

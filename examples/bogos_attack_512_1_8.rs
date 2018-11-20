@@ -27,7 +27,7 @@ fn main() {
     );
 
     let initial_weight_range = 8..10;
-    let l_max_range = (600..=1000usize).into_iter().step_by(200);
+    let l_max_range = (600..=1000usize).step_by(200);
     let weight_limit_range = (initial_weight_range.start + 1)..15;
     let weight_increase_range = 5..10;
 

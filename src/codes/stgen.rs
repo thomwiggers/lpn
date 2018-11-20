@@ -1,3 +1,5 @@
+#![allow(clippy::mutex_atomic)]
+
 use binomial_iter::BinomialIter;
 use crate::codes::BinaryCode;
 use itertools::{Combinations, Itertools};
