@@ -26,7 +26,7 @@ fn main() {
     sparse_secret_reduce(&mut oracle);
 
     let secret = oracle.secret.clone();
-    code_reduce(&mut oracle, concatenated);
+    code_reduce(&mut oracle, &concatenated);
 
     let solution = pooled_gauss_solve(oracle);
 

@@ -18,8 +18,7 @@ fn usize_to_binvec(c: usize, size: usize) -> BinVector {
 }
 
 /// Generic binary linear code API
-pub trait BinaryCode
-{
+pub trait BinaryCode {
     /// Name of the code
     fn name(&self) -> String;
 
@@ -108,8 +107,9 @@ impl fmt::Debug for BinaryCode {
 }
 
 impl serde::Serialize for &dyn BinaryCode {
-    fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error> 
-        where S: serde::ser::Serializer
+    fn serialize<S>(&self, ser: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
     {
         ser.serialize_str(&self.name())
     }

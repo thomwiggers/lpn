@@ -1,8 +1,8 @@
 //! Defines the Pooled Gauss solving algorithms by Esser, Kübler and May
+use crate::oracle::LpnOracle;
 use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use crate::oracle::LpnOracle;
 use rand;
 
 /// Solves an LPN problem using Pooled Gauss
@@ -76,8 +76,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
 }
 
 fn sample_matrix(k: u32, oracle: &LpnOracle, rng: &mut rand::ThreadRng) -> (BinMatrix, BinMatrix) {
-    let samples =
-        rand::seq::sample_iter(rng, oracle.samples.iter(), k as usize)
+    let samples = rand::seq::sample_iter(rng, oracle.samples.iter(), k as usize)
         .unwrap_or_else(|_| panic!("Need {} samples!", k));
     // replace by matrix directly?
     let mut b_bits = BinVector::with_capacity(k as usize);

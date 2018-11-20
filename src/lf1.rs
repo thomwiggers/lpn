@@ -1,8 +1,8 @@
 //! Defines the algorithms from the Levieil and Fouque paper (LF1, LF2)
+use crate::oracle::{query_bits_range, LpnOracle, Sample};
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use crate::oracle::{query_bits_range, LpnOracle, Sample};
 use rayon::prelude::*;
 use std::mem;
 use std::ops;

@@ -21,7 +21,7 @@ fn main() {
     let unsps = unsparse_secret(&oracle, &secret);
     println!("unsparsed s:    {:?}", unsps);
 
-    code_reduce(&mut oracle, code);
+    code_reduce(&mut oracle, &code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
 

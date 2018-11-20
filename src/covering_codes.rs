@@ -1,7 +1,7 @@
 //! Implements the covering codes reduction and sparse secret transformation
+use crate::oracle::LpnOracle;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use crate::oracle::LpnOracle;
 use rayon::prelude::*;
 
 use crate::codes::BinaryCode;

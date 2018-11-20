@@ -4,9 +4,9 @@ extern crate m4ri_rust;
 extern crate test;
 
 mod stgen {
+    use crate::test::Bencher;
     use lpn::codes::*;
     use m4ri_rust::friendly::*;
-    use crate::test::Bencher;
 
     fn get_code() -> StGenCode<'static> {
         let codes: Vec<&BinaryCode> = vec![

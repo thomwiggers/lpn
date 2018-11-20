@@ -6,9 +6,9 @@ extern crate test;
 macro_rules! bench_code {
     ($name:ident, $code:expr) => {
         mod $name {
+            use crate::test::Bencher;
             use lpn::codes::*;
             use m4ri_rust::friendly::*;
-            use crate::test::Bencher;
 
             #[bench]
             fn random_vector_dimension(b: &mut Bencher) {

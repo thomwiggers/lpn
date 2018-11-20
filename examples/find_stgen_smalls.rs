@@ -9,10 +9,14 @@ use std::env;
 use lpn::codes::*;
 
 const STGENS: usize = 2;
-const W0: u32 = 2;
-const WB: u32 = 2;
+const W0_MIN: u32 = 2;
+const W0_MAX: u32 = 4;
+const WB_MIN: u32 = 1;
+const WB_MAX: u32 = 4;
 const WINC: u32 = 1;
-const MAX_L: usize = 200;
+const L_MIN: usize = 200;
+const L_MAX: usize = 1200;
+const L_STEP: usize = 200;
 
 lazy_static! {
     static ref IDENTITIES: Vec<IdentityCode> = (1..=4).into_iter().map(IdentityCode::new).collect();
@@ -41,30 +45,42 @@ fn generate_codes(n_max: usize) {
 fn generate_codes_all_same<'c>(codes: &Vec<&'c dyn BinaryCode>, max_n: usize) {
     let mut bests = Vec::with_capacity(codes.len() * max_n);
     for code in codes.iter() {
-        for n in 1..=max_n {
-            let blocks = std::iter::repeat(*code).take(n).collect::<Vec<_>>();
-            let best_stgen = (0..STGENS)
-                .into_iter()
-                .map(|_| {
-                    let code = StGenCode::new(blocks.clone(), W0, MAX_L, WB, WINC);
-                    println!("Measuring {}", code.name());
-                    let bias = code.bias(0.75);
-                    (code, bias)
-                })
-                .max_by(|t1, t2| {
-                    if (t1.1).lt(&t2.1) {
-                        std::cmp::Ordering::Less
-                    } else {
-                        std::cmp::Ordering::Greater
+        for l in (L_MIN..=L_MAX).step_by(L_STEP) {
+            for wb in (WB_MIN..=WB_MAX) {
+                for w0 in (W0_MIN..=W0_MAX) {
+                    for n in 1..=max_n {
+                        let blocks = std::iter::repeat(*code).take(n).collect::<Vec<_>>();
+                        let best_stgen = (0..STGENS)
+                            .into_iter()
+                            .map(|_| {
+                                let code = StGenCode::new(blocks.clone(), w0, l, wb, WINC);
+                                println!("Measuring {}", code.name());
+                                let bias = code.bias(0.75);
+                                (code, bias)
+                            })
+                            .max_by(|t1, t2| {
+                                if (t1.1).lt(&t2.1) {
+                                    std::cmp::Ordering::Less
+                                } else {
+                                    std::cmp::Ordering::Greater
+                                }
+                            })
+                            .unwrap();
+                        bests.push(best_stgen);
                     }
-                })
-                .unwrap();
-            bests.push(best_stgen);
+                }
+            }
         }
     }
     for (code, bias) in bests.into_iter() {
         let json = serde_json::to_string(&code).unwrap();
-        println!("{}\t{}\t{}\t{}", code.name(), bias, code.decoding_complexity(), json);
+        println!(
+            "{}\t{}\t{}\t{}",
+            code.name(),
+            bias,
+            code.decoding_complexity(),
+            json
+        );
     }
 }
 

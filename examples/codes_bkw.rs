@@ -10,7 +10,7 @@ fn main() {
     oracle.get_samples(800555);
     let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     sparse_secret_reduce(&mut oracle);
-    code_reduce(&mut oracle, code);
+    code_reduce(&mut oracle, &code);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
     let solution = majority(oracle);

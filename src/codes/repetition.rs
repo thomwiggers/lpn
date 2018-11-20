@@ -76,11 +76,9 @@ impl BinaryCode for RepetitionCode {
         }
         if self.k % 2 == 1 {
             // perfect code
-            (0..=((self.k - 1) / 2))
-                .fold(0f64, |acc, w| {
-                    acc + choose(self.k, w) * delta.powi(w as i32)
-                })
-                / 2f64.powi((self.k - 1) as i32)
+            (0..=((self.k - 1) / 2)).fold(0f64, |acc, w| {
+                acc + choose(self.k, w) * delta.powi(w as i32)
+            }) / 2f64.powi((self.k - 1) as i32)
         } else {
             (0..(self.k / 2)).fold(0f64, |acc, w| {
                 acc + choose(self.k, w) * delta.powi(w as i32)

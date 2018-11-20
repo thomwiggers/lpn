@@ -15,9 +15,9 @@ use std::sync::Mutex;
 #[derive(Serialize)]
 pub struct ConcatenatedCode<'a> {
     codes: Vec<&'a BinaryCode>,
-    #[serde(skip, default="default_mutex")]
+    #[serde(skip, default = "default_mutex")]
     init: Mutex<bool>,
-    #[serde(skip, default="default_generator")]
+    #[serde(skip, default = "default_generator")]
     generator: UnsafeCell<*mut BinMatrix>,
 }
 
@@ -27,7 +27,7 @@ fn default_mutex() -> Mutex<bool> {
 }
 
 #[allow(dead_code)]
-fn default_generator() -> UnsafeCell<*mut BinMatrix>{
+fn default_generator() -> UnsafeCell<*mut BinMatrix> {
     UnsafeCell::new(ptr::null_mut())
 }
 

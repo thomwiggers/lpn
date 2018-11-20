@@ -1,8 +1,8 @@
 //! Defines the algorithms from the classic Blum, Kalai and Wasserman paper
-use fnv::FnvHashMap;
-use m4ri_rust::friendly::BinVector;
 use crate::oracle::query_bits_range;
 use crate::oracle::*;
+use fnv::FnvHashMap;
+use m4ri_rust::friendly::BinVector;
 use std::default::Default;
 use std::ops;
 
