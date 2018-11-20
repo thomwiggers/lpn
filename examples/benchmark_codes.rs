@@ -18,8 +18,7 @@ const DELTA: f64 = 0.75;
 
 fn main() {
     let identities: Vec<IdentityCode> = (0..=K).map(IdentityCode::new).collect();
-    let repetitions: Vec<RepetitionCode> =
-        (0..=K).map(RepetitionCode::new).collect();
+    let repetitions: Vec<RepetitionCode> = (0..=K).map(RepetitionCode::new).collect();
     let mut codes: Vec<&dyn BinaryCode> = vec![
         &HammingCode3_1,
         &HammingCode7_4,
@@ -89,25 +88,23 @@ fn main() {
     println!("Computing bias for StGen instances (threaded)");
 
     // zip (i, j)
-    ((1..=K)
-        .cartesian_product(1..=K)
-        .collect::<Vec<_>>())
-    .into_par_iter()
-    .for_each(|(i, j)| {
-        if bias[i][j] != 0.0 {
-            /*
-            if let Some(stgen) = stgens[i][j].as_ref() {
-                let time_start = time::precise_time_s();
-                let bias = stgen.bias(DELTA);
-                let duration = time::precise_time_s() - time_start;
-                println!(
-                    "Bias for [{},{}] StGen is {}, found in {:2.3} s",
-                    i, j, bias, duration
-                );
-                stgen_bias.write().unwrap()[i][j] = bias;
-            }*/
-        }
-    });
+    ((1..=K).cartesian_product(1..=K).collect::<Vec<_>>())
+        .into_par_iter()
+        .for_each(|(i, j)| {
+            if bias[i][j] != 0.0 {
+                /*
+                if let Some(stgen) = stgens[i][j].as_ref() {
+                    let time_start = time::precise_time_s();
+                    let bias = stgen.bias(DELTA);
+                    let duration = time::precise_time_s() - time_start;
+                    println!(
+                        "Bias for [{},{}] StGen is {}, found in {:2.3} s",
+                        i, j, bias, duration
+                    );
+                    stgen_bias.write().unwrap()[i][j] = bias;
+                }*/
+            }
+        });
 
     //for i in 1..=K {
     {

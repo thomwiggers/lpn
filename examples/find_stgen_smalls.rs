@@ -20,8 +20,7 @@ const L_STEP: usize = 200;
 
 lazy_static! {
     static ref IDENTITIES: Vec<IdentityCode> = (1..=4).map(IdentityCode::new).collect();
-    static ref REPETITIONS: Vec<RepetitionCode> =
-        (2..=4).map(RepetitionCode::new).collect();
+    static ref REPETITIONS: Vec<RepetitionCode> = (2..=4).map(RepetitionCode::new).collect();
 }
 
 fn generate_codes(n_max: usize) {
