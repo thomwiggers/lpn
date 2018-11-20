@@ -67,8 +67,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         .expect("Can't work on an empty list");
 
     println!("Best candidate weight: {}", best_candidate.count_ones());
-    let candidate_vector = usize_to_binvec(best_candidate, b);
-    candidate_vector
+    usize_to_binvec(best_candidate, b)
 }
 
 /// This is the LF2 reduction. This reduction grows the number of samples.
@@ -157,7 +156,6 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
     fwht(majority_counter.as_mut_slice(), oracle.k);
 
     let guess = (0..2usize.pow(oracle.k as u32))
-        .into_iter()
         .max_by_key(|x| majority_counter[*x])
         .unwrap();
 
@@ -176,6 +174,7 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
 /// Data: data to transform the transform over (whoooah)
 /// bits: log2(size), the length of the data
 #[inline]
+#[allow(clippy::many_single_char_names)]
 fn fwht(data: &mut [i64], bits: u32) {
     let n = bits;
     for i in 0..n {

@@ -6,6 +6,7 @@ use crate::oracle::LpnOracle;
 use rand;
 
 /// Solves an LPN problem using Pooled Gauss
+#[allow(clippy::many_single_char_names)]
 pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let k = oracle.k;
     let alpha = 0.5f64.powi(k as i32);
@@ -24,23 +25,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     );
     println!("Target secret weight <= {}", c);
     println!("Building (Am, b) with length {}", m);
-    let (am, bm) = {
-        let samples = rand::seq::sample_iter(&mut rng, oracle.samples.iter(), m)
-            .expect(&format!("Need {} samples for Test()", m));
-        let mut b = BinVector::with_capacity(m);
-        (
-            BinMatrix::new(
-                samples
-                    .into_iter()
-                    .map(|q| {
-                        b.push(q.c);
-                        q.a.clone()
-                    })
-                    .collect(),
-            ),
-            b.as_column_matrix(),
-        )
-    };
+    let (am, bm) = sample_matrix(k, &oracle, &mut rng);
     debug_assert_eq!(am.nrows(), m);
     debug_assert_eq!(bm.nrows(), m);
 
@@ -68,32 +53,14 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
 
     let mut tries = 0;
     let s_prime = loop {
-        let (a, b) = loop {
-            let (a, b) = {
-                let samples =
-                    rand::seq::sample_iter(&mut rng, oracle.samples.iter(), k as usize).unwrap();
-                // replace by matrix directly?
-                let mut b = BinVector::with_capacity(k as usize);
-                (
-                    BinMatrix::new(
-                        samples
-                            .into_iter()
-                            .map(|q| {
-                                b.push(q.c);
-                                q.a.clone()
-                            })
-                            .collect(),
-                    ),
-                    b,
-                )
-            };
-            if a.clone().echelonize() == k as usize {
-                break (a, b);
+        // find k-rank matrix
+        let (a, mut b) = loop {
+            let (a_try, b_try) = sample_matrix(k, &oracle, &mut rng);
+            if a_try.clone().echelonize() == k as usize {
+                break (a_try, b_try);
             }
         };
-
         // A*s = b
-        let mut b = b.as_column_matrix();
         if !solve_left(a, &mut b) {
             println!("Somehow, solving failed....");
             continue;
@@ -106,4 +73,24 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     };
 
     s_prime.as_vector()
+}
+
+fn sample_matrix(k: u32, oracle: &LpnOracle, rng: &mut rand::ThreadRng) -> (BinMatrix, BinMatrix) {
+    let samples =
+        rand::seq::sample_iter(rng, oracle.samples.iter(), k as usize)
+        .unwrap_or_else(|_| panic!("Need {} samples!", k));
+    // replace by matrix directly?
+    let mut b_bits = BinVector::with_capacity(k as usize);
+    (
+        BinMatrix::new(
+            samples
+                .into_iter()
+                .map(|q| {
+                    b_bits.push(q.c);
+                    q.a.clone()
+                })
+                .collect(),
+        ),
+        b_bits.as_column_matrix(),
+    )
 }

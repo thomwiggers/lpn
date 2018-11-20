@@ -83,7 +83,7 @@ impl BinaryCode for HammingCode{{n}}_{{k}} {
 
     // for hamming codes
     fn bias(&self, delta: f64) -> f64 {
-        (1f64 + ({{ n }} as f64) * delta) / (({{ n }} + 1) as f64)
+        (1f64 + f64::from({{ n }}) * delta) / f64::from({{ n }} + 1)
     }
 }
 

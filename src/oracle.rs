@@ -97,7 +97,7 @@ impl LpnOracle {
             let e = dist.sample(&mut rng);
 
             Sample {
-                c: &secret * &vector ^ e,
+                c: (&secret * &vector) ^ e,
                 a: vector,
                 e,
             }

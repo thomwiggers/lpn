@@ -32,7 +32,7 @@ impl RepetitionCode {
 
 #[inline]
 fn choose(n: usize, k: usize) -> f64 {
-    BinomialIter::new(n as u32, k as u32).binom() as f64
+    f64::from(BinomialIter::new(n as u32, k as u32).binom())
 }
 
 impl BinaryCode for RepetitionCode {
@@ -76,14 +76,13 @@ impl BinaryCode for RepetitionCode {
         }
         if self.k % 2 == 1 {
             // perfect code
-            (0..((self.k - 1) / 2 + 1))
-                .into_iter()
+            (0..=((self.k - 1) / 2))
                 .fold(0f64, |acc, w| {
                     acc + choose(self.k, w) * delta.powi(w as i32)
                 })
                 / 2f64.powi((self.k - 1) as i32)
         } else {
-            (0..(self.k / 2)).into_iter().fold(0f64, |acc, w| {
+            (0..(self.k / 2)).fold(0f64, |acc, w| {
                 acc + choose(self.k, w) * delta.powi(w as i32)
             }) / 2f64.powi((self.k - 1) as i32)
                 + 1f64 / 2f64.powi(self.k as i32)

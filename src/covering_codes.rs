@@ -80,7 +80,7 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
         .for_each(|query| {
             let new_v = &query.a * &m_t_inv;
             query.c ^= &new_v * &c_prime;
-            debug_assert_eq!(secret * &new_v ^ query.e, query.c);
+            debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
             query.a = new_v;
         });
 
@@ -107,9 +107,9 @@ pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector {
 /// $n' = n$
 /// $d' = d * bc$
 /// $d'_s$ depends on $d_s$ and $G$.
-pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: T) {
-    assert_ne!(
-        oracle.delta_s, 0.0,
+pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
+    assert!(
+        oracle.delta_s < std::f64::EPSILON,
         "This reduction only works for sparse secrets!"
     );
     assert_eq!(
@@ -132,6 +132,6 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: T) {
     oracle.k = code.dimension() as u32;
 
     println!("Computing new delta");
-    oracle.delta = oracle.delta * code.bias(oracle.delta_s);
+    oracle.delta *= code.bias(oracle.delta_s);
     println!("New delta = {}", oracle.delta);
 }

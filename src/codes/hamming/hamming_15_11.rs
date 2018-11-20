@@ -9,7 +9,7 @@ use crate::codes::BinaryCode;
 /// ``[15, 11]`` Hamming code
 /// 
 /// Decodes using direct lookup tables
-#[derive(Debug,Serialize,Deserialize)]
+#[derive(Debug,Serialize)]
 pub struct HammingCode15_11;
 
 static INIT: Once = ONCE_INIT;
@@ -34910,7 +34910,7 @@ impl BinaryCode for HammingCode15_11 {
 
     // for hamming codes
     fn bias(&self, delta: f64) -> f64 {
-        (1f64 + (15 as f64) * delta) / ((15 + 1) as f64)
+        (1f64 + f64::from(15) * delta) / f64::from(15 + 1)
     }
 }
 

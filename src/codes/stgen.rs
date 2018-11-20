@@ -127,11 +127,11 @@ impl<'codes> StGenCode<'codes> {
                     .iter()
                     .map(|c| c.dimension() as u64)
                     .sum::<u64>()
-                    * (ni as u64)
+                    * u64::from(ni)
                     + BinomialIter::new(ni, 0)
                         .iter_inc_k()
                         .take((self.wb as usize) + 1)
-                        .map(|(_, b)| b as u64)
+                        .map(|(_, b)| u64::from(b))
                         .sum::<u64>()
             })
             .sum::<u64>()
@@ -168,6 +168,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         self.codes.iter().fold(0usize, |a, c| a + c.dimension())
     }
 
+    #[allow(clippy::cyclomatic_complexity)]
     fn generator_matrix(&self) -> &BinMatrix {
         debug_assert_ne!(
             self.codes.len(),
@@ -201,8 +202,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                             let noise_blk = self.noises[start - 1].as_ref().unwrap(); // this must exist
                             debug_assert_eq!(noise_blk.nrows(), ki - b0.nrows());
                             debug_assert_eq!(noise_blk.ncols(), b0.ncols());
-                            let origin = noise_blk.stacked(&b0);
-                            origin
+                            noise_blk.stacked(&b0)
                         } else {
                             b0.clone()
                         };
@@ -210,15 +210,17 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                 };
                 for (i, code) in self.codes.iter().skip(1).enumerate().skip(start - 1) {
                     debug_assert_eq!(gen.nrows(), ki);
-                    let ni = code.length() - code.dimension();
+                    let dimension = code.dimension();
+                    let length = code.length();
+                    let ni = length - dimension;
                     if ni == 0 {
-                        ki += code.length();
+                        ki += length;
                         // add something to the bottom
-                        gen = gen.stacked(&BinMatrix::zero(code.dimension(), gen.ncols()));
+                        gen = gen.stacked(&BinMatrix::zero(dimension, gen.ncols()));
                         continue;
                     }
-                    let bi = get_code_bits(code.clone());
-                    debug_assert_eq!(bi.nrows(), code.dimension());
+                    let bi = get_code_bits(*code);
+                    debug_assert_eq!(bi.nrows(), dimension);
                     debug_assert_eq!(bi.ncols(), ni);
                     let corner = (gen.nrows(), gen.ncols());
                     let noise_block = self.noises[i + 1].as_ref().unwrap();
@@ -231,7 +233,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                         i
                     );
                     gen = gen.augmented(noise_block);
-                    gen = gen.stacked(&BinMatrix::zero(code.dimension(), gen.ncols()));
+                    gen = gen.stacked(&BinMatrix::zero(dimension, gen.ncols()));
                     ki += bi.nrows();
                     gen.set_window(corner.0, corner.1, &bi);
                 }
@@ -257,6 +259,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         panic!("Not yet implemented");
     }
 
+    #[allow(clippy::cyclomatic_complexity)]
     fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         // track helpful variables
         let orig_c = c;
@@ -300,11 +303,11 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                 c_upper.push(orig_c[k + (n_sum - ni) + i]);
             }
             debug_assert_eq!(c_upper.len(), ni);
-            for (xp, ep) in l_previous.drain(..).into_iter() {
+            for (xp, ep) in l_previous.drain(..) {
                 b_tmp.clear();
                 b_tmp.extend_from_binvec(&b);
                 debug_assert!(
-                    b_tmp.capacity() < 100000,
+                    b_tmp.capacity() < 100_000,
                     "capacity is {}",
                     b_tmp.capacity()
                 );
@@ -404,7 +407,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
             })
             .while_some()
             .sum::<f64>()
-            / (n as f64);
+            / f64::from(n);
 
         if !failed.load(Ordering::Relaxed) {
             result
