@@ -8,7 +8,7 @@ use std::ops;
 
 /// The full BKW solving algorithm.
 ///
-/// Does `a-1` applications of `partition-reduce(8)` and solves via majority.
+/// Does `a-1` applications of [`partition-reduce`] with `$b$` and solves via majority.
 ///
 /// $k' = k - (a-1) * b$
 /// $n' = n - (a-1)*2^b
@@ -23,6 +23,7 @@ pub fn partition_reduce(oracle: &mut LpnOracle, b: u32) {
     bkw_reduce(oracle, 2, b);
 }
 
+/// Performs the BKW reduction algorithm, see [`partition_reduce`] for public usage
 fn bkw_reduce(oracle: &mut LpnOracle, a: u32, b: u32) {
     let k = oracle.k;
     assert!(a * b <= k, "a*b <= k");

@@ -3,7 +3,7 @@ use crate::oracle::LpnOracle;
 use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use rand;
+use rand::prelude::*;
 
 /// Solves an LPN problem using Pooled Gauss
 #[allow(clippy::many_single_char_names, clippy::needless_pass_by_value)]
@@ -17,7 +17,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
         .floor();
     let c = (tau * m + (3.0 * (0.5 - tau) * (1.0 / alpha).ln() * m).sqrt().floor()) as u32;
     let m = m as usize;
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
 
     println!(
         "Attempting Pooled Gauss solving method, k={}, tau={}",
@@ -75,9 +75,8 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     s_prime.as_vector()
 }
 
-fn sample_matrix(k: u32, oracle: &LpnOracle, rng: &mut rand::ThreadRng) -> (BinMatrix, BinMatrix) {
-    let samples = rand::seq::sample_iter(rng, oracle.samples.iter(), k as usize)
-        .unwrap_or_else(|_| panic!("Need {} samples!", k));
+fn sample_matrix(k: u32, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix, BinMatrix) {
+    let samples = oracle.samples.choose_multiple(rng, k as usize);
     // replace by matrix directly?
     let mut b_bits = BinVector::with_capacity(k as usize);
     (

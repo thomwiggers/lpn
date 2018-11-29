@@ -5,26 +5,28 @@ use m4ri_rust::friendly::BinVector;
 use rayon::prelude::*;
 
 use crate::codes::BinaryCode;
-use rand;
+use rand::prelude::*;
 
 /// Sparse secret reduction
 ///
 /// Changes the distribution of the secret to that of the noise
 ///
-/// $k' = k$
-/// $n' = n-k$
-/// $d' = d$
-/// $d'_s = d$
+/// `$k' = k$`
+/// `$n' = n-k$`
+/// `$d' = d$`
+/// `$d'_s = d$`
 pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     println!("Reducing to a sparse secret");
     let k = oracle.k;
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
     // get M, e, c'
     let (m, c_prime, e, samples) = loop {
         let (a, b, e, samples) = {
-            let samples =
-                rand::seq::sample_iter(&mut rng, oracle.samples.iter().cloned(), k as usize)
-                    .unwrap();
+            let samples: Vec<_> = oracle
+                .samples
+                .choose_multiple(&mut rng, k as usize)
+                .cloned()
+                .collect();
             // replace by matrix directly?
             let mut b = BinVector::with_capacity(k as usize);
             let mut e = BinVector::with_capacity(k as usize);
