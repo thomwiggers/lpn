@@ -33,14 +33,15 @@ fn generate_codes(n_min: usize, n_max: usize) {
         codes.push(rep);
     }
 
+    eprintln!("Benchmaring codes that are all the same");
     generate_codes_all_same(&codes, n_min, n_max);
+    eprintln!("Benchmaring codes that start with a certain prefix");
     generate_codes_id_prefix(&codes, n_min, n_max);
 
     for id in IDENTITIES.iter() {
         codes.push(id);
     }
-
-    eprintln!("Measuring randomly selected codes");
+    eprintln!("Benchmaring randomly selected codes");
     for n in n_min..=n_max {
         for blocks in generate_random_codes(NUM_RANDOMS, &codes, n) {
             print_codes(&measure_codes(&blocks));
@@ -85,8 +86,7 @@ fn generate_random_codes<'c>(
         .map(|_| {
             (0..n)
                 .map(|_| {
-                    let block: &dyn BinaryCode = *codes.choose(&mut rng).unwrap();
-                    block
+                    *codes.choose(&mut rng).unwrap()
                 })
                 .collect()
         })

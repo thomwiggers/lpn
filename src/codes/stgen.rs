@@ -14,6 +14,8 @@ use std::sync::Mutex;
 
 use rayon::prelude::*;
 
+const NUM_BIAS_MEASUREMENTS: u32 = 500;
+
 /// 'Concatenated' Linear Codes with extra noise
 ///
 /// This struct allows to construct a Linear code from the direct sum
@@ -391,8 +393,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
 
     fn bias(&self, delta: f64) -> f64 {
         let failed = AtomicBool::new(false);
-        let n = 500;
-        let result = (0..n)
+        let result = (0..NUM_BIAS_MEASUREMENTS)
             .into_par_iter()
             .map(|_i| {
                 if failed.load(Ordering::Relaxed) {
@@ -409,7 +410,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
             })
             .while_some()
             .sum::<f64>()
-            / f64::from(n);
+            / f64::from(NUM_BIAS_MEASUREMENTS);
 
         if !failed.load(Ordering::Relaxed) {
             result
