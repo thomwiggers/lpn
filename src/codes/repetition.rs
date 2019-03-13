@@ -1,5 +1,5 @@
-use binomial_iter::BinomialIter;
 use crate::codes::{BinaryCode, N};
+use binomial_iter::BinomialIter;
 use m4ri_rust::friendly::*;
 use std::cmp;
 

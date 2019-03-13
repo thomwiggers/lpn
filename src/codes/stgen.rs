@@ -1,12 +1,14 @@
 #![allow(clippy::mutex_atomic)]
 
-use binomial_iter::BinomialIter;
 use crate::codes::BinaryCode;
+use binomial_iter::BinomialIter;
 use itertools::{Combinations, Itertools};
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use std::cell::UnsafeCell;
 use std::cmp::min;
+use std::iter;
+use std::iter::Iterator;
 use std::mem;
 use std::ptr;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -140,6 +142,47 @@ impl<'codes> StGenCode<'codes> {
             })
             .sum::<u64>()
             * (self.l_max as u64)
+    }
+
+    pub fn biases(&self, deltas: &[f64]) -> Option<Vec<f64>> {
+        let failed = AtomicBool::new(false);
+        let result = (0..NUM_BIAS_MEASUREMENTS)
+            .into_par_iter()
+            .map(|_i| {
+                if failed.load(Ordering::Relaxed) {
+                    return None;
+                }
+                let v = BinVector::random(self.length());
+                let decoded = self.decode_to_code(&v);
+                if let Ok(decoded) = decoded {
+                    let ones = (&v + &decoded).count_ones() as i32;
+                    Some(deltas.iter().map(|delta| delta.powi(ones)).collect())
+                } else {
+                    failed.store(true, Ordering::Relaxed);
+                    None
+                }
+            })
+            .while_some()
+            .collect::<Vec<Vec<f64>>>()
+            .into_iter()
+            .fold(
+                iter::repeat(0f64).take(deltas.len()).collect::<Vec<f64>>(),
+                |accs, biases| {
+                    accs.into_iter()
+                        .zip(biases)
+                        .map(|(a, b)| a + b)
+                        .collect::<Vec<f64>>()
+                },
+            )
+            .into_iter()
+            .map(|sum| sum / f64::from(NUM_BIAS_MEASUREMENTS))
+            .collect();
+
+        if !failed.load(Ordering::Relaxed) {
+            Some(result)
+        } else {
+            None
+        }
     }
 }
 
@@ -392,28 +435,8 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
     }
 
     fn bias(&self, delta: f64) -> f64 {
-        let failed = AtomicBool::new(false);
-        let result = (0..NUM_BIAS_MEASUREMENTS)
-            .into_par_iter()
-            .map(|_i| {
-                if failed.load(Ordering::Relaxed) {
-                    return None;
-                }
-                let v = BinVector::random(self.length());
-                let decoded = self.decode_to_code(&v);
-                if let Ok(decoded) = decoded {
-                    Some(delta.powi((&v + &decoded).count_ones() as i32))
-                } else {
-                    failed.store(true, Ordering::Relaxed);
-                    None
-                }
-            })
-            .while_some()
-            .sum::<f64>()
-            / f64::from(NUM_BIAS_MEASUREMENTS);
-
-        if !failed.load(Ordering::Relaxed) {
-            result
+        if let Some(vec) = self.biases(&[delta]) {
+            vec[0]
         } else {
             0.0
         }
