@@ -13,7 +13,7 @@ use std::io::{Result, Write};
 
 use lpn::codes::*;
 use rand::prelude::*;
-use sha2::{Sha256, Digest};
+use sha2::{Digest, Sha256};
 
 const STGENS: usize = 2;
 const W0_MIN: u32 = 2;
@@ -72,7 +72,12 @@ fn generate_codes(mut result_file: File, n_min: usize, n_max: usize) {
 /// complexity is O(|codes|*n_max*L_max/L_step*w0_max)
 ///
 /// n: number of codes
-fn generate_codes_all_same<'f, 'c>(result_file: &'f mut File, codes: &[&'c dyn BinaryCode], n_min: usize, n_max: usize) {
+fn generate_codes_all_same<'f, 'c>(
+    result_file: &'f mut File,
+    codes: &[&'c dyn BinaryCode],
+    n_min: usize,
+    n_max: usize,
+) {
     for code in codes {
         for n in n_min..=n_max {
             let blocks = std::iter::repeat(*code).take(n).collect::<Vec<_>>();
@@ -82,7 +87,12 @@ fn generate_codes_all_same<'f, 'c>(result_file: &'f mut File, codes: &[&'c dyn B
 }
 
 /// Generate codes prefixed by IdentityCode
-fn generate_codes_id_prefix<'f, 'c>(result_file: &'f mut File, codes: &[&'c dyn BinaryCode], n_min: usize, n_max: usize) {
+fn generate_codes_id_prefix<'f, 'c>(
+    result_file: &'f mut File,
+    codes: &[&'c dyn BinaryCode],
+    n_min: usize,
+    n_max: usize,
+) {
     for n in (n_min + 1)..=n_max {
         for id in IDENTITIES.iter() {
             for code in codes {
@@ -169,13 +179,20 @@ fn main() {
 
     if args.len() != 4 {
         eprintln!("Got args: {:?}", args);
-        panic!("Insufficient args. Expect ./{} results.txt n_min n_max", args[0]);
+        panic!(
+            "Insufficient args. Expect ./{} results.txt n_min n_max",
+            args[0]
+        );
     }
     let filename = &args[1];
     let n_min = args[2].parse::<usize>().expect("Needs to be int");
     let n_max = args[3].parse::<usize>().expect("Needs to be int");
 
-    let file = fs::OpenOptions::new().append(true).create(true).open(filename).unwrap();
+    let file = fs::OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(filename)
+        .unwrap();
 
     generate_codes(file, n_min, n_max);
 }
