@@ -1,6 +1,5 @@
 #![feature(box_syntax)]
 #![feature(const_fn)]
-#![feature(const_let)]
 extern crate lpn;
 extern crate rand;
 #[macro_use]
