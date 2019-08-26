@@ -224,7 +224,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         );
         // check if we've initialized the generator
         {
-            let get_code_bits = |code: &BinaryCode| {
+            let get_code_bits = |code: &dyn BinaryCode| {
                 debug_assert_ne!(code.dimension(), code.length(), "Would construct 0 matrix");
                 code.generator_matrix().get_window(
                     0,

@@ -100,7 +100,7 @@ pub trait BinaryCode {
     }
 }
 
-impl fmt::Debug for BinaryCode {
+impl fmt::Debug for dyn BinaryCode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}, {}] Binary Code", self.length(), self.dimension())
     }

@@ -9,7 +9,7 @@ mod stgen {
     use m4ri_rust::friendly::*;
 
     fn get_code() -> StGenCode<'static> {
-        let codes: Vec<&BinaryCode> = vec![
+        let codes: Vec<&dyn BinaryCode> = vec![
             &HammingCode7_4,
             &HammingCode7_4,
             &HammingCode7_4,

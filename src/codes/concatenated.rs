@@ -15,7 +15,7 @@ use std::sync::Mutex;
 /// decode mechanism of the 'child' codes.
 #[derive(Serialize)]
 pub struct ConcatenatedCode<'a> {
-    codes: Vec<&'a BinaryCode>,
+    codes: Vec<&'a dyn BinaryCode>,
     #[serde(skip, default = "default_mutex")]
     init: Mutex<bool>,
     #[serde(skip, default = "default_generator")]

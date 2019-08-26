@@ -1,6 +1,6 @@
 use std::boxed::Box;
 use std::default::Default;
-use std::sync::{Once,ONCE_INIT};
+use std::sync::Once;
 
 use fnv::FnvHashMap;
 
@@ -15,7 +15,7 @@ use crate::codes::BinaryCode;
 #[derive(Clone, Serialize)]
 pub struct BogosrndCode18_6;
 
-static INIT: Once = ONCE_INIT;
+static INIT: Once = Once::new();
 static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 static mut SYNDROME_MAP: *const FnvHashMap<usize, [bool; 18]> = 0 as *const FnvHashMap<usize, [bool; 18]>;

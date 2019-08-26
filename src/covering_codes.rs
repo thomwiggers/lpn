@@ -71,6 +71,7 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     let secret = &oracle.secret.clone();
 
     // remove the samples we took
+    // XXX do this differently so we don't need unstable features.
     for q in samples.into_iter() {
         oracle.samples.remove_item(&q);
     }
@@ -78,7 +79,6 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     oracle
         .samples
         .par_iter_mut()
-        // remove the samples we took
         .for_each(|query| {
             let new_v = &query.a * &m_t_inv;
             query.c ^= &new_v * &c_prime;

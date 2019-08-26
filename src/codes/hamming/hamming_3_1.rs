@@ -1,4 +1,4 @@
-use std::sync::{Once,ONCE_INIT};
+use std::sync::Once;
 use std::boxed::Box;
 
 use m4ri_rust::friendly::BinMatrix;
@@ -12,7 +12,7 @@ use crate::codes::BinaryCode;
 #[derive(Debug,Serialize)]
 pub struct HammingCode3_1;
 
-static INIT: Once = ONCE_INIT;
+static INIT: Once = Once::new();
 static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 

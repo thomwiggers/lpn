@@ -15,7 +15,7 @@ use crate::codes::BinaryCode;
 #[derive(Clone, Serialize)]
 pub struct {{ name }}Code{{n}}_{{k}};
 
-static INIT: Once = ONCE_INIT;
+static INIT: Once = Once::new();
 static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 static mut SYNDROME_MAP: *const FnvHashMap<usize, [bool; {{ n }}]> = 0 as *const FnvHashMap<usize, [bool; {{ n }}]>;
