@@ -20,7 +20,7 @@ num-bigint = "0.2"
 num-traits = "0.2"
 factorial = "0.1"
 time = "0.1"
-m4ri-rust = { version = "*", features = ["serde"] }
+m4ri-rust = { version = "0.3.0", features = ["serde"] }
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
