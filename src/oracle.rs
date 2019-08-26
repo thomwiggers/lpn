@@ -88,7 +88,7 @@ impl LpnOracle {
         debug_assert!(len > 0);
 
         let tau = (1.0 - self.delta) / 2.0;
-        let dist = Bernoulli::new(tau);
+        let dist = Bernoulli::new(tau).unwrap();
         let secret = self.secret.clone();
         self.samples.par_extend((0..n).into_par_iter().map(|_| {
             let mut rng = rand::thread_rng();
