@@ -121,3 +121,25 @@ pub fn majority(oracle: LpnOracle) -> BinVector {
     }
     result
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_bkw() {
+        let a = 4;
+        let b = 8;
+
+        let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
+        oracle.get_samples(20000);
+
+        // get secret for checking
+        let mut secret = oracle.secret.clone();
+        secret.truncate((oracle.k - (a - 1) * b) as usize);
+
+        // run bkw
+        let solution = bkw(oracle, a, b);
+        assert_eq!(solution, secret);
+    }
+}
