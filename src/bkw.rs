@@ -132,7 +132,7 @@ mod test {
         let b = 8;
 
         let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
-        oracle.get_samples(20000);
+        oracle.get_samples(20_000);
 
         // get secret for checking
         let mut secret = oracle.secret.clone();
