@@ -1,4 +1,7 @@
 #![feature(box_syntax)]
+/// Tries to find codes with desirable properties
+///
+/// Not directly related to solving LPN
 extern crate lpn;
 #[macro_use]
 extern crate lazy_static;

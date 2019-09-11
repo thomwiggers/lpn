@@ -1,3 +1,5 @@
+/// This file computes the properties of StGen codes based on the
+/// code used by Bogos and Vaudenay to attack ``LPN_512,1/8``
 extern crate lpn;
 extern crate time;
 #[macro_use]

@@ -1,3 +1,4 @@
+/// This file demonstrates the BKW attack
 extern crate lpn;
 
 use lpn::bkw::*;

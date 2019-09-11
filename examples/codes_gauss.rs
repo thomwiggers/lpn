@@ -1,3 +1,4 @@
+/// Run a reduction with codes and gauss
 extern crate lpn;
 extern crate rayon;
 extern crate time;
@@ -19,7 +20,6 @@ fn main() {
         "Bias of concatenated code: {:e}",
         concatenated.bias(1.0 - 2.0 * 1.0 / 8.0)
     );
-    //println!("Bias of stgen code: {:e}", stgen.bias(1.0 - 2.0 * 1.0 / 8.0));
 
     let mut oracle: LpnOracle = LpnOracle::new(256, 1.0 / 8.0);
     oracle.get_samples(900);

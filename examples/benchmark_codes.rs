@@ -1,4 +1,8 @@
 #![feature(box_syntax)]
+/// This file generates many different covering codes and
+/// estimates their properties.
+///
+/// It's not directly to do with LPN
 extern crate itertools;
 extern crate lpn;
 extern crate m4ri_rust;

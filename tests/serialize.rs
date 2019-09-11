@@ -1,3 +1,4 @@
+/// Code used to test serialization
 extern crate lpn;
 extern crate rayon;
 extern crate serde;
@@ -10,7 +11,8 @@ fn get_code() -> StGenCode<'static> {
     StGenCode::new(codes, 3, 100, 3, 2)
 }
 
-fn main() {
+#[test]
+fn test_serialization() {
     let code = get_code();
     println!("Code: [{}, {}]", code.length(), code.dimension());
 

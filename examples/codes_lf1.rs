@@ -1,3 +1,5 @@
+/// Example of the covering codes reduction combined with WHT to get the secret.
+
 extern crate lpn;
 extern crate m4ri_rust;
 
@@ -17,8 +19,7 @@ fn main() {
 
     // sparse secret reduction
     sparse_secret_reduce(&mut oracle);
-    let mut secret = oracle.secret.clone();
-    let unsps = unsparse_secret(&oracle, &secret);
+    let unsps = unsparse_secret(&oracle, &oracle.secret);
     println!("unsparsed s:    {:?}", unsps);
 
     // Do the code reduction

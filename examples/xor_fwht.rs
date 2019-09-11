@@ -1,3 +1,5 @@
+/// Example of the LF2 xor_reduce reduction and WHT solving method.
+
 extern crate lpn;
 
 use lpn::lf1::*;
@@ -11,6 +13,7 @@ fn main() {
     xor_reduce(&mut oracle, 8);
     let mut secret = oracle.secret.clone();
     secret.truncate(oracle.k as usize);
+    // both implementations of LF1's WHT
     let lf1_solution = lf1_solve(oracle.clone());
     let fwht_solution = fwht_solve(oracle);
 

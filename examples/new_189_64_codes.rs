@@ -1,3 +1,4 @@
+/// Tries to find new [189,64] StGen codes
 extern crate lpn;
 extern crate time;
 #[macro_use]

@@ -1,3 +1,4 @@
+/// An example of a reduction chain for LPN_128,1/32
 extern crate lpn;
 
 use lpn::bkw::*;

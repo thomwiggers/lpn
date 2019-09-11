@@ -1,5 +1,9 @@
 #![feature(box_syntax)]
 #![feature(const_fn)]
+/// Tries to find StGen codes with desirable properties
+///
+/// Not directly related to LPN solving
+
 extern crate lpn;
 extern crate rand;
 #[macro_use]
