@@ -69,9 +69,11 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     let m_t_inv = m.inverted();
 
     // remove the samples we took
-    // XXX do this differently so we don't need unstable features.
+    // When https://github.com/rust-lang/rust/issues/40062 is stabilized,
+    // this might be possible in a more elegant way.
     for q in samples.into_iter() {
-        oracle.samples.remove_item(&q);
+        let pos = oracle.samples.iter().position(|item| item == &q).unwrap();
+        oracle.samples.remove(pos);
     }
 
     // update the samples

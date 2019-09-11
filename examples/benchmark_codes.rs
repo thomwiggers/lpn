@@ -1,4 +1,3 @@
-#![feature(box_syntax)]
 /// This file generates many different covering codes and
 /// estimates their properties.
 ///
