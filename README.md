@@ -2,6 +2,7 @@
 
 This software package allows to construct attacks on LPN.
 The `examples/` directory shows many examples of solving algorithms that solve various LPN instances using various (combinations of) reductions and solution-finding algorithms.
+It also contains some example programs that try to find covering codes (mainly StGen codes) that have desirable properties.
 
 ## Usage
 
