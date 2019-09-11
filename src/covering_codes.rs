@@ -17,19 +17,19 @@ use rand::prelude::*;
 /// `$d'_s = d$`
 pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     println!("Reducing to a sparse secret");
-    let k = oracle.k;
+    let k = oracle.k as usize;
     let mut rng = thread_rng();
     // get M, e, c'
     let (m, c_prime, e, samples) = loop {
         let (a, b, e, samples) = {
             let samples: Vec<_> = oracle
                 .samples
-                .choose_multiple(&mut rng, k as usize)
+                .choose_multiple(&mut rng, k)
                 .cloned()
                 .collect();
             // replace by matrix directly?
-            let mut b = BinVector::with_capacity(k as usize);
-            let mut e = BinVector::with_capacity(k as usize);
+            let mut b = BinVector::with_capacity(k);
+            let mut e = BinVector::with_capacity(k);
             (
                 // vectors on the columns
                 BinMatrix::new(
@@ -47,7 +47,7 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
                 samples,
             )
         };
-        if a.clone().echelonize() == k as usize {
+        if a.clone().echelonize() == k {
             break (a, b, e, samples);
         }
     };
@@ -67,8 +67,6 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     );
 
     let m_t_inv = m.inverted();
-    // update the samples
-    let secret = &oracle.secret.clone();
 
     // remove the samples we took
     // XXX do this differently so we don't need unstable features.
@@ -76,20 +74,18 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
         oracle.samples.remove_item(&q);
     }
 
-    oracle
-        .samples
-        .par_iter_mut()
-        .for_each(|query| {
-            let new_v = &query.a * &m_t_inv;
-            query.c ^= &new_v * &c_prime;
-            debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
-            query.a = new_v;
-        });
+    // update the samples
+    let secret = &oracle.secret;
+    oracle.samples.par_iter_mut().for_each(|query| {
+        let new_v = &query.a * &m_t_inv;
+        query.c ^= &new_v * &c_prime;
+        debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
+        query.a = new_v;
+    });
 
     oracle.sparse_transform_matrix = Some(m);
     oracle.sparse_transform_vector = Some(c_prime);
     oracle.delta_s = oracle.delta;
-    oracle.secret.truncate(oracle.k as usize);
 }
 
 /// Undo the sparse secret reduction for secrets.
@@ -136,4 +132,46 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
     println!("Computing new delta");
     oracle.delta *= code.bias(oracle.delta_s);
     println!("New delta = {}", oracle.delta);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::codes::HammingCode15_11;
+    use crate::lf1::fwht_solve;
+
+    #[test]
+    fn test_unsparse() {
+        // setup
+        let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 4.0);
+        oracle.secret = BinVector::from_function(15, |x| x % 2 == 0);
+        let secret = oracle.secret.clone();
+        oracle.get_samples(1000);
+
+        // check the sparse secret reduction
+        sparse_secret_reduce(&mut oracle);
+        let unsps = unsparse_secret(&oracle, &oracle.secret);
+        assert_eq!(secret, unsps, "sparse/unsparse unequal");
+    }
+
+
+    #[test]
+    fn test_reduction() {
+        // setup
+        let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 8.0);
+        oracle.secret = BinVector::from_function(15, |x| x % 2 == 0);
+        oracle.get_samples(1_000_000);
+
+        // check the sparse secret reduction
+        sparse_secret_reduce(&mut oracle);
+
+        // do the reduction
+        let code = HammingCode15_11;
+        code_reduce(&mut oracle, &code);
+        // get transformed secret for checking
+        let secret = oracle.secret.clone();
+        // solve
+        let fwht_solution = fwht_solve(oracle.clone());
+        assert_eq!(secret, fwht_solution, "Found wrong solution");
+    }
 }
