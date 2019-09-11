@@ -25,9 +25,11 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     );
     println!("Target secret weight <= {}", c);
     println!("Building (Am, b) with length {}", m);
-    let (am, bm) = sample_matrix(k, &oracle, &mut rng);
+    let (am, bm) = sample_matrix(m, &oracle, &mut rng);
+    debug_assert_eq!(am.ncols(), k as usize);
     debug_assert_eq!(am.nrows(), m);
     debug_assert_eq!(bm.nrows(), m);
+    debug_assert_eq!(bm.ncols(), 1);
 
     let test = |s_prime: &BinMatrix, tries: &mut usize| {
         debug_assert_eq!(s_prime.nrows(), oracle.k as usize);
@@ -55,7 +57,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let s_prime = loop {
         // find k-rank matrix
         let (a, mut b) = loop {
-            let (a_try, b_try) = sample_matrix(k, &oracle, &mut rng);
+            let (a_try, b_try) = sample_matrix(k as usize, &oracle, &mut rng);
             if a_try.clone().echelonize() == k as usize {
                 break (a_try, b_try);
             }
@@ -75,8 +77,9 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     s_prime.as_vector()
 }
 
-fn sample_matrix(k: u32, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix, BinMatrix) {
-    let samples = oracle.samples.choose_multiple(rng, k as usize);
+/// Randomly sample ``k`` queries from the oracle as a ``(A, s)``.
+fn sample_matrix(k: usize, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix, BinMatrix) {
+    let samples = oracle.samples.choose_multiple(rng, k);
     // replace by matrix directly?
     let mut b_bits = BinVector::with_capacity(k as usize);
     (
@@ -91,4 +94,19 @@ fn sample_matrix(k: u32, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix,
         ),
         b_bits.as_column_matrix(),
     )
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn run_gauss() {
+        let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
+        oracle.get_samples(40555);
+        let secret = oracle.secret.clone();
+        let solution = pooled_gauss_solve(oracle);
+        assert_eq!(solution, secret);
+    }
 }
