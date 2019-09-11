@@ -111,7 +111,7 @@ pub fn unsparse_secret(oracle: &LpnOracle, secret: &BinVector) -> BinVector {
 /// $d'_s$ depends on $d_s$ and $G$.
 pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
     assert!(
-        oracle.delta_s < std::f64::EPSILON,
+        oracle.delta_s > 0.0,
         "This reduction only works for sparse secrets!"
     );
     assert_eq!(
