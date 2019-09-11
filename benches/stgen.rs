@@ -44,5 +44,4 @@ mod stgen {
             code.decode_to_message(&i).unwrap()
         });
     }
-
 }

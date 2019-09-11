@@ -12,7 +12,7 @@ fn main() {
     oracle.get_samples(2usize.pow(20));
     // get secret for checking
     let mut secret = oracle.secret.clone();
-    secret.truncate((oracle.k - (a-1)*b) as usize);
+    secret.truncate((oracle.k - (a - 1) * b) as usize);
 
     // run BKW
     let solution = bkw(oracle, a, b);

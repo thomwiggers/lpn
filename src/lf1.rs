@@ -214,5 +214,4 @@ mod tests {
         }
         assert_eq!(binvec.get(49), Some(true));
     }
-
 }

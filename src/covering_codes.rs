@@ -154,7 +154,6 @@ mod test {
         assert_eq!(secret, unsps, "sparse/unsparse unequal");
     }
 
-
     #[test]
     fn test_reduction() {
         // setup

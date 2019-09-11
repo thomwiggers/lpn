@@ -96,7 +96,6 @@ fn sample_matrix(k: usize, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatri
     )
 }
 
-
 #[cfg(test)]
 mod test {
     use super::*;

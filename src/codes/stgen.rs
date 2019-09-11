@@ -652,5 +652,4 @@ mod tests {
         assert_eq!(a, BinVector::from_bools(&[true]));
         assert_eq!(b, BinVector::from_bools(&[false, false]));
     }
-
 }

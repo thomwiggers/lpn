@@ -53,7 +53,6 @@ macro_rules! bench_code {
                     code.decode_to_message(&i)
                 });
             }
-
         }
     };
 }
