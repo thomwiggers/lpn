@@ -18,7 +18,7 @@ binomial-iter = "0.1"
 num-rational = "0.2"
 num-bigint = "0.2"
 num-traits = "0.2"
-factorial = "0.1"
+factorial = "0.2"
 time = "0.1"
 m4ri-rust = { version = "0.3.2", features = ["serde"] }
 serde = "1.0"
