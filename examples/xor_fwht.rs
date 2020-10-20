@@ -1,5 +1,4 @@
 /// Example of the LF2 xor_reduce reduction and WHT solving method.
-
 extern crate lpn;
 
 use lpn::lf1::*;

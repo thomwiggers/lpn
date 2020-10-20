@@ -1,5 +1,4 @@
 /// Example of the covering codes reduction combined with WHT to get the secret.
-
 extern crate lpn;
 extern crate m4ri_rust;
 

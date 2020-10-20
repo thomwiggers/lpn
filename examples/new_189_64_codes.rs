@@ -1,11 +1,12 @@
 /// Tries to find new [189,64] StGen codes
 extern crate lpn;
-extern crate time;
 #[macro_use]
 extern crate itertools;
 extern crate rayon;
 
 use lpn::codes::*;
+
+use std::time;
 
 fn main() {
     let idcode1 = IdentityCode::new(1);
@@ -46,9 +47,9 @@ fn main() {
     .collect::<Vec<StGenCode>>()
     .into_iter()
     .for_each(|stgen| {
-        let start = time::precise_time_s();
+        let start = time::Instant::now();
         let bias = stgen.bias(delta);
-        let duration = time::precise_time_s() - start;
+        let duration = time::Instant::now() - start;
         println!(
             "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
             stgen.w0(),
@@ -56,7 +57,7 @@ fn main() {
             stgen.wb(),
             stgen.w_inc(),
             bias,
-            duration,
+            duration.as_secs_f64(),
         );
     });
 }

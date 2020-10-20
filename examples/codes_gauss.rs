@@ -1,7 +1,6 @@
 /// Run a reduction with codes and gauss
 extern crate lpn;
 extern crate rayon;
-extern crate time;
 
 use lpn::codes::*;
 use lpn::covering_codes::*;

@@ -19,7 +19,6 @@ num-rational = "0.3"
 num-bigint = "0.3"
 num-traits = "0.2"
 factorial = "0.2"
-time = "0.2"
 m4ri-rust = { version = "0.3.2", features = ["serde"] }
 serde = "1.0"
 serde_derive = "1.0"

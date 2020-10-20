@@ -6,7 +6,6 @@ extern crate itertools;
 extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
-extern crate time;
 
 use itertools::Itertools;
 use lpn::codes::*;

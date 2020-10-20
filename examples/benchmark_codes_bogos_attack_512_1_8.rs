@@ -1,12 +1,14 @@
 /// This file computes the properties of StGen codes based on the
 /// code used by Bogos and Vaudenay to attack ``LPN_512,1/8``
 extern crate lpn;
-extern crate time;
+
 #[macro_use]
 extern crate itertools;
 extern crate rayon;
 
 use lpn::codes::*;
+
+use std::time::Instant;
 
 fn main() {
     let subcodes: Vec<&dyn BinaryCode> = vec![
@@ -43,9 +45,9 @@ fn main() {
     .collect::<Vec<StGenCode>>()
     .into_iter()
     .for_each(|stgen| {
-        let start = time::precise_time_s();
+        let start = Instant::now();
         let bias = stgen.bias(1.0 - 2.0 * 1.0 / 8.0);
-        let duration = time::precise_time_s() - start;
+        let duration = Instant::now() - start;
         println!(
             "Bias of StGen code ({}, {}, {}, {}): {:e} in {:4.4} s",
             stgen.w0(),
@@ -53,7 +55,7 @@ fn main() {
             stgen.wb(),
             stgen.w_inc(),
             bias,
-            duration,
+            duration.as_secs_f64(),
         );
     });
 }
