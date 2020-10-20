@@ -82,7 +82,7 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
     assert!(b <= k);
 
     let num_samples = oracle.samples.len();
-    println!("Xor-reduce iteration, {} samples", num_samples);
+    println!("xor-reduce iteration, {} samples", num_samples);
     // Partition into V_j
     // max j:
     let maxj = 2usize.pow(b);

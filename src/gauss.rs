@@ -54,6 +54,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     println!("Starting random sampling of invertible (A, b)");
 
     let mut tries = 0;
+    // todo parallel (if memory is sufficient?)
     let s_prime = loop {
         // find k-rank matrix
         let (a, mut b) = loop {
