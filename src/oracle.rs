@@ -105,21 +105,40 @@ impl LpnOracle {
     }
 }
 
-pub(crate) fn query_bits_range(v: &BinVector, range: &Range<usize>) -> u64 {
-    // FIXME speed up
-    let len = range.end - range.start;
-    debug_assert!(len < 64, "Needs to fit in u64");
-    let mut result = 0u64;
-    for (i, ri) in (range.clone()).rev().enumerate() {
-        result ^= (v[ri] as u64) << i;
-    }
-    debug_assert_eq!(result >> len, 0);
-    result
+pub(crate) fn query_bits_range(b: &BinVector, range: &Range<usize>) -> u64 {
+    const SHIFT: usize = if std::mem::size_of::<usize>() == std::mem::size_of::<u64>() {
+        0
+    } else {
+        std::mem::size_of::<usize>()
+    };
+    assert!(SHIFT == 0, "doesn't support non-64-bit little-endian platforms");
+
+    debug_assert!(range.end - range.start <= 64);
+    let mut b = b.to_owned().split_off(range.start);
+
+    b.truncate(range.end - range.start);
+    debug_assert_eq!(b.len(), range.end - range.start);
+
+    let result = b.iter_storage().next().unwrap() as u64;
+
+    result.reverse_bits() >> (64 - (range.end - range.start))
 }
 
 #[cfg(test)]
 mod test {
+    use rand::prelude::*;
+
     use super::*;
+    pub(crate) fn query_bits_range_ref(v: &BinVector, range: &Range<usize>) -> u64 {
+        let len = range.end - range.start;
+        debug_assert!(len < 64, "Needs to fit in u64");
+        let mut result = 0u64;
+        for (i, ri) in (range.clone()).rev().enumerate() {
+            result ^= (v[ri] as u64) << i;
+        }
+        debug_assert_eq!(result >> len, 0);
+        result
+    }
 
     #[test]
     fn bitrange() {
@@ -129,5 +148,20 @@ mod test {
         assert_eq!(query_bits_range(&v, &(3..4)), 0b0000_0001);
         assert_eq!(query_bits_range(&v, &(3..5)), 0b0000_0011);
         assert_eq!(query_bits_range(&v, &(3..8)), 0b0001_1101);
+    }
+
+    #[test]
+    fn bitrange_generated() {
+        let mut rng = rand::thread_rng();
+        for _ in 0..1000 {
+            let vec = BinVector::random(1000);
+            let start = rng.gen_range(0, vec.len()-1);
+            let end = rng.gen_range(start+1, std::cmp::min(start + 64, vec.len()));
+            let range = start..end;
+            assert_eq!(
+                query_bits_range(&vec, &range),
+                query_bits_range_ref(&vec, &range)
+            );
+        }
     }
 }
