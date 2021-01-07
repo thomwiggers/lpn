@@ -11,7 +11,7 @@ edition = '2018'
 [dependencies]
 rand = "0.7.3"
 fnv = "1.0"
-itertools = "^0.9"
+itertools = "^0.10"
 rayon = "1.5"
 lazy_static = "1"
 binomial-iter = "0.1"
