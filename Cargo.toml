@@ -9,7 +9,7 @@ license = 'MIT'
 edition = '2018'
 
 [dependencies]
-rand = "0.7.3"
+rand = "0.8.1"
 fnv = "1.0"
 itertools = "^0.9"
 rayon = "1.5"
