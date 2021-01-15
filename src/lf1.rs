@@ -4,12 +4,15 @@ use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use rayon::prelude::*;
-use std::mem;
 use std::ops;
+
+use std::mem::{transmute, size_of};
+
+use packed_simd_2::i64x4;
 
 #[inline]
 fn usize_to_binvec(c: usize, size: usize) -> BinVector {
-    let bytes = unsafe { mem::transmute::<usize, [u8; mem::size_of::<usize>()]>(c.to_be()) };
+    let bytes = unsafe { transmute::<usize, [u8; size_of::<usize>()]>(c.to_be()) };
     let skip = (64 - size) / 8;
     let mut binvec = BinVector::from_bytes(&bytes[skip..]);
     let result = BinVector::from(binvec.split_off(((8 - skip) * 8) - size));
@@ -152,7 +155,8 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
         majority_counter[q.get_block(0) as usize] += if q.get_product() { -1 } else { 1 };
     });
 
-    fwht(majority_counter.as_mut_slice(), k);
+    println!("FWHT");
+    parfwht(majority_counter.as_mut_slice(), k);
 
     let guess = (0..2usize.pow(k))
         .max_by_key(|x| majority_counter[*x])
@@ -174,7 +178,7 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
 /// bits: log2(size), the length of the data
 #[inline]
 #[allow(clippy::many_single_char_names)]
-fn fwht(data: &mut [i64], bits: u32) {
+pub fn fwht(data: &mut [i64], bits: u32) {
     let n = bits;
     for i in 0..n {
         let mut j = 0;
@@ -195,9 +199,48 @@ fn fwht(data: &mut [i64], bits: u32) {
     }
 }
 
+#[inline]
+pub fn parfwht(data: &mut [i64], bits: u32) {
+    let n = 1 << bits;
+    assert!(data.len() == n);
+
+    let mut stride = n / 2;
+    // cycle through stages with different butterfly strides
+    while stride >= 1 {
+        // cycle through subvectors for (2 * stride) elements
+        if stride >= 4 {
+            data.chunks_mut(2*stride)
+                .for_each(|data| {
+                let (left, right) = data.split_at_mut(stride);
+                (0..stride).step_by(4).into_iter().for_each(|j| {
+                    unsafe {
+                        let l = i64x4::from_slice_unaligned_unchecked(&left[j..j+4]);
+                        let r = i64x4::from_slice_unaligned_unchecked(&right[j..j+4]);
+                        (l+r).write_to_slice_unaligned_unchecked(&mut left[j..j+4]);
+                        (l-r).write_to_slice_unaligned_unchecked(&mut right[j..j+4]);
+                    }
+                });
+            });
+        } else {
+            data.chunks_mut(2*stride)
+                .for_each(|data| {
+                let (left, right) = data.split_at_mut(stride);
+                (0..stride).into_iter().for_each(|j| {
+                    let l = left[j];
+                    let r = right[j];
+                    left[j] = l + r;
+                    right[j] = l - r;
+                });
+            });
+        }
+        stride >>= 1;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rand::prelude::*;
 
     #[test]
     fn transmute_usize_to_u8s() {
@@ -212,5 +255,22 @@ mod tests {
             assert_eq!(binvec.get(i), Some(false), "bit {} isn't 0", i);
         }
         assert_eq!(binvec.get(49), Some(true));
+    }
+
+    #[test]
+    fn test_fwht() {
+        let bits = 16;
+        let mut majority_counter = vec![0; 2usize.pow(bits)];
+        let rng = &mut rand::thread_rng();
+        majority_counter.iter_mut().for_each(|el| {
+            *el = (rng).gen::<i64>() % 2i64.pow(16);
+        });
+
+        let mut majority_1 = majority_counter.clone();
+        let mut majority_2 = majority_counter;
+        fwht(&mut majority_1, bits);
+        parfwht(&mut majority_2, bits);
+
+        assert_eq!(majority_1, majority_2, "Should be the same");
     }
 }

@@ -25,6 +25,7 @@ serde_derive = "1.0"
 serde_json = "1.0"
 sha2 = "0.9"
 unchecked_unwrap = "2.0"
+packed_simd_2 = "0.3"
 
 [features]
 default = ['nodebug', 'unchecked_unwrap/debug_checks']

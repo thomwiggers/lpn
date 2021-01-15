@@ -7,7 +7,7 @@ use rand::prelude::*;
 use rayon::prelude::*;
 
 pub(crate) type StorageBlock = u64;
-pub(crate) const ONE: StorageBlock = 1u64;
+pub(crate) const ONE: StorageBlock = 1;
 
 /// How many bits are stored in each underlying storage block?
 const fn bits_per_block() -> usize {
@@ -36,13 +36,13 @@ const fn blocks_required(num_bits: usize) -> usize {
 }
 
 // change me according to k
-const K: usize = 32;
+const MAX_K: usize = (3 * bits_per_block()) - 1;
 // length of a sample in bytes
-const SAMPLE_LEN: usize = blocks_required(K + 1);
-// Block in which noise bit is stored
-const NOISE_BIT_BLOCK: usize = SAMPLE_LEN - 1;
+const SAMPLE_LEN: usize = blocks_required(MAX_K + 1);
+// Block in which noise bit is stored (the K'th bit)
+const NOISE_BIT_BLOCK: usize = block_offset(MAX_K);
 const NOISE_BIT_IDX: usize = bits_per_block() - 1;
-const NOISE_BIT_MASK: StorageBlock = 1u64 << 63;
+const NOISE_BIT_MASK: StorageBlock = (1 as StorageBlock) << NOISE_BIT_IDX;
 
 /// Represents a sample in the oracle
 ///
@@ -68,7 +68,7 @@ impl Sample {
         let product = sample
             .sample
             .iter()
-            .zip(secret.sample.iter())
+            .zip(secret.sample[0..=block_offset(k)].iter())
             .fold(0, |acc, (v1, v2)| (v1 & v2).count_ones() + acc)
             % 2
             == 1;
@@ -136,6 +136,12 @@ impl Sample {
                 self.sample[off] = new_v;
             }
         }
+        if truncating_secret {
+            if used_bits == 0 || block_offset(len) != NOISE_BIT_BLOCK {
+                self.sample[NOISE_BIT_BLOCK] = 0;
+            }
+            debug_assert_eq!(self.get_product(), false)
+        }
     }
 
     pub fn as_binvector(&self, len: usize) -> BinVector {
@@ -187,9 +193,9 @@ impl LpnOracle {
     /// Create a new LPN problem with a random secret
     pub fn new(k: u32, tau: f64) -> LpnOracle {
         let k = k as usize;
-        assert_eq!(K, k as usize, "Currently require K to be hardcoded, sorry");
+        assert!(MAX_K > k as usize, "Currently require K limit to be hardcoded, sorry. Max K for this build: {}", MAX_K);
         debug_assert!((0.0..1.0).contains(&tau), "0 <= tau < 1");
-        debug_assert!(k > 0, "k > 0");
+        debug_assert!(k > 0, "should have k > 0");
         let mut secret = Sample {
             sample: rand::random(),
         };
@@ -321,7 +327,7 @@ pub(crate) fn query_bits_range(b: &Sample, range: Range<usize>) -> u64 {
     }
     let remaining_bits = range.len() - bits_in_b1;
     if remaining_bits > 0 {
-        let mask = ONE << remaining_bits - 1;
+        let mask = (ONE << remaining_bits) - 1;
         let b2 = b.get_block(block_offset(range.end - 1)) & mask;
         b1 |= b2 << bits_in_b1;
     }
@@ -354,12 +360,14 @@ mod test {
         let v = Sample {
             sample: [0b1000_1001; SAMPLE_LEN],
         };
-        assert_eq!(query_bits_range_ref(&v, 0..64), 0b1000_1001);
-        assert_eq!(query_bits_range_ref(&v, 0..3), 0b0000_0001);
-        assert_eq!(query_bits_range_ref(&v, 2..4), 0b0000_00010);
-        assert_eq!(query_bits_range_ref(&v, 3..4), 0b0000_0001);
-        assert_eq!(query_bits_range_ref(&v, 3..6), 0b0000_0001);
-        assert_eq!(query_bits_range_ref(&v, 3..8), 0b0001_0001);
+        assert_eq!(query_bits_range_ref(&v, 0..64),  0b1000_1001);
+        assert_eq!(query_bits_range_ref(&v, 0..3),   0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 2..4),   0b0000_0010);
+        assert_eq!(query_bits_range_ref(&v, 3..4),   0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 3..6),   0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 3..8),   0b0001_0001);
+        assert_eq!(query_bits_range_ref(&v, 64..67), 0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 63..71), 0b0001_0010);
     }
 
     #[test]
@@ -373,6 +381,8 @@ mod test {
         assert_eq!(query_bits_range(&v, 3..4), 0b0000_0001);
         assert_eq!(query_bits_range(&v, 3..6), 0b0000_0001);
         assert_eq!(query_bits_range(&v, 3..8), 0b0001_0001);
+        assert_eq!(query_bits_range(&v, 64..67), 0b0000_0001);
+        assert_eq!(query_bits_range(&v, 63..71), 0b0001_0010);
     }
 
     #[test]
@@ -386,7 +396,8 @@ mod test {
             let sample = Sample { sample: vec };
             assert_eq!(
                 query_bits_range(&sample, range.clone()),
-                query_bits_range_ref(&sample, range)
+                query_bits_range_ref(&sample, range.clone()),
+                "failed for range: {:?}\non sample {:?}", range, sample.sample
             );
         }
     }

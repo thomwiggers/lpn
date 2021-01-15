@@ -7,11 +7,11 @@ use lpn::oracle::LpnOracle;
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
     oracle.get_samples(1000);
+    let mut secret = oracle.secret.as_binvector(oracle.get_k());
     xor_reduce(&mut oracle, 8);
     xor_reduce(&mut oracle, 8);
     xor_reduce(&mut oracle, 8);
-    let mut secret = oracle.secret.clone();
-    secret.truncate(oracle.k as usize);
+    secret.truncate(oracle.get_k());
     // both implementations of LF1's WHT
     let lf1_solution = lf1_solve(oracle.clone());
     let fwht_solution = fwht_solve(oracle);

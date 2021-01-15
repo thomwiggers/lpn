@@ -21,7 +21,7 @@ fn main() {
     partition_reduce(&mut oracle, 8);
     partition_reduce(&mut oracle, 8);
 
-    let secret = oracle.secret.clone();
+    let secret = oracle.secret.as_binvector(oracle.get_k());
     let fwht_solution = fwht_solve(oracle);
 
     println!("Found (fwht):  {:?}", fwht_solution);
