@@ -18,7 +18,7 @@ extern crate serde_derive;
 pub mod bkw;
 //pub mod covering_codes;
 //pub mod gauss;
-//pub mod lf1;
+pub mod lf1;
 pub mod oracle;
 
 //pub mod codes;

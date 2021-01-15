@@ -24,5 +24,5 @@ fn main() {
 
     println!("Found (lf1):   {:?}", lf1_solution);
     println!("Found (fwht):  {:?}", fwht_solution);
-    println!("Actual:        {:?}", secret);
+    println!("Actual:        {:b}", secret.get_sample()[0]);
 }

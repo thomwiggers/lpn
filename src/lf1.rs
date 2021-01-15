@@ -1,5 +1,5 @@
 //! Defines the algorithms from the Levieil and Fouque paper (LF1, LF2)
-use crate::oracle::{query_bits_range, LpnOracle, Sample};
+use crate::oracle::{query_bits_range, LpnOracle};
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
@@ -25,7 +25,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
     let n_prime = oracle.samples.len();
     assert!(n_prime > 0, "What, no samples?");
 
-    let b = oracle.samples[0].a.len();
+    let b = oracle.get_k();
     assert!(b < 21, "Don't use too large b! b = {}", b);
     assert!(b > 0, "Wtf, b = 0?");
 
@@ -38,8 +38,8 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
                     .samples
                     .into_iter()
                     .map(|q| {
-                        c.push(q.c);
-                        q.a
+                        c.push(q.get_product());
+                        q.as_binvector(b)
                     })
                     .collect(),
             ),
@@ -78,14 +78,15 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
 /// $n' = n(n-1) / 2^{b+1}$  (for a = 1)
 /// $\delta' = \delta^2$
 pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
-    let k = oracle.k;
+    let k = oracle.get_k();
+    let b = b as usize;
     assert!(b <= k);
 
     let num_samples = oracle.samples.len();
     println!("xor-reduce iteration, {} samples", num_samples);
     // Partition into V_j
     // max j:
-    let maxj = 2usize.pow(b);
+    let maxj = 2usize.pow(b as u32);
 
     // using [v; n] clones and won't set capacity correctly.
     let mut vector_partitions = Vec::with_capacity(maxj);
@@ -95,9 +96,9 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
         vector_partitions.push(Vec::with_capacity(query_capacity));
     }
 
-    let bitrange: ops::Range<usize> = ((k - b) as usize)..(k as usize);
-    for mut q in oracle.samples.drain(..) {
-        let idx = query_bits_range(&(q.a), &bitrange) as usize;
+    let bitrange: ops::Range<usize> = (k - b)..k;
+    for q in oracle.samples.drain(..) {
+        let idx = query_bits_range(&q, bitrange.clone()) as usize;
         if vector_partitions[idx].capacity() == 0 {
             println!(
                 "Vector {} is full, will need to resize from {}",
@@ -105,7 +106,6 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
                 vector_partitions[idx].len()
             );
         }
-        q.a.truncate((k - b) as usize);
         vector_partitions[idx].push(q);
     }
 
@@ -113,10 +113,10 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
         *partition = partition
             .iter()
             .tuple_combinations()
-            .map(|(v1, v2)| Sample {
-                a: &v1.a + &v2.a,
-                c: v1.c ^ v2.c,
-                e: v1.e ^ v2.e,
+            .map(|(v1, v2)| { 
+                let mut vnew = v1.clone();
+                vnew.xor_into(v2);
+                vnew
             })
             .collect();
     });
@@ -129,14 +129,13 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
     }
 
     // Set the new k
-    oracle.k = k - b;
-    oracle.secret.truncate(oracle.k as usize);
+    oracle.truncate(k - b);
     oracle.delta = oracle.delta.powi(2);
 
     println!(
         "Xor-reduce iteration done, {} samples now, k' = {}",
         oracle.samples.len(),
-        oracle.k
+        oracle.get_k()
     );
 }
 
@@ -146,21 +145,21 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
 /// LPN by Tramer (Bogos, Tramer, Vaudenay 2015)
 pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
     println!("FWHT solving...");
-    debug_assert_eq!(oracle.samples[0].a.len() as u32, oracle.k);
+    let k = oracle.get_k() as u32;
 
-    let mut majority_counter = vec![0i64; 2usize.pow(oracle.k)];
+    let mut majority_counter = vec![0; 2usize.pow(k)];
     oracle.samples.into_iter().for_each(|q| {
-        majority_counter[q.a.as_u64() as usize] += if q.c { -1 } else { 1 };
+        majority_counter[q.get_block(0) as usize] += if q.get_product() { -1 } else { 1 };
     });
 
-    fwht(majority_counter.as_mut_slice(), oracle.k);
+    fwht(majority_counter.as_mut_slice(), k);
 
-    let guess = (0..2usize.pow(oracle.k as u32))
+    let guess = (0..2usize.pow(k))
         .max_by_key(|x| majority_counter[*x])
         .unwrap();
 
-    let mut result = BinVector::with_capacity(oracle.k as usize);
-    for i in 0..oracle.k {
+    let mut result = BinVector::with_capacity(k as usize);
+    for i in 0..k {
         result.push(guess >> i & 1 == 1);
     }
     result

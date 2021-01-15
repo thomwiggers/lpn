@@ -6,8 +6,8 @@ use std::ops::Range;
 use rand::prelude::*;
 use rayon::prelude::*;
 
-pub type StorageBlock = u64;
-const ONE: StorageBlock = 1u64;
+pub(crate) type StorageBlock = u64;
+pub(crate) const ONE: StorageBlock = 1u64;
 
 /// How many bits are stored in each underlying storage block?
 const fn bits_per_block() -> usize {
@@ -163,7 +163,7 @@ impl Sample {
 /// This struct represents the oracle of the LPN problem.
 ///
 /// We need to obtain the queries needed before applying reductions or transformations.
-//#[derive(Clone)]
+#[derive(Clone)]
 pub struct LpnOracle {
     /// The samples held by this oracle.
     ///
