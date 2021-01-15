@@ -75,7 +75,6 @@ pub fn majority(oracle: LpnOracle) -> BinVector {
         "Selecting all samples with hw=1 from {} samples",
         oracle.samples.len()
     );
-    assert!(oracle.samples.iter().find(|s| !s.get_product()).is_some(), "before select");
     let samples = oracle
         .samples
         .into_iter()
@@ -85,8 +84,6 @@ pub fn majority(oracle: LpnOracle) -> BinVector {
             None
         })
         .collect::<Vec<Sample>>();
-    assert!(samples.iter().find(|s| !s.get_product()).is_some(), "after");
-
 
     // allocate smaller vec
     let mut count_sum: FnvHashMap<StorageBlock, (u64, u64)> =

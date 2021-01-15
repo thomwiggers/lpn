@@ -7,17 +7,16 @@ use lpn::codes::*;
 use lpn::covering_codes::*;
 use lpn::gauss::*;
 use lpn::lf1::*;
-use lpn::oracle::LpnOracle;
+use lpn::oracle::{LpnOracle, Sample};
 
 fn main() {
-    let secret = BinVector::from_bools(&[
+    let secret = Sample::from_binvector(&BinVector::from_bools(&[
         false, true, true, false, true, true, true, false, true, true, false, false, true, false,
         true, true, false, true, true, true, false, true, false, true, true,
-    ]);
-    assert_eq!(secret.len(), 25);
+    ]), false);
 
     // setup oracle
-    let mut oracle: LpnOracle = LpnOracle::new_with_secret(secret, 1.0 / 8.0);
+    let mut oracle: LpnOracle = LpnOracle::new_with_secret(secret, 25, 1.0 / 8.0);
     oracle.get_samples(100_555);
 
     // sparse secret transformation
@@ -28,8 +27,7 @@ fn main() {
     code_reduce(&mut oracle, &code);
 
     // obtain secret secret that's been transformed by the code reduction
-    let mut secret = oracle.secret.clone();
-    secret.truncate(oracle.k as usize);
+    let secret = oracle.secret.as_binvector(oracle.get_k());
 
     // get solutions
     println!("Actual:        {:?}", secret);

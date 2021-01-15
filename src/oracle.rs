@@ -54,6 +54,9 @@ pub struct Sample {
 }
 
 impl Sample {
+    fn new() -> Sample {
+        Sample { sample: [0; SAMPLE_LEN] }
+    }
 
     fn new_from_secret(
         k: usize,
@@ -136,12 +139,14 @@ impl Sample {
                 self.sample[off] = new_v;
             }
         }
-        if truncating_secret {
-            if used_bits == 0 || block_offset(len) != NOISE_BIT_BLOCK {
-                self.sample[NOISE_BIT_BLOCK] = 0;
+        // zero out any other blocks
+        ((block_offset(len) + 1)..SAMPLE_LEN).for_each(|idx| {
+            if idx == NOISE_BIT_BLOCK && !truncating_secret {
+                self.sample[NOISE_BIT_BLOCK] &= NOISE_BIT_MASK;
+            } else {
+                self.sample[idx] = 0
             }
-            debug_assert_eq!(self.get_product(), false)
-        }
+        });
     }
 
     pub fn as_binvector(&self, len: usize) -> BinVector {
@@ -155,6 +160,28 @@ impl Sample {
             vec.mask_last_block();
         }
         vec
+    }
+
+    pub fn from_binvector(vec: &BinVector, product: bool) -> Sample {
+        debug_assert!(vec.len() < MAX_K);
+        let mut sample = Self::new();
+        sample.sample[..blocks_required(vec.len())].copy_from_slice(
+            unsafe { std::mem::transmute(&vec.get_storage()[..blocks_required(vec.len())]) }
+        );
+        if product {
+            sample.set_product(product);
+        }
+        sample
+    }
+
+    pub fn set_from_binvec(&mut self, vec: &BinVector) {
+        let product = self.get_product();
+        let last_block = blocks_required(vec.len());
+        self.sample[..last_block].copy_from_slice(
+            unsafe { std::mem::transmute(&vec.get_storage()[..last_block]) }
+        );
+        self.truncate(vec.len(), true);
+        self.set_product(product);
     }
 
     pub fn get_block(&self, index: usize) -> StorageBlock {
@@ -193,7 +220,11 @@ impl LpnOracle {
     /// Create a new LPN problem with a random secret
     pub fn new(k: u32, tau: f64) -> LpnOracle {
         let k = k as usize;
-        assert!(MAX_K > k as usize, "Currently require K limit to be hardcoded, sorry. Max K for this build: {}", MAX_K);
+        assert!(
+            MAX_K > k as usize,
+            "We require K limit to be hardcoded, sorry. Max K for this build: {}",
+            MAX_K
+        );
         debug_assert!((0.0..1.0).contains(&tau), "0 <= tau < 1");
         debug_assert!(k > 0, "should have k > 0");
         let mut secret = Sample {
@@ -273,6 +304,7 @@ impl LpnOracle {
     /// Updates the problem to have fewer bits
     pub fn truncate(&mut self, new_k: usize) {
         // update k
+        let traverses_blocks = block_offset(self.k) > block_offset(new_k);
         self.k = new_k;
 
         let used_bits = new_k % bits_per_block();
@@ -294,6 +326,20 @@ impl LpnOracle {
                 }
             });
         }
+
+        if traverses_blocks {
+            // zero out any other blocks
+            self.samples.iter_mut().for_each(|sample| {
+                ((block_offset(new_k) + 1)..SAMPLE_LEN).for_each(|idx| {
+                    if idx == NOISE_BIT_BLOCK {
+                        sample.sample[NOISE_BIT_BLOCK] &= NOISE_BIT_MASK;
+                    } else {
+                        sample.sample[idx] = 0
+                    }
+                })
+            });
+        }
+
         self.secret.truncate(new_k, true);
     }
 }
@@ -360,12 +406,12 @@ mod test {
         let v = Sample {
             sample: [0b1000_1001; SAMPLE_LEN],
         };
-        assert_eq!(query_bits_range_ref(&v, 0..64),  0b1000_1001);
-        assert_eq!(query_bits_range_ref(&v, 0..3),   0b0000_0001);
-        assert_eq!(query_bits_range_ref(&v, 2..4),   0b0000_0010);
-        assert_eq!(query_bits_range_ref(&v, 3..4),   0b0000_0001);
-        assert_eq!(query_bits_range_ref(&v, 3..6),   0b0000_0001);
-        assert_eq!(query_bits_range_ref(&v, 3..8),   0b0001_0001);
+        assert_eq!(query_bits_range_ref(&v, 0..64), 0b1000_1001);
+        assert_eq!(query_bits_range_ref(&v, 0..3), 0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 2..4), 0b0000_0010);
+        assert_eq!(query_bits_range_ref(&v, 3..4), 0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 3..6), 0b0000_0001);
+        assert_eq!(query_bits_range_ref(&v, 3..8), 0b0001_0001);
         assert_eq!(query_bits_range_ref(&v, 64..67), 0b0000_0001);
         assert_eq!(query_bits_range_ref(&v, 63..71), 0b0001_0010);
     }
@@ -390,15 +436,33 @@ mod test {
         let mut rng = rand::thread_rng();
         for _ in 0..10000 {
             let vec: [StorageBlock; SAMPLE_LEN] = rng.gen();
-            let start = rng.gen_range(0..(vec.len()*bits_per_block() - 1));
-            let end = rng.gen_range((start + 1)..std::cmp::min(start + bits_per_block(), vec.len()*bits_per_block()));
+            let start = rng.gen_range(0..(vec.len() * bits_per_block() - 1));
+            let end = rng.gen_range(
+                (start + 1)..std::cmp::min(start + bits_per_block(), vec.len() * bits_per_block()),
+            );
             let range = start..end;
             let sample = Sample { sample: vec };
             assert_eq!(
                 query_bits_range(&sample, range.clone()),
                 query_bits_range_ref(&sample, range.clone()),
-                "failed for range: {:?}\non sample {:?}", range, sample.sample
+                "failed for range: {:?}\non sample {:?}",
+                range,
+                sample.sample
             );
+        }
+    }
+
+    #[test]
+    fn sample_from_binvec_and_back() {
+        let rng = &mut rand::thread_rng();
+        for _ in 0..10000 {
+            let k = rng.gen_range(0..(MAX_K - 10));
+            let vec = BinVector::random(k);
+            let mut sample = Sample::new();
+            sample.set_from_binvec(&vec);
+            assert_eq!(vec, sample.as_binvector(k));
+            assert_eq!(vec, Sample::from_binvector(&vec, false).as_binvector(k));
+            assert_eq!(vec, Sample::from_binvector(&vec, true).as_binvector(k));
         }
     }
 }

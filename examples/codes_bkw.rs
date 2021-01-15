@@ -19,9 +19,7 @@ fn main() {
     let code = ConcatenatedCode::new(vec![&HammingCode15_11, &HammingCode7_4, &HammingCode3_1]);
     code_reduce(&mut oracle, &code);
 
-    let mut secret = oracle.secret.clone();
-    secret.truncate(oracle.k as usize);
-
+    let secret = oracle.secret.as_binvector(oracle.get_k());
     // obtain solution
     let solution = majority(oracle);
 

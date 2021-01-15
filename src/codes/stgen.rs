@@ -215,7 +215,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         self.codes.iter().fold(0usize, |a, c| a + c.dimension())
     }
 
-    #[allow(clippy::cyclomatic_complexity)]
+    #[allow(clippy::cognitive_complexity)]
     fn generator_matrix(&self) -> &BinMatrix {
         debug_assert_ne!(
             self.codes.len(),
@@ -251,7 +251,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
                             debug_assert_eq!(noise_blk.ncols(), b0.ncols());
                             noise_blk.stacked(&b0)
                         } else {
-                            b0.clone()
+                            b0
                         };
                     }
                 };
@@ -306,7 +306,7 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         panic!("Not yet implemented");
     }
 
-    #[allow(clippy::cyclomatic_complexity)]
+    #[allow(clippy::cognitive_complexity)]
     fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         // track helpful variables
         let orig_c = c;

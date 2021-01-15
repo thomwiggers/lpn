@@ -10,5 +10,5 @@ fn main() {
     let solution = pooled_gauss_solve(oracle);
 
     println!("Found:  {:?}", solution);
-    println!("Actual: {:?}", secret);
+    println!("Actual: {:?}", secret.as_binvector(32));
 }

@@ -1,5 +1,5 @@
 //! Implements the covering codes reduction and sparse secret transformation
-use crate::oracle::LpnOracle;
+use crate::oracle::{LpnOracle, Sample};
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use rayon::prelude::*;
@@ -17,11 +17,12 @@ use rand::prelude::*;
 /// `$d'_s = d$`
 pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     println!("Reducing to a sparse secret");
-    let k = oracle.k as usize;
+    let k = oracle.get_k();
     let mut rng = thread_rng();
     // get M, e, c'
-    let (m, c_prime, e, samples) = loop {
-        let (a, b, e, samples) = {
+    let (m, c_prime, samples) = loop {
+        let (a, b, samples) = {
+            // FIXME maybe cheat by picking from the first million?
             let samples: Vec<_> = oracle
                 .samples
                 .choose_multiple(&mut rng, k)
@@ -29,40 +30,43 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
                 .collect();
             // replace by matrix directly?
             let mut b = BinVector::with_capacity(k);
-            let mut e = BinVector::with_capacity(k);
+            //let mut e = BinVector::with_capacity(k);
             (
                 // vectors on the columns
                 BinMatrix::new(
                     samples
                         .iter()
                         .map(|q| {
-                            b.push(q.c);
-                            e.push(q.e);
-                            q.a.clone()
+                            b.push(q.get_product());
+                            //e.push(q.e);
+                            q.as_binvector(k)
                         })
                         .collect(),
                 ),
                 b,
-                e,
+                //e,
                 samples,
             )
         };
         if a.clone().echelonize() == k {
-            break (a, b, e, samples);
+            break (a, b, samples);
         }
     };
 
     // update the secret:
-    let original_secret = oracle.secret.clone();
+    let original_secret = oracle.secret.as_binvector(k);
     println!(
         "the secret prior to reduction to a sparse secret was: {:?}",
         original_secret
     );
-    debug_assert_eq!((&original_secret * &m.transposed()) + e, c_prime);
-    oracle.secret = &(&m * &original_secret) + &c_prime;
+    if oracle.delta == 1.0 {
+        debug_assert_eq!((&original_secret * &m.transposed()), c_prime, "this one fails if tau > 0");
+    }
+    let new_secret = &(&m * &original_secret) + &c_prime;
+    oracle.secret = Sample::from_binvector(&new_secret, false);
 
     debug_assert_eq!(
-        (&oracle.secret + &c_prime) * m.transposed().inverted(),
+        (&new_secret + &c_prime) * m.transposed().inverted(),
         original_secret
     );
 
@@ -73,16 +77,16 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     // this might be possible in a more elegant way.
     for q in samples.into_iter() {
         let pos = oracle.samples.iter().position(|item| item == &q).unwrap();
-        oracle.samples.remove(pos);
+        oracle.samples.swap_remove(pos);
     }
 
     // update the samples
-    let secret = &oracle.secret;
+    //let secret = &oracle.secret;
     oracle.samples.par_iter_mut().for_each(|query| {
-        let new_v = &query.a * &m_t_inv;
-        query.c ^= &new_v * &c_prime;
-        debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
-        query.a = new_v;
+        let new_v = &query.as_binvector(k) * &m_t_inv;
+        let new_product = query.get_product() ^ &new_v * &c_prime;
+        *query = Sample::from_binvector(&new_v, new_product);
+        //debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
     });
 
     oracle.sparse_transform_matrix = Some(m);
@@ -113,23 +117,23 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
         "This reduction only works for sparse secrets!"
     );
     assert_eq!(
-        oracle.k as usize,
+        oracle.get_k() as usize,
         code.length(),
         "The length of the code does not match the problem size!"
     );
 
     println!("Decoding samples");
+    let k = oracle.get_k();
     oracle.samples.par_iter_mut().for_each(|query| {
-        (*query).a = code.decode_to_message(&query.a).expect("Couldn't decode??");
-        debug_assert_eq!(query.a.len(), code.dimension());
+        let new_sample = code.decode_to_message(&query.as_binvector(k)).expect("Couldn't decode??");
+        *query = Sample::from_binvector(&new_sample, query.get_product())
     });
 
     println!("Note that we transformed the secret $s$ into $s'=s*G^T$!");
     let gen_t = code.generator_matrix().transposed();
-    oracle.secret = &oracle.secret * &gen_t;
+    oracle.secret = Sample::from_binvector(&(&oracle.secret.as_binvector(k) * &gen_t), false);
 
-    debug_assert_eq!(oracle.secret.len(), code.dimension());
-    oracle.k = code.dimension() as u32;
+    oracle.truncate( code.dimension());
 
     println!("Computing new delta");
     oracle.delta *= code.bias(oracle.delta_s);
@@ -146,21 +150,21 @@ mod test {
     fn test_unsparse() {
         // setup
         let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 4.0);
-        oracle.secret = BinVector::from_function(15, |x| x % 2 == 0);
-        let secret = oracle.secret.clone();
+        oracle.secret = Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
+        let secret = oracle.secret.as_binvector(oracle.get_k());
         oracle.get_samples(1000);
 
         // check the sparse secret reduction
         sparse_secret_reduce(&mut oracle);
-        let unsps = unsparse_secret(&oracle, &oracle.secret);
+        let unsps = unsparse_secret(&oracle, &oracle.secret.as_binvector(oracle.get_k()));
         assert_eq!(secret, unsps, "sparse/unsparse unequal");
     }
 
     #[test]
     fn test_reduction() {
         // setup
-        let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 8.0);
-        oracle.secret = BinVector::from_function(15, |x| x % 2 == 0);
+        let mut oracle: LpnOracle = LpnOracle::new(15, 0.0 / 8.0);
+        oracle.secret = Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
         oracle.get_samples(1_000_000);
 
         // check the sparse secret reduction
@@ -170,7 +174,7 @@ mod test {
         let code = HammingCode15_11;
         code_reduce(&mut oracle, &code);
         // get transformed secret for checking
-        let secret = oracle.secret.clone();
+        let secret = oracle.secret.as_binvector(oracle.get_k());
         // solve
         let fwht_solution = fwht_solve(oracle.clone());
         assert_eq!(secret, fwht_solution, "Found wrong solution");
