@@ -2,23 +2,25 @@
 /// estimates their properties.
 ///
 /// It's not directly to do with LPN
-extern crate itertools;
-extern crate lpn;
-extern crate m4ri_rust;
-extern crate rayon;
 
-use itertools::Itertools;
-use lpn::codes::*;
-use rayon::prelude::*;
-
-use std::sync::*;
-
-const K: usize = 512;
-const K_MIN: usize = 266;
-const K_MAX: usize = 512;
-const DELTA: f64 = 0.75;
-
+#[cfg(feature = "codes")]
 fn main() {
+    extern crate itertools;
+    extern crate lpn;
+    extern crate m4ri_rust;
+    extern crate rayon;
+    
+    use itertools::Itertools;
+    use lpn::codes::*;
+    use rayon::prelude::*;
+    
+    use std::sync::*;
+    
+    const K: usize = 512;
+    const K_MIN: usize = 266;
+    const K_MAX: usize = 512;
+    const DELTA: f64 = 0.75;
+
     let identities: Vec<IdentityCode> = (0..=K).map(IdentityCode::new).collect();
     let repetitions: Vec<RepetitionCode> = (0..=K).map(RepetitionCode::new).collect();
     let mut codes: Vec<&dyn BinaryCode> = vec![
@@ -133,4 +135,10 @@ fn main() {
             }
         }
     }
+}
+
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }

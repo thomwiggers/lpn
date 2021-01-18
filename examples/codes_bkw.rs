@@ -1,13 +1,14 @@
 /// This file demonstrates the combination of the covering codes
 /// reduction with the BKW majority solving method.
-extern crate lpn;
-
-use lpn::bkw::*;
-use lpn::codes::*;
-use lpn::covering_codes::*;
-use lpn::oracle::LpnOracle;
-
+#[cfg(feature = "codes")]
 fn main() {
+    extern crate lpn;
+
+    use lpn::bkw::*;
+    use lpn::codes::*;
+    use lpn::covering_codes::*;
+    use lpn::oracle::LpnOracle;
+
     // setup oracle
     let mut oracle: LpnOracle = LpnOracle::new(25, 1.0 / 16.0);
     oracle.get_samples(800_555);
@@ -25,4 +26,9 @@ fn main() {
 
     println!("Found:  {:?}", solution);
     println!("Actual: {:?}", secret);
+}
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }

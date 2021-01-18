@@ -3,75 +3,81 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
 
-use lpn::codes::*;
-use m4ri_rust::friendly::*;
+#[cfg(feature = "codes")]
+mod themod {
+    use lpn::codes::*;
+    use m4ri_rust::friendly::*;
 
-fn get_code() -> StGenCode<'static> {
-    let codes: Vec<&dyn BinaryCode> = vec![
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-        &HammingCode7_4,
-    ];
-    StGenCode::new(codes, 3, 100, 3, 2)
+    fn get_code() -> StGenCode<'static> {
+        let codes: Vec<&dyn BinaryCode> = vec![
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+            &HammingCode7_4,
+        ];
+        StGenCode::new(codes, 3, 100, 3, 2)
+    }
 }
 
+#[cfg(feature = "codes")]
 fn main() {
-    let code = get_code();
+    use m4ri_rust::friendly::*;
+
+    let code = themod::get_code();
     println!("Code: [{}, {}]", code.length(), code.dimension());
 
     //(0..100).into_par_iter().for_each(|_| {
@@ -80,4 +86,9 @@ fn main() {
         code.decode_to_message(&i).unwrap();
     }
     //});
+}
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }

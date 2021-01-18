@@ -1,13 +1,15 @@
 /// Run a reduction with codes and gauss
-extern crate lpn;
-extern crate rayon;
 
-use lpn::codes::*;
-use lpn::covering_codes::*;
-use lpn::gauss::*;
-use lpn::oracle::*;
-
+#[cfg(feature = "codes")]
 fn main() {
+    extern crate lpn;
+    extern crate rayon;
+
+    use lpn::codes::*;
+    use lpn::covering_codes::*;
+    use lpn::gauss::*;
+    use lpn::oracle::*;
+
     let repcode5 = RepetitionCode::new(5);
     let idcode = IdentityCode::new(1);
     let mut subcodes: Vec<&dyn BinaryCode> = vec![&repcode5; 51];
@@ -31,4 +33,9 @@ fn main() {
 
     println!("Found:  {:?}", solution);
     println!("Actual: {:?}", secret);
+}
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }

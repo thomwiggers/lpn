@@ -1,15 +1,16 @@
-extern crate lpn;
-extern crate m4ri_rust;
-
-use m4ri_rust::friendly::BinVector;
-
-use lpn::codes::*;
-use lpn::covering_codes::*;
-use lpn::gauss::*;
-use lpn::lf1::*;
-use lpn::oracle::{LpnOracle, Sample};
-
+#[cfg(feature = "codes")]
 fn main() {
+    extern crate lpn;
+    extern crate m4ri_rust;
+
+    use m4ri_rust::friendly::BinVector;
+
+    use lpn::codes::*;
+    use lpn::covering_codes::*;
+    use lpn::gauss::*;
+    use lpn::lf1::*;
+    use lpn::oracle::{LpnOracle, Sample};
+
     let secret = Sample::from_binvector(
         &BinVector::from_bools(&[
             false, true, true, false, true, true, true, false, true, true, false, false, true,
@@ -38,4 +39,9 @@ fn main() {
     println!("Found (FWHT):  {:?}", solution);
     let solution = pooled_gauss_solve(oracle);
     println!("Found (Gauss): {:?}", solution);
+}
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }

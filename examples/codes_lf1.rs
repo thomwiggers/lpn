@@ -1,16 +1,17 @@
 /// Example of the covering codes reduction combined with WHT to get the secret.
-extern crate lpn;
-extern crate m4ri_rust;
-
-use lpn::codes::*;
-use lpn::covering_codes::*;
-use lpn::gauss::*;
-use lpn::lf1::*;
-use lpn::oracle::{LpnOracle, Sample};
-
-use m4ri_rust::friendly::BinVector;
-
+#[cfg(feature = "codes")]
 fn main() {
+    extern crate lpn;
+    extern crate m4ri_rust;
+
+    use lpn::codes::*;
+    use lpn::covering_codes::*;
+    use lpn::gauss::*;
+    use lpn::lf1::*;
+    use lpn::oracle::{LpnOracle, Sample};
+
+    use m4ri_rust::friendly::BinVector;
+
     // setup
     let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 8.0);
     oracle.secret = Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
@@ -34,4 +35,9 @@ fn main() {
     // solve with pooled gauss
     let gauss_solution = pooled_gauss_solve(oracle.clone());
     println!("Found (Gauss):  {:?}", gauss_solution);
+}
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }

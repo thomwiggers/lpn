@@ -1,16 +1,17 @@
 /// This file computes the properties of StGen codes based on the
 /// code used by Bogos and Vaudenay to attack ``LPN_512,1/8``
-extern crate lpn;
 
-#[macro_use]
-extern crate itertools;
-extern crate rayon;
-
-use lpn::codes::*;
-
-use std::time::Instant;
-
+#[cfg(feature = "codes")]
 fn main() {
+    extern crate lpn;
+
+    #[macro_use]
+    extern crate itertools;
+    extern crate rayon;
+
+    use lpn::codes::*;
+    use std::time::Instant;
+    
     let subcodes: Vec<&dyn BinaryCode> = vec![
         &BogosrndCode18_6,
         &BogosrndCode19_6,
@@ -58,4 +59,9 @@ fn main() {
             duration.as_secs_f64(),
         );
     });
+}
+
+#[cfg(not(feature = "codes"))]
+fn main() {
+    println!("Disabled necessary feature, example won't work");
 }
