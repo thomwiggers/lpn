@@ -1,9 +1,10 @@
 //! Describes the LPN problem oracle on which we apply reductions and solving algorithms
 use m4ri_rust::friendly::*;
 use rand::distributions::{Bernoulli, Distribution};
-use std::ops::Range;
+use std::{mem::MaybeUninit, ops::Range};
 
 use rand::prelude::*;
+use rand_hc::Hc128Rng;
 use rayon::prelude::*;
 
 pub(crate) type StorageBlock = u64;
@@ -35,52 +36,42 @@ const fn blocks_required(num_bits: usize) -> usize {
         }
 }
 
-// change me according to k
-const MAX_K: usize = (3 * bits_per_block()) - 1;
-// length of a sample in bytes
+/// change me according to k
+pub const MAX_K: usize = (3 * bits_per_block()) - 1;
+/// length of a sample in bytes
 const SAMPLE_LEN: usize = blocks_required(MAX_K + 1);
-// Block in which noise bit is stored (the K'th bit)
+/// Block in which noise bit is stored (the K'th bit)
 const NOISE_BIT_BLOCK: usize = block_offset(MAX_K);
+/// Index of the noise bit
 const NOISE_BIT_IDX: usize = bits_per_block() - 1;
+/// Mask to & with to extract just the noise bit
 const NOISE_BIT_MASK: StorageBlock = (1 as StorageBlock) << NOISE_BIT_IDX;
+
+pub(crate) type SampleStorage = [StorageBlock; SAMPLE_LEN];
 
 /// Represents a sample in the oracle
 ///
 /// `<a, s> + e = c`
-#[derive(Debug, Clone, PartialEq)]
-//#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(transparent)]
 pub struct Sample {
     sample: [StorageBlock; SAMPLE_LEN],
 }
 
 impl Sample {
-    fn new() -> Sample {
-        Sample { sample: [0; SAMPLE_LEN] }
+    const fn new() -> Sample {
+        Sample {
+            sample: [0; SAMPLE_LEN],
+        }
     }
 
-    fn new_from_secret(
-        k: usize,
-        rng: &mut ThreadRng,
-        noise_dist: &Bernoulli,
-        secret: &Sample,
-    ) -> Sample {
-        let noise_bit = noise_dist.sample(rng);
-        let mut sample = Sample { sample: rng.gen() };
-        sample.truncate(k, true);
-
-        let product = sample
-            .sample
+    pub fn vector_product(&self, other: &Sample, len: usize) -> bool {
+        self.sample
             .iter()
-            .zip(secret.sample[0..=block_offset(k)].iter())
+            .zip(other.sample[0..=block_offset(len)].iter())
             .fold(0, |acc, (v1, v2)| (v1 & v2).count_ones() + acc)
             % 2
-            == 1;
-        debug_assert_eq!(sample.get_product(), false);
-        if product ^ noise_bit {
-            sample.set_product(true);
-        }
-        debug_assert_eq!(sample.get_product(), product ^ noise_bit);
-        sample
+            == 1
     }
 
     /// Get the Hamming weight of the sample
@@ -119,6 +110,11 @@ impl Sample {
     /// Obtain the sample
     pub fn get_sample(&self) -> &[StorageBlock] {
         &self.sample
+    }
+
+    /// Obtain
+    pub fn into_inner(self) -> SampleStorage {
+        self.sample
     }
 
     /// Truncate
@@ -165,9 +161,9 @@ impl Sample {
     pub fn from_binvector(vec: &BinVector, product: bool) -> Sample {
         debug_assert!(vec.len() < MAX_K);
         let mut sample = Self::new();
-        sample.sample[..blocks_required(vec.len())].copy_from_slice(
-            unsafe { std::mem::transmute(&vec.get_storage()[..blocks_required(vec.len())]) }
-        );
+        sample.sample[..blocks_required(vec.len())].copy_from_slice(unsafe {
+            std::mem::transmute(&vec.get_storage()[..blocks_required(vec.len())])
+        });
         if product {
             sample.set_product(product);
         }
@@ -177,9 +173,8 @@ impl Sample {
     pub fn set_from_binvec(&mut self, vec: &BinVector) {
         let product = self.get_product();
         let last_block = blocks_required(vec.len());
-        self.sample[..last_block].copy_from_slice(
-            unsafe { std::mem::transmute(&vec.get_storage()[..last_block]) }
-        );
+        self.sample[..last_block]
+            .copy_from_slice(unsafe { std::mem::transmute(&vec.get_storage()[..last_block]) });
         self.truncate(vec.len(), true);
         self.set_product(product);
     }
@@ -225,6 +220,9 @@ impl LpnOracle {
             "We require K limit to be hardcoded, sorry. Max K for this build: {}",
             MAX_K
         );
+        if blocks_required(k) < blocks_required(MAX_K + 1) {
+            println!("WARNING: you could reduce MAX_K, be faster and use less memory!");
+        }
         debug_assert!((0.0..1.0).contains(&tau), "0 <= tau < 1");
         debug_assert!(k > 0, "should have k > 0");
         let mut secret = Sample {
@@ -257,44 +255,84 @@ impl LpnOracle {
     ///
     /// Uses parallelism
     pub fn get_samples(&mut self, n: usize) {
-        self.get_samples_drop(n, 0);
+        self.samples.extend(self.get_some_samples(n));
+    }
+
+    fn get_some_samples(&self, n: usize) -> Vec<Sample> {
+        let k = self.k as usize;
+
+        let tau = (1.0 - self.delta) / 2.0;
+        let dist = Bernoulli::new(tau).unwrap();
+        let secret = &self.secret;
+
+        // allocate the space.
+        let mut samples = Vec::with_capacity(n);
+        // we cheat the size by using set_len
+        unsafe { samples.set_len(n) };
+        // bitbang some contents into you, multithreaded of course
+        let chunk_size: usize = std::cmp::max(n / rayon::current_num_threads(), 10000);
+        samples.par_chunks_mut(chunk_size).for_each_init(|| Hc128Rng::from_entropy(), |rng, samples| {
+            let new_samples = MaybeUninit::slice_as_mut_ptr(samples) as *mut u8;
+            let size = std::mem::size_of::<[StorageBlock; SAMPLE_LEN]>();
+            let new_samples = unsafe { std::slice::from_raw_parts_mut(new_samples, size * samples.len()) };
+            rng.fill_bytes(new_samples);
+        });
+
+        let mut samples = unsafe { std::mem::transmute::<Vec<MaybeUninit<Sample>>, Vec<Sample>>(samples)};
+
+        if block_offset(k) < NOISE_BIT_BLOCK {
+            samples.par_iter_mut().for_each_init(|| Hc128Rng::from_entropy(), |rng, sample| {
+                let noise_bit = dist.sample(rng);
+                sample.sample[(block_offset(k) + 1)..SAMPLE_LEN]
+                    .iter_mut()
+                    .for_each(|block| *block = 0);
+                let product = sample.vector_product(&secret, k) ^ noise_bit;
+                if product {
+                    sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
+                }
+            });
+        } else {
+            samples.par_iter_mut().for_each_init(|| thread_rng(), |rng, sample| {
+                sample.sample[NOISE_BIT_BLOCK] &= (1 << (k % bits_per_block())) - 1;
+                let noise_bit = dist.sample(rng);
+                let product = sample.vector_product(&secret, k) ^ noise_bit;
+                if product {
+                    sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
+                }
+            });
+        }
+        samples.shrink_to_fit();
+
+        samples
     }
 
     /// Get samples from the oracle with a trailing number of 0 bits
     ///
     /// Uses parallelism
     pub fn get_samples_drop(&mut self, n: usize, trailing_zeros: usize) {
+        let original_len = self.samples.len();
         println!(
-            "Getting samples until we have {} that have {} trailing zeros",
+            "Getting additional samples until we have {} that have {} trailing zeros",
             n, trailing_zeros
         );
-
-        self.samples.reserve(n);
-        let k = self.k as usize;
-
-        let tau = (1.0 - self.delta) / 2.0;
-        let dist = Bernoulli::new(tau).unwrap();
-        let secret = self.secret.clone();
+        let k = self.k;
 
         while self.samples.len() < n {
-            self.samples
-                .par_extend(
-                    (0..(n - self.samples.len()))
-                        .into_par_iter()
-                        .filter_map(|_| {
-                            let mut rng = rand::thread_rng();
-                            let sample = Sample::new_from_secret(k, &mut rng, &dist, &secret);
-
-                            if are_last_bits_zero(&sample, k, trailing_zeros) {
-                                Some(sample)
-                            } else {
-                                None
-                            }
-                        }),
-                );
+            // do some minimal amount of samples to reduce short iterations
+            let samples_to_get = std::cmp::max(n - (self.samples.len() - original_len), 100_000);
+            let samples = self.get_some_samples(samples_to_get);
+            println!("Trying to get samples with {} trailing zeros from {} input", trailing_zeros, samples.len());
+            let samples = samples.into_par_iter().filter(|sample| {
+                    are_last_bits_zero(sample, k, trailing_zeros)
+                }).collect::<Vec<_>>();
+            let to_go = n.saturating_sub(self.samples.len() + samples.len());
+            println!("Adding {} samples with {} trailing zeros, {} to go", samples.len(), trailing_zeros, to_go);
+            self.samples.reserve_exact(samples.len());
+            self.samples.extend_from_slice(&samples);
         }
         self.samples.truncate(n);
         self.samples.shrink_to_fit();
+        self.k -= trailing_zeros;
     }
 
     pub fn get_k(&self) -> usize {
@@ -318,7 +356,7 @@ impl LpnOracle {
                     0
                 };
 
-            self.samples.iter_mut().for_each(|sample| {
+            self.samples.par_iter_mut().for_each(|sample| {
                 let old_v = sample.sample[off];
                 let new_v = old_v & msk;
                 if new_v != old_v {
@@ -329,9 +367,11 @@ impl LpnOracle {
 
         if traverses_blocks {
             // zero out any other blocks
-            self.samples.iter_mut().for_each(|sample| {
-                ((block_offset(new_k) + 1)..SAMPLE_LEN).for_each(|idx| {
+            let start = block_offset(new_k) + 1;
+            self.samples.par_iter_mut().for_each(|sample| {
+                (start..SAMPLE_LEN).for_each(|idx| {
                     if idx == NOISE_BIT_BLOCK {
+                        // only preserves the noise bit
                         sample.sample[NOISE_BIT_BLOCK] &= NOISE_BIT_MASK;
                     } else {
                         sample.sample[idx] = 0
@@ -344,22 +384,13 @@ impl LpnOracle {
     }
 }
 
+#[inline]
 pub fn are_last_bits_zero(b: &Sample, k: usize, n_bits: usize) -> bool {
     n_bits == 0 || query_bits_range(b, k - n_bits..k) == 0
 }
 
-#[allow(clippy::assertions_on_constants)]
+#[inline]
 pub(crate) fn query_bits_range(b: &Sample, range: Range<usize>) -> u64 {
-    const SHIFT: usize = if std::mem::size_of::<usize>() == std::mem::size_of::<u64>() {
-        0
-    } else {
-        std::mem::size_of::<usize>()
-    };
-    assert!(
-        SHIFT == 0,
-        "doesn't support non-64-bit little-endian platforms"
-    );
-
     debug_assert!(range.len() <= 64);
 
     let b1 = b.get_block(block_offset(range.start));

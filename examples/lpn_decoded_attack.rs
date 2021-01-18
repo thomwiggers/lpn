@@ -11,13 +11,13 @@ use lpn::bkw::partition_reduce;
 // Solve LPN_17,255/512 with Gauss
 
 fn main() {
-    let k = 100;
-    let tau = 1.0/8.0;
+    let k = 135;
+    let tau = 1.0/4.0;
 
     println!("Sizeof sample: {:?}", ::std::mem::size_of::<::lpn::oracle::Sample>());
 
     let mut oracle: LpnOracle = LpnOracle::new(k, tau);
-    oracle.get_samples_drop(2usize.pow(33) as usize, 3);
+    oracle.get_samples_drop(2usize.pow(32) as usize, 3);
     println!("Collected samples.");
 
     partition_reduce(&mut oracle, 31);

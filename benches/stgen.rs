@@ -2,7 +2,7 @@
 extern crate lpn;
 extern crate m4ri_rust;
 extern crate test;
-
+#[cfg(feature = "codes")]
 mod stgen {
     use crate::test::Bencher;
     use lpn::codes::*;

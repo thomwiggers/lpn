@@ -10,6 +10,7 @@ edition = '2018'
 
 [dependencies]
 rand = "0.8.0"
+rand_hc = "0.3"
 fnv = "1.0"
 itertools = "^0.10"
 rayon = "1.4"
@@ -26,10 +27,12 @@ serde_json = "1.0"
 sha2 = "0.9"
 unchecked_unwrap = "2.0"
 packed_simd_2 = "0.3"
+jemallocator = { version = "0.3.0", optional = true }
 
 [features]
 default = ['nodebug', 'unchecked_unwrap/debug_checks']
 nodebug = []
+codes = []
 
 [profile.release]
 opt-level = 3

@@ -5,6 +5,7 @@ extern crate test;
 
 macro_rules! bench_code {
     ($name:ident, $code:expr) => {
+        #[cfg(feature = "codes")]
         mod $name {
             use crate::test::Bencher;
             use lpn::codes::*;
