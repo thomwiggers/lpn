@@ -4,6 +4,9 @@ use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use rand::prelude::*;
+use rayon::prelude::*;
+
+use std::sync::{Arc, Mutex};
 
 /// Solves an LPN problem using Pooled Gauss
 #[allow(clippy::many_single_char_names, clippy::needless_pass_by_value)]
@@ -32,21 +35,20 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     debug_assert_eq!(bm.nrows(), m);
     debug_assert_eq!(bm.ncols(), 1);
 
-    let test = |s_prime: &BinMatrix, tries: &mut usize| {
+    let secret = &oracle.secret.as_binvector(k);
+
+    let test = |s_prime: &BinMatrix| {
         debug_assert_eq!(s_prime.nrows(), k);
         debug_assert_eq!(s_prime.ncols(), 1);
-        *tries += 1;
-        if *tries % 1000 == 0 {
-            println!("Attempt {}...", tries);
-        }
+
         let mut testproduct = &am * s_prime;
         testproduct += &bm;
-        let result = testproduct.as_vector().count_ones() <= c; // TODO implement count_ones on binmatrix
+        let result = testproduct.count_ones() <= c;
         debug_assert_eq!(
             result,
-            s_prime.as_vector() == oracle.secret.as_binvector(k),
+            &s_prime.as_vector() == secret,
             "Test will reject or accept an (in)correct secret with weight {} <= {}",
-            testproduct.as_vector().count_ones(),
+            testproduct.count_ones(),
             c
         );
         result
@@ -54,27 +56,44 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
 
     println!("Starting random sampling of invertible (A, b)");
 
-    let mut tries = 0;
-    // TODO parallel (if memory is sufficient?)
-    let s_prime = loop {
-        // find k-rank matrix
-        let (a, mut b) = loop {
-            let (a_try, b_try) = sample_matrix(k as usize, &oracle, &mut rng);
-            if a_try.clone().echelonize() == k as usize {
-                break (a_try, b_try);
+    let s_prime_finder = move |(sender, rng): &mut (Arc<Mutex<Option<BinMatrix>>>, _), _| {
+        for _ in 0..10000 {
+            // find k-rank matrix
+            let (a, mut b) = loop {
+                let (a_try, b_try) = sample_matrix(k as usize, &oracle, rng);
+                if a_try.clone().echelonize() == k as usize {
+                    break (a_try, b_try);
+                }
+            };
+            // A*s = b
+            if !solve_left(a, &mut b) {
+                println!("Somehow, solving failed....");
+                continue;
             }
-        };
-        // A*s = b
-        if !solve_left(a, &mut b) {
-            println!("Somehow, solving failed....");
-            continue;
+            let result = { test(&b) };
+            if result {
+                println!("Found!");
+                let mut sender = sender.lock().unwrap();
+                sender.replace(b);
+                break;
+            }
         }
-        let result = { test(&b, &mut tries) };
-        if result {
-            println!("Found after {} tries", tries);
-            break b;
+
+        if sender.lock().unwrap().is_none() {
+            Some(())
+        } else {
+            None
         }
     };
+
+    let sender_parent = Arc::new(Mutex::new(None));
+    let sender = sender_parent.clone();
+
+    rayon::iter::repeat(())
+        .try_for_each_init(|| (sender.clone(), rand::thread_rng()), s_prime_finder);
+
+    let sender = sender_parent.lock().unwrap();
+    let s_prime = sender.as_ref().unwrap();
 
     s_prime.as_vector()
 }
