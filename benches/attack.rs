@@ -25,7 +25,7 @@ fn bench_partition_reduce(b: &mut Bencher) {
     let mut oracle = LpnOracle::new(LARGE_K, 1.0 / 8.0);
     oracle.get_samples(100_000);
 
-    b.iter(|| partition_reduce(&mut (oracle.clone()), 22));
+    b.iter(|| partition_reduce(&mut (oracle.clone()), 7));
 }
 #[bench]
 fn bench_xor_reduce(b: &mut Bencher) {

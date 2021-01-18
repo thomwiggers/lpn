@@ -41,15 +41,15 @@ fn bkw_reduce_inplace(oracle: &mut LpnOracle, i: usize, b: usize) {
 
     let bitrange: ops::Range<usize> = (k - (b * i))..(k - (b * (i - 1)));
     // first collect "firsts" so we can do the later part in parallel
-    for (j, q) in oracle.samples[1..].iter_mut().enumerate() {
+    for (j, q) in oracle.samples.iter_mut().enumerate().skip(1) {
         let idx = query_bits_range(&q, bitrange.clone()) as usize;
         if firsts_idxs[idx].is_some() {
-            if firsts_idxs.iter().any(|item| item.is_none()) {
+            if firsts_idxs.iter().all(|item| item.is_some()) {
                 break;
             }
         } else {
             // this can never be zero.
-            firsts_idxs[idx] = Some(unsafe { NonZeroUsize::new_unchecked(j + 1) });
+            firsts_idxs[idx] = Some(unsafe { NonZeroUsize::new_unchecked(j) });
         }
     }
     let mut firsts = vec![None; maxj];
@@ -62,6 +62,7 @@ fn bkw_reduce_inplace(oracle: &mut LpnOracle, i: usize, b: usize) {
             // safe as we've excluded the None values
             let idx = unsafe { idx.unchecked_unwrap() }.get();
             let item = oracle.samples.swap_remove(idx);
+            let idx = query_bits_range(&item, bitrange.clone()) as usize;
             firsts[idx] = Some(item);
         });
     // not consuming the iterator to do as much as possible in-place.
@@ -130,7 +131,7 @@ fn bkw_reduce(oracle: &mut LpnOracle, a: u32, b: u32) {
     for i in 1..a {
         // somewhat empirically decided through benchmark
         // probably related to size of LUT fitting in cache
-        if b < 22 {
+        if b < 15 {
             bkw_reduce_inplace(oracle, i, b);
         } else {
             bkw_reduce_sorted(oracle, i, b)
@@ -198,7 +199,7 @@ mod test {
         let b = 8;
 
         let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
-        oracle.get_samples(200_000);
+        oracle.get_samples(400_000);
 
         // get secret for checking
         let secret = &oracle.secret;
