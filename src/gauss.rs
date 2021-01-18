@@ -6,7 +6,10 @@ use m4ri_rust::friendly::BinVector;
 use rand::prelude::*;
 use rayon::prelude::*;
 
-use std::sync::{Arc, Mutex};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Mutex},
+};
 
 /// Solves an LPN problem using Pooled Gauss
 #[allow(clippy::many_single_char_names, clippy::needless_pass_by_value)]
@@ -61,6 +64,8 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             // find k-rank matrix
             let (a, mut b) = loop {
                 let (a_try, b_try) = sample_matrix(k as usize, &oracle, rng);
+                // TODO is this check necessary?
+                // TODO avoid allocate?
                 if a_try.clone().echelonize() == k as usize {
                     break (a_try, b_try);
                 }
@@ -99,22 +104,25 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
 }
 
 /// Randomly sample ``k`` queries from the oracle as a ``(A, s)``.
-fn sample_matrix(k: usize, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix, BinMatrix) {
-    let samples = oracle.samples.choose_multiple(rng, k);
-    // replace by matrix directly?
-    let mut b_bits = BinVector::with_capacity(k as usize);
-    (
-        BinMatrix::new(
-            samples
-                .into_iter()
-                .map(|q| {
-                    b_bits.push(q.get_product());
-                    q.as_binvector(oracle.get_k())
-                })
-                .collect(),
-        ),
-        b_bits.as_column_matrix(),
-    )
+fn sample_matrix<'a>(k: usize, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix, BinMatrix) {
+    thread_local!(static TLS: RefCell<(Vec<&'static [u64]>, BinVector)> = RefCell::new((Vec::new(), BinVector::new())));
+
+    TLS.with(|stor| {
+        let mut stor = stor.borrow_mut();
+        let (slices, b_bits) = &mut (*stor);
+        let samples = oracle.samples.choose_multiple(rng, k);
+        slices.extend(samples.map(|q| {
+            b_bits.push(q.get_product());
+            // this is okay, because we clear out samples at the end.
+            unsafe { std::mem::transmute::<&'_ [u64], &'static [u64]>(q.get_sample()) }
+        }));
+        // replace by matrix directly?
+        let mat = BinMatrix::from_slices(slices, oracle.get_k());
+        let ret_b = b_bits.as_column_matrix();
+        slices.clear();
+        b_bits.clear();
+        (mat, ret_b)
+    })
 }
 
 #[cfg(test)]
