@@ -59,7 +59,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
 
         let mut matrix_vector_product: BinMatrix = &candidate_vector * &transposed_a;
         matrix_vector_product += &c;
-        let hw = matrix_vector_product.as_vector().count_ones();
+        let hw = matrix_vector_product.count_ones();
         n_prime as i32 - 2 * (hw as i32)
     };
 
@@ -97,19 +97,24 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
         .par_sort_unstable_by_key(|q| query_bits_range(q, bitrange.clone()));
 
     // split into partitions
-    println!("Creating partition slices");
+    println!("Finding partitioning points");
     let oracle_start = oracle.samples.as_ptr();
-    let mut partitions = Vec::with_capacity(2usize.pow(b as u32));
+    let maxj = 2u64.pow(b as u32);
+    let pivots = (0..maxj).into_par_iter().map(|item| {
+        oracle.samples.partition_point(|q| item <= query_bits_range(q, bitrange.clone()))
+    }).collect::<Vec<_>>();
+ 
+    println!("creating slices");
     let mut samples = &mut oracle.samples[..];
-    while samples.len() > 0 {
-        let current_key = query_bits_range(&samples[0], bitrange.clone());
-        let take_until =
-            samples.partition_point(|q| current_key == query_bits_range(q, bitrange.clone()));
-        let (these_samples, new_samples) = samples.split_at_mut(take_until);
-        partitions.push(these_samples);
-        samples = new_samples;
+    let mut collected = 0;
+    let mut partitions = Vec::with_capacity(pivots.len());
+    for pivot in pivots {
+        let (left, right) = samples.split_at_mut(pivot - collected);
+        samples = right;
+        collected += pivot - collected;
+        partitions.push(left)
     }
-
+        
     println!("xor-reducing");
     let (delete_ranges, extra_stuff): (Vec<_>, Vec<Vec<Sample>>) = partitions
         .par_iter_mut()
