@@ -6,7 +6,7 @@ use rand::prelude::*;
 
 use test::Bencher;
 
-use lpn::lf1::{parfwht, fwht};
+use lpn::lf1::{fwht, parfwht};
 
 const BITS: u32 = 10;
 
@@ -23,7 +23,6 @@ fn fwht_speed(b: &mut Bencher) {
     });
 }
 
-
 #[bench]
 fn parfwht_speed(b: &mut Bencher) {
     let mut majority_counter = vec![0; 2usize.pow(BITS)];
@@ -32,7 +31,5 @@ fn parfwht_speed(b: &mut Bencher) {
         *el = (rng).gen::<i64>() % 2i64.pow(16);
     });
 
-    b.iter(|| {
-        parfwht(&mut majority_counter.clone(), BITS)
-    });
+    b.iter(|| parfwht(&mut majority_counter.clone(), BITS));
 }

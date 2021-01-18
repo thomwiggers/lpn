@@ -1,11 +1,11 @@
 //! Defines the algorithms from the Levieil and Fouque paper (LF1, LF2)
-use crate::oracle::{LpnOracle, Sample, SampleStorage, query_bits_range};
+use crate::oracle::{query_bits_range, LpnOracle, Sample, SampleStorage};
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
+use packed_simd_2::i64x4;
 use rayon::prelude::*;
 use std::ops;
-use packed_simd_2::i64x4;
 
 use std::mem::size_of;
 
@@ -41,7 +41,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
                         q.into_inner()
                     })
                     .collect::<Vec<SampleStorage>>(),
-                    b
+                b,
             ),
             c,
         )
@@ -134,7 +134,8 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
                             let copy_to = result.len() - taken;
                             if fillable.len() > result.len() - taken {
                                 let copy_from = copy_to - fillable.len();
-                                let (fillable_here, fillable_later) = fillable.split_at_mut(result.len());
+                                let (fillable_here, fillable_later) =
+                                    fillable.split_at_mut(result.len());
                                 fillable_here.copy_from_slice(&result[copy_from..copy_to]);
                                 deletes.push(fillable_later);
                                 break;
@@ -167,13 +168,21 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
             },
         );
 
-    let delete_ranges = delete_ranges.into_iter().rev().map(|old_partition| {
-        let old_partition = old_partition.as_ptr_range();
-        let startpos = (old_partition.start as *const _ as usize - oracle_start as usize) / std::mem::size_of::<Sample>();
-        let endpos = (old_partition.end as *const _ as usize - oracle_start as usize) / std::mem::size_of::<Sample>();
-        startpos..endpos
-    }).collect::<Vec<_>>();
-    delete_ranges.into_iter().for_each(|range| oracle.samples.drain(range).for_each(drop));
+    let delete_ranges = delete_ranges
+        .into_iter()
+        .rev()
+        .map(|old_partition| {
+            let old_partition = old_partition.as_ptr_range();
+            let startpos = (old_partition.start as *const _ as usize - oracle_start as usize)
+                / std::mem::size_of::<Sample>();
+            let endpos = (old_partition.end as *const _ as usize - oracle_start as usize)
+                / std::mem::size_of::<Sample>();
+            startpos..endpos
+        })
+        .collect::<Vec<_>>();
+    delete_ranges
+        .into_iter()
+        .for_each(|range| oracle.samples.drain(range).for_each(drop));
     let num_extra_samples = extra_stuff.iter().fold(0, |acc, v| acc + v.len());
     oracle.samples.reserve_exact(num_extra_samples);
     oracle.samples.extend(extra_stuff.into_iter().flatten());
@@ -196,14 +205,24 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
     println!("FWHT solving...");
     let k = oracle.get_k() as u32;
 
-    let mut majority_counter = oracle.samples.into_par_iter().fold(|| vec![0; 2usize.pow(k)], |mut counters, sample| {
-        let idx = sample.get_block(0) as usize;
-        counters[idx] += if sample.get_product() { -1 } else { 1 };
-        counters
-    }).reduce(|| vec![0; 2usize.pow(k)], |mut a, b| {
-        a.iter_mut().zip(b).for_each(|(a, b)| *a += b);
-        a
-    });
+    let mut majority_counter = oracle
+        .samples
+        .into_par_iter()
+        .fold(
+            || vec![0; 2usize.pow(k)],
+            |mut counters, sample| {
+                let idx = sample.get_block(0) as usize;
+                counters[idx] += if sample.get_product() { -1 } else { 1 };
+                counters
+            },
+        )
+        .reduce(
+            || vec![0; 2usize.pow(k)],
+            |mut a, b| {
+                a.iter_mut().zip(b).for_each(|(a, b)| *a += b);
+                a
+            },
+        );
 
     println!("FWHT");
     parfwht(majority_counter.as_mut_slice(), k);
@@ -305,8 +324,16 @@ mod tests {
             if len < 64 {
                 c = c & ((1 << len) - 1);
             }
-            assert_eq!(usize_to_binvec(c, len), usize_to_binmatrix(c, len).as_vector(), "c = {:b}", c);
-            assert_eq!(usize_to_binvec(c, len).as_matrix(), usize_to_binmatrix(c, len));
+            assert_eq!(
+                usize_to_binvec(c, len),
+                usize_to_binmatrix(c, len).as_vector(),
+                "c = {:b}",
+                c
+            );
+            assert_eq!(
+                usize_to_binvec(c, len).as_matrix(),
+                usize_to_binmatrix(c, len)
+            );
         }
     }
 

@@ -1,8 +1,8 @@
 extern crate lpn;
 
+use lpn::bkw::partition_reduce;
 use lpn::gauss::*;
 use lpn::oracle::LpnOracle;
-use lpn::bkw::partition_reduce;
 
 // Attack on LPN decoded
 // k = 135, tau = 1/4
@@ -12,9 +12,12 @@ use lpn::bkw::partition_reduce;
 
 fn main() {
     let k = 135;
-    let tau = 1.0/4.0;
+    let tau = 1.0 / 4.0;
 
-    println!("Sizeof sample: {:?}", ::std::mem::size_of::<::lpn::oracle::Sample>());
+    println!(
+        "Sizeof sample: {:?}",
+        ::std::mem::size_of::<::lpn::oracle::Sample>()
+    );
 
     let mut oracle: LpnOracle = LpnOracle::new(k, tau);
     oracle.get_samples_drop(2usize.pow(32) as usize, 3);
@@ -29,5 +32,4 @@ fn main() {
 
     println!("Found:  {:?}", solution);
     println!("Actual: {:?}", secret);
-
 }

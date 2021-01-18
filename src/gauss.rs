@@ -41,7 +41,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
         }
         let mut testproduct = &am * s_prime;
         testproduct += &bm;
-        let result = testproduct.as_vector().count_ones() <= c;  // TODO implement count_ones on binmatrix
+        let result = testproduct.as_vector().count_ones() <= c; // TODO implement count_ones on binmatrix
         debug_assert_eq!(
             result,
             s_prime.as_vector() == oracle.secret.as_binvector(k),

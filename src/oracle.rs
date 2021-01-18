@@ -271,35 +271,46 @@ impl LpnOracle {
         unsafe { samples.set_len(n) };
         // bitbang some contents into you, multithreaded of course
         let chunk_size: usize = std::cmp::max(n / rayon::current_num_threads(), 10000);
-        samples.par_chunks_mut(chunk_size).for_each_init(|| Hc128Rng::from_entropy(), |rng, samples| {
-            let new_samples = MaybeUninit::slice_as_mut_ptr(samples) as *mut u8;
-            let size = std::mem::size_of::<[StorageBlock; SAMPLE_LEN]>();
-            let new_samples = unsafe { std::slice::from_raw_parts_mut(new_samples, size * samples.len()) };
-            rng.fill_bytes(new_samples);
-        });
+        samples.par_chunks_mut(chunk_size).for_each_init(
+            || Hc128Rng::from_entropy(),
+            |rng, samples| {
+                let new_samples = MaybeUninit::slice_as_mut_ptr(samples) as *mut u8;
+                let size = std::mem::size_of::<[StorageBlock; SAMPLE_LEN]>();
+                let new_samples =
+                    unsafe { std::slice::from_raw_parts_mut(new_samples, size * samples.len()) };
+                rng.fill_bytes(new_samples);
+            },
+        );
 
-        let mut samples = unsafe { std::mem::transmute::<Vec<MaybeUninit<Sample>>, Vec<Sample>>(samples)};
+        let mut samples =
+            unsafe { std::mem::transmute::<Vec<MaybeUninit<Sample>>, Vec<Sample>>(samples) };
 
         if block_offset(k) < NOISE_BIT_BLOCK {
-            samples.par_iter_mut().for_each_init(|| Hc128Rng::from_entropy(), |rng, sample| {
-                let noise_bit = dist.sample(rng);
-                sample.sample[(block_offset(k) + 1)..SAMPLE_LEN]
-                    .iter_mut()
-                    .for_each(|block| *block = 0);
-                let product = sample.vector_product(&secret, k) ^ noise_bit;
-                if product {
-                    sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
-                }
-            });
+            samples.par_iter_mut().for_each_init(
+                || Hc128Rng::from_entropy(),
+                |rng, sample| {
+                    let noise_bit = dist.sample(rng);
+                    sample.sample[(block_offset(k) + 1)..SAMPLE_LEN]
+                        .iter_mut()
+                        .for_each(|block| *block = 0);
+                    let product = sample.vector_product(&secret, k) ^ noise_bit;
+                    if product {
+                        sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
+                    }
+                },
+            );
         } else {
-            samples.par_iter_mut().for_each_init(|| thread_rng(), |rng, sample| {
-                sample.sample[NOISE_BIT_BLOCK] &= (1 << (k % bits_per_block())) - 1;
-                let noise_bit = dist.sample(rng);
-                let product = sample.vector_product(&secret, k) ^ noise_bit;
-                if product {
-                    sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
-                }
-            });
+            samples.par_iter_mut().for_each_init(
+                || thread_rng(),
+                |rng, sample| {
+                    sample.sample[NOISE_BIT_BLOCK] &= (1 << (k % bits_per_block())) - 1;
+                    let noise_bit = dist.sample(rng);
+                    let product = sample.vector_product(&secret, k) ^ noise_bit;
+                    if product {
+                        sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
+                    }
+                },
+            );
         }
         samples.shrink_to_fit();
 
@@ -321,12 +332,22 @@ impl LpnOracle {
             // do some minimal amount of samples to reduce short iterations
             let samples_to_get = std::cmp::max(n - (self.samples.len() - original_len), 100_000);
             let samples = self.get_some_samples(samples_to_get);
-            println!("Trying to get samples with {} trailing zeros from {} input", trailing_zeros, samples.len());
-            let samples = samples.into_par_iter().filter(|sample| {
-                    are_last_bits_zero(sample, k, trailing_zeros)
-                }).collect::<Vec<_>>();
+            println!(
+                "Trying to get samples with {} trailing zeros from {} input",
+                trailing_zeros,
+                samples.len()
+            );
+            let samples = samples
+                .into_par_iter()
+                .filter(|sample| are_last_bits_zero(sample, k, trailing_zeros))
+                .collect::<Vec<_>>();
             let to_go = n.saturating_sub(self.samples.len() + samples.len());
-            println!("Adding {} samples with {} trailing zeros, {} to go", samples.len(), trailing_zeros, to_go);
+            println!(
+                "Adding {} samples with {} trailing zeros, {} to go",
+                samples.len(),
+                trailing_zeros,
+                to_go
+            );
             self.samples.reserve_exact(samples.len());
             self.samples.extend_from_slice(&samples);
         }

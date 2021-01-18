@@ -1,7 +1,11 @@
 #![feature(test)]
 extern crate test;
 
-use lpn::{bkw::partition_reduce, lf1::xor_reduce, oracle::{LpnOracle, MAX_K}};
+use lpn::{
+    bkw::partition_reduce,
+    lf1::xor_reduce,
+    oracle::{LpnOracle, MAX_K},
+};
 use test::Bencher;
 
 const LARGE_K: u32 = (MAX_K - 10) as u32;

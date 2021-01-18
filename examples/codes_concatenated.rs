@@ -10,10 +10,13 @@ use lpn::lf1::*;
 use lpn::oracle::{LpnOracle, Sample};
 
 fn main() {
-    let secret = Sample::from_binvector(&BinVector::from_bools(&[
-        false, true, true, false, true, true, true, false, true, true, false, false, true, false,
-        true, true, false, true, true, true, false, true, false, true, true,
-    ]), false);
+    let secret = Sample::from_binvector(
+        &BinVector::from_bools(&[
+            false, true, true, false, true, true, true, false, true, true, false, false, true,
+            false, true, true, false, true, true, true, false, true, false, true, true,
+        ]),
+        false,
+    );
 
     // setup oracle
     let mut oracle: LpnOracle = LpnOracle::new_with_secret(secret, 25, 1.0 / 8.0);

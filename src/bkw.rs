@@ -82,7 +82,8 @@ fn bkw_reduce_sorted(oracle: &mut LpnOracle, i: usize, b: usize) {
     // max j:
     println!(
         "BKW iteration, {} samples left, expecting to remove {} through sorting method",
-        oracle.samples.len(), maxj
+        oracle.samples.len(),
+        maxj
     );
 
     oracle
@@ -111,9 +112,13 @@ fn bkw_reduce_sorted(oracle: &mut LpnOracle, i: usize, b: usize) {
 
     // compute indexes of firsts
     println!("Removing pivots");
-    let firsts = partitions.into_par_iter().rev().map(|partition| {
-        (partition.as_ptr() as *const _ as usize - oracle_start) / std::mem::size_of::<Sample>()
-    }).collect::<Vec<_>>();
+    let firsts = partitions
+        .into_par_iter()
+        .rev()
+        .map(|partition| {
+            (partition.as_ptr() as *const _ as usize - oracle_start) / std::mem::size_of::<Sample>()
+        })
+        .collect::<Vec<_>>();
 
     // this is descending because par_iter_map preserves order.
     for index in firsts.into_iter() {

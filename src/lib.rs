@@ -5,18 +5,18 @@
 #[cfg(feature = "jemallocator")]
 extern crate jemallocator;
 
-#[cfg_attr(feature = "jemallocator",global_allocator)]
+#[cfg_attr(feature = "jemallocator", global_allocator)]
 #[cfg(feature = "jemallocator")]
 static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
+extern crate binomial_iter;
 extern crate fnv;
 extern crate itertools;
+#[cfg(test)]
+extern crate lazy_static;
 extern crate m4ri_rust;
 extern crate rand;
 extern crate rayon;
-#[cfg(test)]
-extern crate lazy_static;
-extern crate binomial_iter;
 
 extern crate serde;
 
