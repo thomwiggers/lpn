@@ -9,13 +9,13 @@ fn main() {
     extern crate lpn;
     extern crate m4ri_rust;
     extern crate rayon;
-    
+
     use itertools::Itertools;
     use lpn::codes::*;
     use rayon::prelude::*;
-    
+
     use std::sync::*;
-    
+
     const K: usize = 512;
     const K_MIN: usize = 266;
     const K_MAX: usize = 512;
@@ -136,7 +136,6 @@ fn main() {
         }
     }
 }
-
 
 #[cfg(not(feature = "codes"))]
 fn main() {

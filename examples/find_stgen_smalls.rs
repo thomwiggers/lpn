@@ -2,13 +2,12 @@
 //!
 //! Not directly related to LPN solving
 
+extern crate lazy_static;
 extern crate lpn;
 extern crate rand;
-extern crate lazy_static;
 
 #[cfg(feature = "codes")]
 mod program {
-
 
     use std::env;
     use std::fs;

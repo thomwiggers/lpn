@@ -11,7 +11,7 @@ fn main() {
 
     use lpn::codes::*;
     use std::time::Instant;
-    
+
     let subcodes: Vec<&dyn BinaryCode> = vec![
         &BogosrndCode18_6,
         &BogosrndCode19_6,
