@@ -77,7 +77,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             }
             let result = { test(&b) };
             if result {
-                println!("Found!");
+                println!("Found {:?}!", b);
                 let mut sender = sender.lock().unwrap();
                 sender.replace(b);
                 break;

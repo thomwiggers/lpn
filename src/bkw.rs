@@ -4,7 +4,7 @@ use crate::oracle::*;
 use fnv::FnvHashMap;
 use m4ri_rust::friendly::BinVector;
 use std::ops;
-use std::{default::Default, num::NonZeroUsize};
+use std::{default::Default, num::NonZeroUsize, slice};
 
 use rayon::prelude::*;
 use unchecked_unwrap::UncheckedUnwrap;
@@ -76,9 +76,10 @@ fn bkw_reduce_inplace(oracle: &mut LpnOracle, i: usize, b: usize) {
 
 fn bkw_reduce_sorted(oracle: &mut LpnOracle, i: usize, b: usize) {
     let k = oracle.get_k();
-    let bitrange: ops::Range<usize> = (k - i * b)..k;
+    let bitrange: ops::Range<usize> = (k - (b * i))..(k - (b * (i - 1)));
 
     let maxj = 2usize.pow(b as u32);
+    let num_samples = oracle.samples.len();
     // max j:
     println!(
         "BKW iteration, {} samples left, expecting to remove {} through sorting method",
@@ -86,42 +87,65 @@ fn bkw_reduce_sorted(oracle: &mut LpnOracle, i: usize, b: usize) {
         maxj
     );
 
-    oracle
-        .samples
-        .par_sort_unstable_by_key(|q| query_bits_range(q, bitrange.clone()));
-
-    // split into partitions
-    println!("Creating partition slices");
-    let mut partitions = Vec::with_capacity(2usize.pow(b as u32));
-    let oracle_start = oracle.samples.as_ptr() as usize;
-    let mut samples = &mut oracle.samples[..];
-    while samples.len() > 0 {
-        let current_key = query_bits_range(&samples[0], bitrange.clone());
-        let take_until =
-            samples.partition_point(|q| current_key == query_bits_range(q, bitrange.clone()));
-        let (these_samples, new_samples) = samples.split_at_mut(take_until);
-        partitions.push(these_samples);
-        samples = new_samples;
-    }
-
-    println!("Processing partitions");
-    partitions.par_iter_mut().for_each(|partition| {
-        let first = partition[0];
-        partition[1..].iter_mut().for_each(|q| q.xor_into(&first));
+    oracle.samples.par_sort_unstable_by_key(|q| {
+        let key = query_bits_range(q, bitrange.clone());
+        key
     });
 
-    // compute indexes of firsts
-    println!("Removing pivots");
-    let firsts = partitions
-        .into_par_iter()
-        .rev()
-        .map(|partition| {
-            (partition.as_ptr() as *const _ as usize - oracle_start) / std::mem::size_of::<Sample>()
+    // split into partitions
+    let oracle_start = oracle.samples.as_ptr() as usize;
+    let maxj = 2usize.pow(b as u32);
+    // create iterator to zip
+    let pivots = (0..maxj).into_par_iter().map(|item| {
+        let pivot = oracle
+            .samples
+            .partition_point(|q| item as u64 > query_bits_range(q, bitrange.clone()));
+        pivot
+    });
+    let sample_ptr = &oracle.samples;
+    let lefts = rayon::iter::once(0).chain(pivots.clone());
+    let rights = pivots.chain(rayon::iter::once(num_samples));
+    let partitions = lefts.zip(rights).rev().filter_map(|(l, r)| unsafe {
+        if l == r {
+            None
+        } else {
+            let ptr = std::mem::transmute::<*const _, *mut _>(sample_ptr.as_ptr().add(l));
+            debug_assert!(l < r, "{} >= {}", l, r);
+            Some(slice::from_raw_parts_mut(ptr, r - l))
+        }
+    });
+
+    // we need to collect here because otherwise we are both reading from our
+    // &mut [Sample]s (below) and from &oracle.samples above
+    let partitions = {
+        let partitions = partitions.collect::<Vec<&mut [Sample]>>();
+        debug_assert_eq!(num_samples, partitions.iter().map(|s| s.len()).sum());
+        partitions.into_par_iter()
+    };
+
+    // process produced slices
+    let partitions = partitions
+        .map(|partition: &mut [Sample]| {
+            let first = partition[0];
+            let len = partition.len() - 1;
+            partition[1..].iter_mut().enumerate().for_each(|(idx, q)| {
+                let l = query_bits_range(&first, bitrange.clone());
+                let r = query_bits_range(&q, bitrange.clone());
+                debug_assert_eq!(l, r, "{:b} != {:b} (idx: {}/{})", l, r, idx, len);
+                q.xor_into(&first);
+                debug_assert_eq!(0, query_bits_range(&q, bitrange.clone()));
+            });
+            partition.as_ptr() as usize
         })
         .collect::<Vec<_>>();
 
+    // compute indexes of firsts
+    let firsts = partitions
+        .into_iter()
+        .map(|partition| (partition - oracle_start) / std::mem::size_of::<Sample>());
+
     // this is descending because par_iter_map preserves order.
-    for index in firsts.into_iter() {
+    for index in firsts {
         oracle.samples.swap_remove(index);
     }
 }
@@ -136,7 +160,7 @@ fn bkw_reduce(oracle: &mut LpnOracle, a: u32, b: u32) {
     for i in 1..a {
         // somewhat empirically decided through benchmark
         // probably related to size of LUT fitting in cache
-        if b < 15 {
+        if b < 1 {
             bkw_reduce_inplace(oracle, i, b);
         } else {
             bkw_reduce_sorted(oracle, i, b)

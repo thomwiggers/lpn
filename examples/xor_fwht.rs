@@ -6,7 +6,7 @@ use lpn::oracle::LpnOracle;
 
 fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(32, 1.0 / 32.0);
-    oracle.get_samples(1000);
+    oracle.get_samples(10000);
     let mut secret = oracle.secret.as_binvector(oracle.get_k());
     xor_reduce(&mut oracle, 8);
     xor_reduce(&mut oracle, 8);

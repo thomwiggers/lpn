@@ -5,7 +5,7 @@ use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use packed_simd_2::i64x4;
 use rayon::prelude::*;
-use std::ops;
+use std::{ops, slice};
 
 use std::mem::size_of;
 
@@ -99,28 +99,39 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
     // split into partitions
     println!("Finding partitioning points");
     let oracle_start = oracle.samples.as_ptr();
-    let maxj = 2u64.pow(b as u32);
+    let maxj = 2usize.pow(b as u32);
+    // create iterator to zip
     let pivots = (0..maxj).into_par_iter().map(|item| {
-        oracle.samples.partition_point(|q| item <= query_bits_range(q, bitrange.clone()))
-    }).collect::<Vec<_>>();
- 
-    println!("creating slices");
-    let mut samples = &mut oracle.samples[..];
-    let mut collected = 0;
-    let mut partitions = Vec::with_capacity(pivots.len());
-    for pivot in pivots {
-        let (left, right) = samples.split_at_mut(pivot - collected);
-        samples = right;
-        collected += pivot - collected;
-        partitions.push(left)
-    }
-        
+        oracle
+            .samples
+            .partition_point(|q| item as u64 > query_bits_range(q, bitrange.clone()))
+    });
+    let sample_ptr = &oracle.samples;
+    let lefts = rayon::iter::once(0).chain(pivots.clone());
+    let rights = pivots.chain(rayon::iter::once(num_samples));
+    let partitions = lefts.zip(rights).filter_map(|(l, r)| unsafe {
+        if l == r {
+            None
+        } else {
+            let ptr = std::mem::transmute::<*const _, *mut _>(sample_ptr.as_ptr().add(l));
+            debug_assert!(l < r, "{} >= {}", l, r);
+            Some(slice::from_raw_parts_mut(ptr, r - l))
+        }
+    });
+
+    // we need to collect here because otherwise we are both reading from our
+    // &mut [Sample]s (below) and from &oracle.samples above
+    let partitions = {
+        let partitions = partitions.collect::<Vec<&mut [Sample]>>();
+        debug_assert_eq!(num_samples, partitions.iter().map(|s| s.len()).sum());
+        partitions.into_par_iter()
+    };
+
     println!("xor-reducing");
     let (delete_ranges, extra_stuff): (Vec<_>, Vec<Vec<Sample>>) = partitions
-        .par_iter_mut()
         .fold(
             || (Vec::<&mut [Sample]>::new(), Vec::<Vec<Sample>>::new()),
-            |(mut deletes, mut extra), partition| {
+            |(mut deletes, mut extra), partition: &mut [Sample]| {
                 let mut result = partition
                     .iter()
                     .tuple_combinations()
