@@ -3,6 +3,8 @@ use binomial_iter::BinomialIter;
 use m4ri_rust::friendly::*;
 use std::cmp;
 
+use crate::oracle::{Sample, NOISE_BIT_MASK, SAMPLE_LEN};
+
 use std::collections::HashSet;
 
 /// A $[k, 1]$ repetition code
@@ -64,6 +66,23 @@ impl BinaryCode for RepetitionCode {
     fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         let bit = c.count_ones() > ((self.k / 2) as u32);
         Ok(BinVector::from_elem(1, bit))
+    }
+
+    fn decode_sample(&self, c: &mut Sample) {
+        let bit = c.count_ones() > ((self.k / 2) as u32);
+        if SAMPLE_LEN > 1 {
+            c.get_sample_mut()[0] = if bit { 1 } else { 0 };
+            c.truncate(1, false);
+        } else {
+            c.get_sample_mut()[0] &= if bit { 1 } else { 0 } | NOISE_BIT_MASK;
+        }
+    }
+
+    fn decode_slice(&self, c: &mut [u64]) {
+        let slice = &mut c[..self.length() / 64];
+        let ones: u32 = slice.iter().map(|v| v.count_ones()).sum();
+        let bit = ones > ((self.k / 2) as u32);
+        slice.iter_mut().for_each(|b| *b = if bit { 1 } else { 0 });
     }
 
     /// Directly compute the bias of repetition codes using

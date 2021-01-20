@@ -160,7 +160,7 @@ fn bkw_reduce(oracle: &mut LpnOracle, a: u32, b: u32) {
     for i in 1..a {
         // somewhat empirically decided through benchmark
         // probably related to size of LUT fitting in cache
-        if b < 1 {
+        if b < 10 {
             bkw_reduce_inplace(oracle, i, b);
         } else {
             bkw_reduce_sorted(oracle, i, b)

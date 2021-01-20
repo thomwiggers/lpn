@@ -1,4 +1,6 @@
 //! Describes the LPN problem oracle on which we apply reductions and solving algorithms
+//!
+//! This project currently makes strong assumptions that u64 == usize
 use m4ri_rust::friendly::*;
 use rand::distributions::{Bernoulli, Distribution};
 use std::{mem::MaybeUninit, ops::Range};
@@ -39,13 +41,13 @@ const fn blocks_required(num_bits: usize) -> usize {
 /// change me according to k
 pub const MAX_K: usize = (3 * bits_per_block()) - 1;
 /// length of a sample in bytes
-const SAMPLE_LEN: usize = blocks_required(MAX_K + 1);
+pub(crate) const SAMPLE_LEN: usize = blocks_required(MAX_K + 1);
 /// Block in which noise bit is stored (the K'th bit)
-const NOISE_BIT_BLOCK: usize = block_offset(MAX_K);
+pub(crate) const NOISE_BIT_BLOCK: usize = block_offset(MAX_K);
 /// Index of the noise bit
-const NOISE_BIT_IDX: usize = bits_per_block() - 1;
+pub(crate) const NOISE_BIT_IDX: usize = bits_per_block() - 1;
 /// Mask to & with to extract just the noise bit
-const NOISE_BIT_MASK: StorageBlock = (1 as StorageBlock) << NOISE_BIT_IDX;
+pub(crate) const NOISE_BIT_MASK: StorageBlock = (1 as StorageBlock) << NOISE_BIT_IDX;
 
 pub(crate) type SampleStorage = [StorageBlock; SAMPLE_LEN];
 
@@ -112,13 +114,18 @@ impl Sample {
         &self.sample
     }
 
+    /// Obtain the sample mutably
+    pub fn get_sample_mut(&mut self) -> &mut [StorageBlock] {
+        &mut self.sample
+    }
+
     /// Obtain
     pub fn into_inner(self) -> SampleStorage {
         self.sample
     }
 
     /// Truncate
-    fn truncate(&mut self, len: usize, truncating_secret: bool) {
+    pub fn truncate(&mut self, len: usize, truncating_secret: bool) {
         let used_bits = len % bits_per_block();
         // If there are no unused bits, there's no need to perform masking.
         if used_bits > 0 {
@@ -317,7 +324,7 @@ impl LpnOracle {
         samples
     }
 
-    /// Get samples from the oracle with a trailing number of 0 bits
+    /// Get samples from the oracle with a trailing number of zero bits
     ///
     /// Uses parallelism
     pub fn get_samples_drop(&mut self, n: usize, trailing_zeros: usize) {
@@ -358,6 +365,11 @@ impl LpnOracle {
 
     pub fn get_k(&self) -> usize {
         self.k
+    }
+
+    /// Override what the value of k is, without running truncate.
+    pub unsafe fn set_k(&mut self, new_k: usize) {
+        self.k = new_k
     }
 
     /// Updates the problem to have fewer bits
@@ -516,5 +528,12 @@ mod test {
             assert_eq!(vec, Sample::from_binvector(&vec, false).as_binvector(k));
             assert_eq!(vec, Sample::from_binvector(&vec, true).as_binvector(k));
         }
+    }
+
+    #[test]
+    fn test_from_binvec() {
+        let binvec = BinVector::from_bytes(&[0b001000]);
+        let sample = Sample::from_binvector(&binvec, false);
+        assert_eq!(sample.get_block(0) as usize, binvec.get_storage()[0]);
     }
 }

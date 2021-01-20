@@ -19,12 +19,14 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     println!("Reducing to a sparse secret");
     let k = oracle.get_k();
     let mut rng = thread_rng();
+
+    // cheat by picking from the first million
+    let searchspace = std::cmp::min(oracle.samples.len(), 1_000_000);
+
     // get M, e, c'
     let (m, c_prime, samples) = loop {
         let (a, b, samples) = {
-            // FIXME maybe cheat by picking from the first million?
-            let samples: Vec<_> = oracle
-                .samples
+            let samples: Vec<_> = oracle.samples[..searchspace]
                 .choose_multiple(&mut rng, k)
                 .cloned()
                 .collect();
@@ -59,6 +61,7 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
         "the secret prior to reduction to a sparse secret was: {:?}",
         original_secret
     );
+
     if oracle.delta == 1.0 {
         debug_assert_eq!(
             (&original_secret * &m.transposed()),
@@ -77,17 +80,24 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     let m_t_inv = m.inverted();
 
     // remove the samples we took
-    // When https://github.com/rust-lang/rust/issues/40062 is stabilized,
-    // this might be possible in a more elegant way.
-    for q in samples.into_iter() {
-        let pos = oracle.samples.iter().position(|item| item == &q).unwrap();
+    let poses = samples
+        .into_iter()
+        .map(|sample| {
+            oracle.samples[..searchspace]
+                .iter()
+                .position(|item| item == &sample)
+                .unwrap()
+        })
+        .collect::<Vec<_>>();
+    poses.into_iter().for_each(|pos| {
         oracle.samples.swap_remove(pos);
-    }
+    });
 
     // update the samples
     //let secret = &oracle.secret;
+    let m_t_inv_t = &m_t_inv.transposed();
     oracle.samples.par_iter_mut().for_each(|query| {
-        let new_v = &query.as_binvector(k) * &m_t_inv;
+        let new_v = m_t_inv_t.mul_slice(query.get_sample()).as_vector();
         let new_product = query.get_product() ^ &new_v * &c_prime;
         *query = Sample::from_binvector(&new_v, new_product);
         //debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
@@ -127,19 +137,17 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
     );
 
     println!("Decoding samples");
-    let k = oracle.get_k();
-    oracle.samples.par_iter_mut().for_each(|query| {
-        let new_sample = code
-            .decode_to_message(&query.as_binvector(k))
-            .expect("Couldn't decode??");
-        *query = Sample::from_binvector(&new_sample, query.get_product())
-    });
+    oracle
+        .samples
+        .par_iter_mut()
+        .for_each(|query| code.decode_sample(query));
 
     println!("Note that we transformed the secret $s$ into $s'=s*G^T$!");
+    let k = oracle.get_k();
     let gen_t = code.generator_matrix().transposed();
     oracle.secret = Sample::from_binvector(&(&oracle.secret.as_binvector(k) * &gen_t), false);
 
-    oracle.truncate(code.dimension());
+    unsafe { oracle.set_k(code.dimension()) };
 
     println!("Computing new delta");
     oracle.delta *= code.bias(oracle.delta_s);

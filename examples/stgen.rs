@@ -6,9 +6,8 @@ extern crate rayon;
 #[cfg(feature = "codes")]
 mod themod {
     use lpn::codes::*;
-    use m4ri_rust::friendly::*;
 
-    fn get_code() -> StGenCode<'static> {
+    pub fn get_code() -> StGenCode<'static> {
         let codes: Vec<&dyn BinaryCode> = vec![
             &HammingCode7_4,
             &HammingCode7_4,
@@ -75,6 +74,7 @@ mod themod {
 
 #[cfg(feature = "codes")]
 fn main() {
+    use lpn::codes::*;
     use m4ri_rust::friendly::*;
 
     let code = themod::get_code();

@@ -1,10 +1,11 @@
-use std::sync::{Once,ONCE_INIT};
+use std::sync::Once;
 use std::boxed::Box;
 
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 
 use crate::codes::BinaryCode;
+use crate::oracle::{Sample, SAMPLE_LEN};
 
 /// ``[{{n}}, {{k}}]`` Hamming code
 /// 
@@ -12,34 +13,35 @@ use crate::codes::BinaryCode;
 #[derive(Debug,Serialize)]
 pub struct HammingCode{{n}}_{{k}};
 
-static INIT: Once = ONCE_INIT;
+static INIT: Once = Once::new();
 static mut GENERATOR_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 static mut PARITY_MATRIX: *const BinMatrix = 0 as *const BinMatrix;
 
 fn init() {
     INIT.call_once(|| {
         unsafe {
-            let matrix = Box::new(BinMatrix::new(vec![
-                {% for row in generator %}BinVector::from_bools(&[{{ row|boollist }}]),
+            let matrix = Box::new(BinMatrix::from_slices(&[
+                {% for row in generator %}&[{{ row|intlist }}],
                 {% endfor %}
-            ]));
+            ], {{ n }}));
             GENERATOR_MATRIX = Box::into_raw(matrix);
 
-            let matrix = Box::new(BinMatrix::new(vec![
-                    {% for row in parity_matrix %}BinVector::from_bools(&[{{ row|boollist }}]),
+            let matrix = Box::new(BinMatrix::from_slices(&[
+                    {% for row in parity_matrix %}&[{{ row|intlist }}],
                     {% endfor %}
-            ]));
+            ], {{ n }}));
             PARITY_MATRIX = Box::into_raw(matrix);
         }
     });
 }
 
-static SYNDROME: [[bool; {{k}}]; {{ 2**n }}] = [
-{% for syndrome in syndromes %}     [{{ syndrome|boollist }}], // {{ syndrome }}
+// only supports 1-block syndromes
+static SYNDROME: [usize; {{ 2**n }}] = [
+{% for syndrome in syndromes %}     {{ syndrome|intlist }}, // {{ syndrome }}
 {% endfor %}];
 
-static ENCODE: [[bool; {{ n }}]; {{ 2**k }}] = [
-{% for encoding in encodings %}       [{{ encoding|boollist }}], // {{ encoding }}
+static ENCODE: [usize; {{ 2**k }}] = [
+{% for encoding in encodings %}       {{ encoding|intlist }}, // {{ encoding }}
 {% endfor %}];
 
 
@@ -72,13 +74,41 @@ impl BinaryCode for HammingCode{{n}}_{{k}} {
 
     fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         debug_assert_eq!(c.len(), self.length());
-        Ok(BinVector::from_bools(&SYNDROME[c.as_u32() as usize]))
+        let mut v = BinVector::with_capacity(self.dimension());
+        let stor = unsafe { v.get_storage_mut() };
+        stor.push(SYNDROME[c.as_u32() as usize]);
+        unsafe { v.set_len(self.dimension()); }
+        Ok(v)
     }
 
     /// Encode using lookup table
     fn encode(&self, c: &BinVector) -> BinVector {
         debug_assert_eq!(c.len(), self.dimension());
-        BinVector::from_bools(&ENCODE[c.as_u32() as usize])
+        let mut v = BinVector::with_capacity( self.length() );
+        let stor = unsafe { v.get_storage_mut() };
+        stor.push(ENCODE[c.as_u32() as usize]);
+        unsafe { v.set_len(self.length()); }
+        v
+    }
+
+    /// Decode a Sample
+    #[inline]
+    fn decode_sample(&self, sample: &mut Sample) {
+        assert!(self.length() < 64);
+        const MASK: u64 = (1 << {{ n }}) - 1;
+        let c = sample.get_sample_mut();
+        if SAMPLE_LEN == 1 { // need to ignore product
+            c[0] = (c[0] & !MASK) | (SYNDROME[(c[0] & MASK) as usize] as u64);
+        } else {
+            self.decode_slice(c)
+        }
+    }
+
+    #[inline]
+    fn decode_slice(&self, c: &mut [u64]) {
+        debug_assert_eq!(c[0] & !((1 << self.length()) - 1), 0, "this message is too long");
+
+        c[0] = SYNDROME[c[0] as usize] as u64
     }
 
     // for hamming codes
@@ -113,6 +143,31 @@ mod tests {
 
         let vec = code.decode_to_code(&BinVector::from_elem({{n}}, false)).unwrap();
         assert_eq!(vec, BinVector::from_elem({{n}}, false));
+    }
+
+    #[test]
+    fn test_decode_sample() {
+        let code = HammingCode{{n}}_{{k}};
+        for _ in 0..1000 {
+            // setup
+            let vec = BinVector::random(code.length());
+            let mut sample_a = Sample::from_binvector(&vec, false);
+            let mut sample_b = Sample::from_binvector(&vec, true);
+            
+            let decoded_vec = code.decode_to_message(&vec).unwrap();
+            println!("decoded_vec: {:?}", decoded_vec);
+
+            // test vectors
+            let decoded_vec_sample_a = Sample::from_binvector(&decoded_vec, false);
+            let decoded_vec_sample_b = Sample::from_binvector(&decoded_vec, true);
+
+            code.decode_sample(&mut sample_a);
+            code.decode_sample(&mut sample_b);
+            assert_eq!(sample_a.get_product(), false);
+            assert_eq!(sample_b.get_product(), true);
+            assert_eq!(sample_a, decoded_vec_sample_a);
+            assert_eq!(sample_b, decoded_vec_sample_b);
+        }
     }
 
 }

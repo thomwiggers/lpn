@@ -1,6 +1,6 @@
 extern crate lpn;
 
-use lpn::gauss::*;
+use lpn::lf1::*;
 use lpn::oracle::LpnOracle;
 
 // k', k: [1, 103,
@@ -17,12 +17,15 @@ use lpn::oracle::LpnOracle;
 //   6. WHT (c=8, k=36, opt_k_prime=19)']
 
 fn main() {
-    let k = 100;
+    let k = 103;
     let tau = 1.0 / 8.0;
 
     let mut oracle: LpnOracle = LpnOracle::new(k, tau);
-    oracle.get_samples_drop(2usize.pow(30) as usize, 1);
+    oracle.get_samples_drop(2usize.pow(22) as usize, 1);
     println!("Collected samples.");
+    xor_drop_reduce(&mut oracle, 99 - 78, 0);
+    xor_drop_reduce(&mut oracle, 78 - 57, 0);
+    xor_drop_reduce(&mut oracle, 57 - 36, 0);
     //let secret = oracle.secret.clone();
     //let solution = pooled_gauss_solve(oracle);
 

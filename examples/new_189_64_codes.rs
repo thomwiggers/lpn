@@ -1,17 +1,16 @@
 /// Tries to find new [189,64] StGen codes
+extern crate lpn;
+#[macro_use]
+extern crate itertools;
+extern crate rayon;
 
 #[cfg(feature = "codes")]
 mod program {
-    extern crate lpn;
-    #[macro_use]
-    extern crate itertools;
-    extern crate rayon;
-
     use lpn::codes::*;
 
     use std::time;
 
-    fn main() {
+    pub fn main() {
         let idcode1 = IdentityCode::new(1);
         let hamcode = &HammingCode7_4;
         let repcode3 = RepetitionCode::new(3);
@@ -64,6 +63,11 @@ mod program {
             );
         });
     }
+}
+
+#[cfg(feature = "stgen")]
+fn main() {
+    program::main()
 }
 
 #[cfg(not(feature = "codes"))]

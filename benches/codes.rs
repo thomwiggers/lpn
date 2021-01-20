@@ -66,3 +66,4 @@ bench_code!(hamming_63_57, HammingCode63_57);
 bench_code!(hamming_127_120, HammingCode127_120);
 bench_code!(golay_23_12, GolayCode23_12);
 bench_code!(golay_24_12, GolayCode24_12);
+bench_code!(bogosrnd_18_6, BogosrndCode18_6);

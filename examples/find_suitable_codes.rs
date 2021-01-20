@@ -2,14 +2,14 @@
 //!
 //! Not directly related to solving LPN
 
-extern crate lazy_static;
 extern crate lpn;
+
+#[allow(unused)]
+use std::env;
 
 #[cfg(feature = "codes")]
 mod program {
-    #[macro_use]
-    use std::env;
-
+    use lazy_static::lazy_static;
     use lpn::codes::*;
 
     const K: usize = 512;
@@ -82,7 +82,7 @@ mod program {
             .collect()
     }
 
-    fn run(k: usize, k_min: usize, k_max: usize) {
+    pub fn run(k: usize, k_min: usize, k_max: usize) {
         generate_codes(k, k_min, k_max);
     }
 }

@@ -2,14 +2,13 @@
 /// estimates their properties.
 ///
 /// It's not directly to do with LPN
+extern crate itertools;
+extern crate lpn;
+extern crate m4ri_rust;
+extern crate rayon;
 
 #[cfg(feature = "codes")]
 fn main() {
-    extern crate itertools;
-    extern crate lpn;
-    extern crate m4ri_rust;
-    extern crate rayon;
-
     use itertools::Itertools;
     use lpn::codes::*;
     use rayon::prelude::*;

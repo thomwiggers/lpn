@@ -8,9 +8,19 @@ def boollist(lst):
     """Convert (1, 0) into '[true, false]'"""
     return (', '.join(map(lambda x: str(bool(x)), lst))).lower()
 
+def intlist(lst):
+    return (', '.join(map(lambda x: str(x), lst)))
+
 
 ENVIRONMENT = Environment()
 ENVIRONMENT.filters['boollist'] = boollist
+ENVIRONMENT.filters['intlist'] = intlist
+
+def bools_to_binvec(bools):
+    u64s = list(0 for _ in range(len(bools)/64 + (1 if len(bools) % 64 != 0 else 0)))
+    for (i, bit) in enumerate(bools):
+        u64s[i/64] |= bool(bit) << (i % 64)
+    return u64s
 
 
 def generate_hamming_implementation(exponent):
@@ -19,14 +29,17 @@ def generate_hamming_implementation(exponent):
     info = {
         'n': code.length(),
         'k': code.dimension(),
-        'generator': code.systematic_generator_matrix(),
-        'parity_matrix': code.parity_check_matrix(),
+        'generator': [bools_to_binvec(row) for row in code.systematic_generator_matrix()],
+        'parity_matrix': [bools_to_binvec(row) for row in code.parity_check_matrix()],
     }
 
-    info['syndromes'] = [code.decode_to_message(v)
+    info['syndromes'] = [bools_to_binvec(code.decode_to_message(v))
                          for v in VectorSpace(GF(2), code.length())]
-    info['encodings'] = [code.encode(v)
+    info['syndrome_itemlen'] = len(info['syndromes'][0])
+
+    info['encodings'] = [bools_to_binvec(code.encode(v))
                          for v in VectorSpace(GF(2), code.dimension())]
+    info['encoding_itemlen'] = len(info['encodings'][0])
 
     with open('hamming_n_k.rs.j2', 'r') as templatefile:
         template = ENVIRONMENT.from_string(templatefile.read())

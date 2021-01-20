@@ -5,6 +5,8 @@ use std::collections::HashSet;
 use std::fmt;
 use std::mem;
 
+use crate::oracle::Sample;
+
 /// Sample size to estimate the covering radius
 pub(crate) static N: usize = 10000;
 
@@ -57,6 +59,36 @@ pub trait BinaryCode {
             "wtf, product should be of length"
         );
         result
+    }
+
+    fn decode_sample(&self, c: &mut Sample) {
+        use crate::oracle::{NOISE_BIT_BLOCK, NOISE_BIT_MASK};
+        let slice = c.get_sample_mut();
+        if NOISE_BIT_BLOCK == self.length() / 64 {
+            // we're going to be touching the last block
+            let noise_bit = slice[NOISE_BIT_BLOCK] & NOISE_BIT_MASK;
+            slice[NOISE_BIT_BLOCK] &= !NOISE_BIT_MASK;
+            self.decode_slice(slice);
+            // truncate
+            slice[NOISE_BIT_BLOCK] &= (1 << self.dimension()) - 1;
+            // restore noise bit
+            slice[NOISE_BIT_BLOCK] |= noise_bit;
+        } else {
+            self.decode_slice(&mut slice[..=self.length() / 64]);
+            c.truncate(self.dimension(), false)
+        }
+    }
+
+    fn decode_slice(&self, c: &mut [u64]) {
+        let mut v = BinVector::with_capacity(self.length());
+        let stor = unsafe { v.get_storage_mut() };
+        stor.extend(c.iter().copied().map(|b| b as usize));
+        let v = self.decode_to_message(&v).unwrap();
+        c.iter_mut()
+            .zip(v.get_storage().iter().copied())
+            .for_each(|(b, d)| {
+                *b = d as u64;
+            });
     }
 
     /// Get or compute the bc of a code
@@ -115,16 +147,22 @@ impl serde::Serialize for &dyn BinaryCode {
     }
 }
 
+#[cfg(feature = "hamming")]
 mod hamming;
+#[cfg(feature = "hamming")]
 pub use self::hamming::*;
 
+#[cfg(feature = "golay")]
 mod golay;
+#[cfg(feature = "golay")]
 pub use self::golay::*;
 
 mod concatenated;
 pub use self::concatenated::*;
 
+#[cfg(feature = "stgen")]
 mod stgen;
+#[cfg(feature = "stgen")]
 pub use self::stgen::*;
 
 mod identity;
@@ -133,11 +171,17 @@ pub use self::identity::*;
 mod repetition;
 pub use self::repetition::*;
 
+#[cfg(feature = "bogosrnd")]
 mod bogosrnd;
+#[cfg(feature = "bogosrnd")]
 pub use self::bogosrnd::*;
 
+#[cfg(feature = "mds")]
 mod mds;
+#[cfg(feature = "mds")]
 pub use self::mds::*;
 
+#[cfg(feature = "custom")]
 mod custom;
+#[cfg(feature = "custom")]
 pub use self::custom::*;

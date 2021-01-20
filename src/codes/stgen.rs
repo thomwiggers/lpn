@@ -517,6 +517,8 @@ mod tests {
     use crate::codes::*;
     use m4ri_rust::friendly::BinVector;
 
+    use lazy_static::lazy_static;
+
     #[test]
     fn test_vectors_up_to() {
         let mut generator = vectors_up_to(3, 3);

@@ -1,14 +1,13 @@
 /// This file computes the properties of StGen codes based on the
 /// code used by Bogos and Vaudenay to attack ``LPN_512,1/8``
+extern crate lpn;
+
+#[macro_use]
+extern crate itertools;
+extern crate rayon;
 
 #[cfg(feature = "codes")]
 fn main() {
-    extern crate lpn;
-
-    #[macro_use]
-    extern crate itertools;
-    extern crate rayon;
-
     use lpn::codes::*;
     use std::time::Instant;
 

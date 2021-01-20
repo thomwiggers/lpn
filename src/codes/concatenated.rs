@@ -123,16 +123,45 @@ impl<'codes> BinaryCode for ConcatenatedCode<'codes> {
     }
 
     fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
-        let mut decoded = BinVector::with_capacity(self.dimension());
-        let mut slice = c.clone();
-        for code in self.codes.iter() {
-            let next_decode = BinVector::from(slice.split_off(code.length()));
-            debug_assert_eq!(slice.len(), code.length(), "Split length incorrect");
-            let decoded_slice = code.decode_to_message(&slice)?;
-            decoded.extend_from_binvec(&decoded_slice);
-            slice = next_decode;
-        }
+        let mut decoded = c.clone();
+        let stor = unsafe { decoded.get_storage_mut() };
+        let u64_len = stor.len() * (std::mem::size_of::<u64>() / std::mem::size_of::<usize>());
+        let slice =
+            unsafe { std::slice::from_raw_parts_mut(stor.as_mut_ptr() as *mut u64, u64_len) };
+        self.decode_slice(slice);
+        decoded.truncate(self.dimension());
         Ok(decoded)
+    }
+
+    fn decode_slice(&self, c: &mut [u64]) {
+        debug_assert!(c.len() < 30, "can't deal with this long input");
+        let mut bit_selection = [0u64; 30];
+
+        let mut read_start_bit = 0;
+        let mut write_start_bit = 0;
+        for code in &self.codes {
+            let read_range = read_start_bit..(read_start_bit + code.length());
+            let blocks = read_range.len() / 64;
+            for block in &mut bit_selection[..=blocks] {
+                *block = 0;
+            }
+            for (idx, pos) in read_range.into_iter().enumerate() {
+                bit_selection[idx / 64] |= ((c[pos / 64] >> (pos % 64)) & 1) << (idx % 64);
+            }
+
+            code.decode_slice(&mut bit_selection[..=blocks]);
+
+            let write_range = write_start_bit..(write_start_bit + code.dimension());
+            for (idx, pos) in write_range.into_iter().enumerate() {
+                let mask = !(1 << (pos % 64));
+                c[pos / 64] = (c[pos / 64] & mask)
+                    | (!mask & ((bit_selection[idx / 64] >> (idx % 64)) << (pos % 64)))
+            }
+            read_start_bit += code.length();
+            write_start_bit += code.dimension();
+        }
+        // mask last block
+        c[write_start_bit / 64] &= (1 << (write_start_bit % 64)) - 1;
     }
 
     fn bias(&self, delta: f64) -> f64 {

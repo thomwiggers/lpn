@@ -30,9 +30,15 @@ packed_simd_2 = "0.3"
 jemallocator = { version = "0.3.0", optional = true }
 
 [features]
-default = ['nodebug', 'unchecked_unwrap/debug_checks']
+default = ['nodebug', 'codes', 'unchecked_unwrap/debug_checks']
 nodebug = []
-codes = []
+codes = ["golay", "bogosrnd", "custom", "hamming", "stgen", "mds"]
+golay = []
+bogosrnd = []
+custom = []
+hamming = []
+mds = []
+stgen = []
 
 [profile.release]
 opt-level = 3

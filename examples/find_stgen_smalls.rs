@@ -1,19 +1,17 @@
 //! Tries to find StGen codes with desirable properties
 //!
 //! Not directly related to LPN solving
-
-extern crate lazy_static;
 extern crate lpn;
 extern crate rand;
 
+use std::env;
+use std::fs;
 #[cfg(feature = "codes")]
 mod program {
-
-    use std::env;
-    use std::fs;
     use std::fs::File;
     use std::io::{Result, Write};
 
+    use lazy_static::lazy_static;
     use lpn::codes::*;
     use rand::prelude::*;
     use sha2::{Digest, Sha256};
@@ -47,7 +45,7 @@ mod program {
         static ref DELTAS: Vec<f64> = TAUS.iter().map(|t| 1.0 - 2.0 * t).collect();
     }
 
-    fn generate_codes(mut result_file: File, n_min: usize, n_max: usize) {
+    pub fn generate_codes(mut result_file: File, n_min: usize, n_max: usize) {
         let mut codes: Vec<&dyn BinaryCode> =
             vec![&MdsCode3_2, &MdsCode4_3, &MdsCode5_4, &CustomCode5_3];
         codes.reserve(IDENTITIES.len() + REPETITIONS.len());

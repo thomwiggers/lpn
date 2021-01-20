@@ -2,6 +2,8 @@ use crate::codes::BinaryCode;
 use m4ri_rust::friendly::*;
 use std::cmp;
 
+use crate::oracle::Sample;
+
 /// $[k, k]$ Identity code
 #[derive(Debug, Clone, Serialize)]
 pub struct IdentityCode {
@@ -54,6 +56,14 @@ impl BinaryCode for IdentityCode {
 
     fn decode_to_message(&self, c: &BinVector) -> Result<BinVector, &str> {
         Ok(c.clone())
+    }
+
+    fn decode_sample(&self, _: &mut Sample) {
+        // does nothing, as this is the identity function.
+    }
+
+    fn decode_slice(&self, _: &mut [u64]) {
+        // identity
     }
 
     fn bias(&self, _delta: f64) -> f64 {

@@ -2,6 +2,7 @@
 """Script to generate small, lookup-table hamming code implementations"""
 from __future__ import print_function
 import itertools
+import sys
 from jinja2 import Environment
 from sage.all import codes, GF, vector, ZZ, random_vector, channels, matrix
 
@@ -11,8 +12,13 @@ def boollist(lst):
     return (', '.join(map(lambda x: str(bool(x)), lst))).lower()
 
 
+def intlist(lst):
+    return (', '.join(map(lambda x: str(x), lst)))
+
+
 ENVIRONMENT = Environment()
 ENVIRONMENT.filters['boollist'] = boollist
+ENVIRONMENT.filters['intlist'] = intlist
 
 
 def vectors_up_to(weight, n):
@@ -27,6 +33,11 @@ def vectors_up_to(weight, n):
             yield (v, w)
 
 
+def bools_to_binvec(bools):
+    u64s = list(0 for _ in range(len(bools)/64 + (1 if len(bools) % 64 != 0 else 0)))
+    for (i, bit) in enumerate(bools):
+        u64s[i/64] |= bool(bit) << (i % 64)
+    return u64s
 
 
 def generate_code_implementation(name, code):
@@ -37,17 +48,22 @@ def generate_code_implementation(name, code):
         'name': name,
         'n': code.length(),
         'k': k,
-        'generator': cs.systematic_generator_matrix(),
-        'parity_matrix': cs.parity_check_matrix(),
+        'generator': [bools_to_binvec(row) for row in cs.systematic_generator_matrix()],
+        'generator_bools': cs.systematic_generator_matrix(),
+        'parity_matrix': [bools_to_binvec(row) for row in cs.parity_check_matrix()],
     }
 
     max_error = code.decoder().maximum_error_weight()
 
     syndrome_map = {}
     for (he, error) in cs.decoder().syndrome_table().items():
-        syndrome_map[ZZ(list(he), base=2)] = tuple(error)
+        syndrome_map[ZZ(list(he), base=2)] = bools_to_binvec(error)
 
     info['syndrome_map'] = syndrome_map
+    info['syndrome_map_itemlen'] = len(syndrome_map.values()[0])
+
+    assert max(syndrome_map) < 2**64, "sydrome map too big!"
+    
     info['info_set'] = cs.information_set()
 
     testcases = []

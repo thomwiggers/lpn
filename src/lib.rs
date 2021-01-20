@@ -18,6 +18,7 @@ extern crate m4ri_rust;
 extern crate rand;
 extern crate rayon;
 
+#[cfg_attr(feature = "codes", macro_use)]
 extern crate serde;
 
 pub mod bkw;
