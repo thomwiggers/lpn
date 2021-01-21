@@ -11,6 +11,7 @@ use crate::codes::BinaryCode;
 
 /// ``[63, 57]`` Hamming code
 ///
+///
 /// Decodes using Syndrome decoding
 #[derive(Clone, Serialize)]
 pub struct HammingCode63_57;
@@ -147,7 +148,6 @@ fn init() {
             map.insert(44, &[8796093022208]);     // 44 => [8796093022208]
             map.insert(45, &[17592186044416]);     // 45 => [17592186044416]
             map.insert(46, &[35184372088832]);     // 46 => [35184372088832]
-            map.insert(47, &[144115188075855872]);     // 47 => [144115188075855872]
             map.insert(48, &[70368744177664]);     // 48 => [70368744177664]
             map.insert(49, &[140737488355328]);     // 49 => [140737488355328]
             map.insert(50, &[281474976710656]);     // 50 => [281474976710656]
@@ -155,12 +155,13 @@ fn init() {
             map.insert(52, &[1125899906842624]);     // 52 => [1125899906842624]
             map.insert(53, &[2251799813685248]);     // 53 => [2251799813685248]
             map.insert(54, &[4503599627370496]);     // 54 => [4503599627370496]
-            map.insert(55, &[288230376151711744]);     // 55 => [288230376151711744]
             map.insert(56, &[9007199254740992]);     // 56 => [9007199254740992]
             map.insert(57, &[18014398509481984]);     // 57 => [18014398509481984]
             map.insert(58, &[36028797018963968]);     // 58 => [36028797018963968]
-            map.insert(59, &[576460752303423488]);     // 59 => [576460752303423488]
             map.insert(60, &[72057594037927936]);     // 60 => [72057594037927936]
+            map.insert(47, &[144115188075855872]);     // 47 => [144115188075855872]
+            map.insert(55, &[288230376151711744]);     // 55 => [288230376151711744]
+            map.insert(59, &[576460752303423488]);     // 59 => [576460752303423488]
             map.insert(61, &[1152921504606846976]);     // 61 => [1152921504606846976]
             map.insert(62, &[2305843009213693952]);     // 62 => [2305843009213693952]
             map.insert(63, &[4611686018427387904]);     // 63 => [4611686018427387904]
@@ -302,1401 +303,141 @@ mod tests {
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, false, true, false, false, false, false, true, true, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, false, false, false, true, false, false, true, false, false, false, false, true, true, false, false, true, true, false, false, true, true, false, true, false, true, false, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, false, true, false, false, false, false, true, true, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, false, false, false, true, false, false, true, false, false, false, false, true, true, false, false, false, true, false, false, true, true, false, true, false, true, false, true, false, false, false, true]);
+            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, false, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, false, true, false, false, true, true, true, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, false, false, true, true, false, true, true, false]);
+            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, false, true, false, false, false, false, false, true, true, false, false, false, false, false, true, false, true, false, true, false, false, true, false, true, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, false, false, true, true, false, true, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, false, false, false, false, false, false, false, true, true, true, true, true, true, false, false, false, false, false, false, true, false, true, true, true, true, true, true, true, false, false, true, false, true, false, false, false, true, false, true, true, true, true, true, true, true, true, true, true, true, false, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, false, false, false, false, false, true, true, true, true, true, true, true, false, false, false, false, false, false, true, false, true, true, true, true, true, true, true, false, false, true, false, true, false, false, false, true, false, true, true, true, true, true, true, true, true, true, true, true, false, false, true, false, true, true, true, true]);
+            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, true, false, false, false, false, false, true, true, true, false, true, false, true, false, false, true, true, false, false, true, true, true, false, false, false, true, true, false, false, false, false, false, true, false, false, false, false, false, true, true, false, false, true, false, false, false, true, true, false, true, false, true, true, false, true, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, false, false, false, true, false, false, false, false, false, true, true, true, false, true, false, true, false, false, true, true, false, false, true, true, true, false, false, false, true, true, false, false, false, false, false, true, false, false, false, false, false, true, true, false, false, true, false, false, false, true, true, false, true, false, true, true, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, true, true, false, false, true, false, true, false, true, true, false, true, true, false, true, false, false, false, true, false, false, false, true, false, false, false, false, true, true, false, true, false, true, true, false, false, true, true, true, true, true, true, true, false, true, true, false, false, true, true, false, true, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, false, true, false, false, true, false, true, false, true, true, false, true, true, false, true, false, false, false, true, false, false, false, true, false, false, false, false, true, true, false, true, false, true, true, false, false, true, true, true, true, true, true, true, false, true, true, false, false, true, true, false, true, true, false, true, false, true]);
+            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, true, false, false, false, true, false, false, true, true, false, true, false, false, true, true, false, true, false, true, true, true, false, true, true, true, false, false, false, false, false, true, false, true, false, false, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, true, false, true, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, true, false, false, false, true, false, false, true, true, false, true, false, false, true, true, false, true, false, true, true, true, true, true, true, true, false, false, false, false, false, true, false, true, false, false, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, true, false, true, false, true, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, false, true, true, true, false, true, true, true, false, true, false, false, false, true, false, false, true, false, true, false, false, true, false, false, false, false, false, true, false, true, true, false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, false, true, true, false, false, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, true, false, true, true, true, false, true, true, true, false, true, false, false, false, true, false, false, true, false, true, false, true, true, false, false, false, false, false, true, false, true, true, false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, false, true, true, false, false, true, false, true, true, true, false]);
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, false, false, true, false, false, true, false, true, true, true, false, false, false, true, true, false, true, true, true, true, false, true, true, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false, false, true, false, false, false, true, true, false, false, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, false, false, true, false, false, true, false, true, true, true, false, false, true, true, true, false, true, true, true, true, false, true, true, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false, false, true, false, false, false, true, true, false, false, true, true, false, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, false, false, true, false, false, false, true, false, false, false, false, true, true, true, true, false, true, true, true, true, true, true, true, true, false, false, false, false, false, false, true, false, false, false, true, true, true, true, true, false, false, true, false, false, true, true, true, true, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, true, false, true, false, false, true, false, false, false, true, false, false, false, false, true, true, true, true, false, true, true, true, true, false, true, true, true, false, false, false, false, false, false, true, false, false, false, true, true, true, true, true, false, false, true, false, false, true, true, true, true, false, true, true, false, false, true]);
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, false, false, true, false, true, false, true, true, true, true, false, false, false, false, false, false, true, false, true, true, true, false, false, false, true, true, true, true, true, false, true, true, true, false, true, false, false, false, true, false, true, true, true, false, false, true, true, true, false, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, false, false, true, false, true, false, true, true, true, true, false, false, false, false, false, true, true, false, true, true, true, false, false, false, true, true, true, true, true, false, true, true, true, false, true, false, false, false, true, false, true, true, true, false, false, true, true, true, false, false, true, true, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true, false, false, true, true, true, true, false, true, false, true, false, false, false, false, false, false, true, true, true, false, true, false, false, false, true, false, false, true, false, false, false, true, false, false, true, true, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true, false, false, true, true, true, true, false, true, false, true, false, false, false, false, false, false, true, true, true, false, false, false, false, false, true, false, false, true, false, false, false, true, false, false, true, true, false, false, false, false, false, true, true]);
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, true, true, false, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, true, false, true, false, true, false, true, false, true, true, true, false, true, true, false, true, false, true, false, false, false, false, true, false, false, true, false, true, true, true, true, true, false, true, false, true]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, true, true, true, false, true, true, true, true, true, false, true, true, false, true, true, true, true, false, false, true, false, true, false, true, false, true, false, true, true, true, false, true, true, false, true, false, true, false, false, false, false, true, false, false, true, false, true, true, true, true, true, false, true, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, false, false, false, false, true, true, false, true, false, true, false, false, true, false, true, false, true, true, true, false, false, false, false, true, true, true, true, false, false, false, true, false, false, true, false, true, false, true, false, false, true, false, false, false, false, false, true, false, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, false, false, false, false, true, true, false, true, false, true, false, false, true, false, true, false, true, true, true, false, false, false, false, true, true, true, true, false, false, false, true, false, false, true, false, false, false, true, false, false, true, false, false, false, false, false, true, false, true, false, false, true, true, false]);
+            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, true, true, false, false, false, true, false, true, true, true, true, true, true, true, false, false, true, false, false, false, true, false, false, false, true, false, true, false, false, false, true, true, true, true, false, false, true, false, false, false, true, true, true, true, true, false, false, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, false, false, true, true, true, true, false, false, false, true, false, true, true, true, true, true, true, true, false, true, true, false, false, false, true, false, false, false, true, false, true, false, false, false, true, true, true, true, false, false, true, false, false, false, true, true, true, true, true, false, false, true, false, true, true, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, true, false, true, false, true, true, true, false, false, true, false, false, true, false, false, false, true, false, false, false, false, false, false, false, false, true, true, true, false, true, true, false, false, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, false, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, true, false, true, false, true, true, true, false, false, true, false, false, true, false, false, false, true, false, false, false, false, false, false, false, false, true, true, true, false, true, true, false, false, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, false, false, true, false, true, true, false]);
+            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, false, true, true, false, false, true, false, false, false, false, true, true, true, false, true, true, true, true, true, false, false, true, false, true, true, false, true, true, false, false, true, false, false, false, false, true, false, false, true, false, true, false, false, false, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, false, true, true, true, false, true, false, false, false, false, true, true, true, false, true, true, true, true, true, false, false, true, false, true, true, false, true, true, false, false, true, false, false, false, false, true, false, false, true, false, true, false, false, false, false, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, true, true, true, true, false, false, true, false, false, false, false, false, true, true, true, false, false, true, false, false, false, false, false, false, false, true, false, false, true, false, false, true, true, false, true, false, false, true, false, true, false, false, true, true, true, false, true, true, true, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, false, true, true, true, true, true, false, false, true, true, false, false, false, false, true, true, true, false, false, true, false, false, false, false, false, false, false, true, false, false, true, false, false, true, true, false, true, false, false, true, false, true, false, false, true, true, true, false, true, true, true, true, true, true, true, true]);
+            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, false, false, false, false, false, false, true, false, true, true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, false, false, true, true, true, false, false, true, true, true, false, false, false, true, false, false, false, false, true, true, false, true, true, true, true, false, false, false, false, false]);
+            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, false, false, false, false, false, false, false, false, false, true, false, true, true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, false, false, true, true, true, false, false, true, true, true, false, false, false, true, false, false, false, false, true, true, true, true, true, true, true, false, false, false, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, true, false, false, false, true, false, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true, true, true, false, false, true, false, false, true, false, true, false, true, true, true, true, false, false, true, false, true, true, true, true, true, false, false, false, true, false, true, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, true, false, false, false, true, false, true, true, false, false, false, false, true, true, true, true, true, false, false, false, true, true, true, false, false, true, false, false, true, false, true, false, true, true, true, true, false, false, true, false, true, true, true, true, true, false, false, false, true, false, true, false, true, false, false, true, true]);
+            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, true, true, true, true, true, false, false, true, true, false, false, false, false, false, true, false, true, true, false, true, false, false, true, true, true, false, false, true, true, true, false, true, true, true, true, true, true, false, true, true, false, true, true, false, false, false, false, true, true, false, false, true, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, true, true, true, true, true, true, false, false, true, true, false, false, false, false, false, true, false, true, true, false, true, false, false, true, true, true, false, false, true, true, true, false, true, true, true, true, true, true, false, true, true, false, true, true, false, false, false, false, true, true, false, false, true, true, false, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, true, false, true, true, false, false, true, false, true, false, true, true, false, false, true, true, false, false, false, true, false, true, true, true, true, true, false, true, true, true, false, true, false, false, false, true, false, false, true, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, true, false, true, true, false, false, true, false, true, false, true, true, false, false, true, true, false, false, false, true, false, true, true, true, true, true, false, true, true, true, false, true, false, false, false, true, false, false, true, true, true, true, false, true, false]);
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, true, true, false, false, true, true, false, false, true, false, false, false, true, false, false, false, true, true, false, false, true, false, true, true, false, false, false, false, false, true, false, false, false, true, true, true, false, true, false, true, true, false, true, true, false, false, false, false, true, false, true, false, false, true, true, false, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, true, true, false, false, true, true, false, false, true, false, false, false, true, false, false, false, true, true, false, false, true, false, true, true, false, false, false, false, false, true, false, false, false, true, true, true, false, true, false, true, true, false, true, true, false, false, false, false, true, false, true, false, false, true, true, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, true, true, false, false, false, true, false, false, false, false, false, true, true, true, false, true, false, false, true, false, true, false, true, true, false, false, true, false, false, true, true, false, false, false, true, true, false, false, true, false, false, false, false, true, false, true, false, false, true, true, false, false, true, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, true, true, false, false, false, true, false, false, false, false, false, true, true, true, false, true, false, false, true, false, true, false, true, true, false, false, true, false, false, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, false, true, false, false, true, true, false, false, true, false, true, false, true, false]);
+            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, false, false, true, true, false, true, true, true, false, false, true, true, true, true, false, true, true, true, true, false, true, true, true, false, false, false, false, true, true, false, true, false, false, false, false, true, false, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, false, false, false, true, false, true, true, true, false, false, true, true, true, true, false, true, true, true, true, false, true, true, true, false, false, false, false, true, true, false, true, false, false, false, false, true, false, false, false, false, false, false, true, true, false, false, true, true, true, true, false, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, false, true, false, false, true, false, false, false, false, false, true, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, true, true, true, true, false, false, false, true, true, false, true, false, true, false, true, false, true, true, true, true, true, true, false, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, false, true, false, false, true, false, false, false, false, false, true, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, true, true, true, true, false, true, false, true, true, false, true, false, true, false, true, false, true, true, true, true, true, true, false, false, false, true, false, false]);
+            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, false, true, true, false, true, false, true, false, true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, false, false, true, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, true, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, true, true, true, true, true, false, true, false, true, true, false, true, false, true, false, true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, true, true, false, true, false, false, true, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, true, true, true, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, true, false, true, true, false, true, true, true, true, false, false, true, false, false, true, false, true, true, true, true, false, false, true, false, false, false, false, false, false, true, false, false, true, false, false, false, true, true, true, false, false, false, true, true, false, true, false, true, true, true, true, false, false, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, true, true, true, true, false, true, true, true, true, false, false, true, false, false, true, false, true, true, true, true, false, false, true, false, false, false, false, false, false, true, false, false, true, false, false, false, true, true, true, false, false, false, true, true, false, true, false, true, true, true, true, false, false, true, true, false, false, false]);
+            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, true, false, false, false, false, false, false, true, true, false, false, false, false, true, false, false, false, true, false, true, true, true, false, true, false, false, true, false, false, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, true, true, true, false, true, false, false, true]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, true, false, false, false, false, false, false, true, true, false, false, false, false, true, false, false, false, true, false, true, true, true, false, true, false, false, true, false, false, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, true, true, true, false, true, true, false, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, false, false, false, true, true, true, false, false, false, false, true, false, true, true, false, true, false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, true, true, true, false, false, false, true, true, false, false, true, false, false, true, false, false, true, false, false, true, true, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, false, false, true, true, true, false, false, false, false, true, false, true, true, false, true, false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, true, true, true, false, false, false, true, true, false, false, true, false, false, true, false, false, true, false, false, true, true, true, false, true, false, true]);
+            let randvec = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, true, true, true, false, true, false, false, false, false, false, true, true, true, false, true, true, false, true, true, true, false, true, false, false, true, true, false, true, false, false, true, false, true, false, false, true, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false, true, true, true]);
+            let codeword = BinVector::from_bools(&[true, false, true, false, true, true, false, false, false, true, true, true, false, true, false, false, false, false, false, true, true, true, false, true, true, false, true, true, true, false, true, false, true, true, true, false, true, false, false, true, false, true, false, false, true, false, true, true, false, true, false, false, true, false, true, true, false, false, false, false, true, true, true]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, true, true, false, true, false, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, true, false, true, false, true, false, true, true, true, false, true, true, false, false, false, false, false, false, true, true, false, true, true, false, true, false, false, true, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, false, true, true, false, true, false, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, true, false, true, false, true, false, true, true, true, false, true, true, false, false, false, false, false, false, true, true, false, true, true, false, true, true, false, true, true, false, false, true, true, true]);
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, true, false, false, false, true, false, false, false, false, true, false, true, false, false, false, true, false, false, true, false, true, true, false, true, false, true, false, false, false, false, true, false, false, true, true, true, false, false, false, false, false, true, true, true, false, false, false, false, false, true, false, true, false, true, true, false, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, true, false, false, false, true, false, false, false, false, true, true, true, false, false, false, true, false, false, true, false, true, true, false, true, false, true, false, false, false, false, true, false, false, true, true, true, false, false, false, false, false, true, true, true, false, false, false, false, false, true, false, true, false, true, true, false, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, false, false, false, false, true, true, true, false, true, false, true, false, false, false, true, true, false, false, false, false, true, false, false, true, false, true, true, true, false, false, false, false, true, true, true, false, true, false, false, false, true, true, true, false, false, true, false, true, false, false, true, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, false, false, false, true, true, true, false, true, false, true, false, false, false, true, true, false, false, false, false, true, false, false, true, false, true, true, true, false, false, false, false, true, true, true, false, true, false, false, false, true, true, true, false, false, true, false, true, false, false, true, false, false, false, false, true, false]);
+            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, false, true, false, false, false, true, true, false, true, true, true, false, false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, true, true, false, true, false, false, false, true, false, false, false, false, false, true, true, true, false, true, false, false, false, false, false, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, false, false, false, true, false, false, false, true, true, false, true, true, true, false, false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, true, true, false, true, false, false, false, true, false, false, true, false, false, true, true, true, false, true, false, false, false, false, false, false, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, false, false, false, false, false, true, false, false, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true, false, true, true, true, false, false, false, true, false, false, true, true, true, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, false, false, false, false, false, true, false, false, false, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true, false, true, true, true, false, false, false, true, false, false, true, true, true, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, true, false, true, false]);
+            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, false, true, false, false, true, true, false, true, false, false, false, false, true, false, true, false, false, true, false, false, false, false, true, true, false, true, false, false, true, false, false, true, true, true, false, true, false, false, false, false, true, false, true, true, true, true, true, false, false, false, true, true, false, true, true, true, false]);
+            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, false, true, false, false, true, true, false, true, false, false, false, false, true, false, true, false, false, true, false, false, false, false, true, true, false, true, false, false, true, false, false, true, true, true, false, true, false, false, false, false, true, false, false, true, true, true, true, false, false, false, true, true, false, true, true, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, true, false, true, true, true, false, false, true, false, false, true, false, true, false, false, false, false, false, false, false, false, true, false, true, true, false, false, false, false, false, false, false, true, true, false, true, true, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, true, false, true, true, true, false, false, true, false, false, true, false, true, false, false, false, false, false, false, false, false, true, false, true, true, false, false, false, false, false, false, false, true, true, false, true, true, false, false, true, true, false, false]);
+            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, false, true, true, true, true, false, true, true, true, true, false, false, false, true, true, false, false, true, true, true, false, true, true, false, false, false, false, true, true, false, true, false, true, false, true, false, false, false, true, true, false, true, true, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, false, true, true, true, true, false, true, true, true, true, false, true, false, true, true, false, false, true, true, true, false, true, true, false, false, false, false, true, true, false, true, false, true, false, true, false, false, false, true, true, false, true, true, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         
         {
             let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, false, false, true, true, true, true, false, true, true, true, true, true, false, true, true, false, false, true, false, false, true, true, true, true, false, false, true, false, true, false, true, false, true, false, false, false, true, false, false, false, true, true, false, false, true, false, true, true, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, false, false, false, false, false, true, true, true, true, false, true, true, true, true, false, false, true, true, false, false, true, false, false, true, true, true, true, false, false, true, false, true, false, true, false, true, false, false, false, true, false, false, false, true, true, false, false, true, false, true, true, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, false, false, false, false, false, false, true, true, true, true, true, false, false, true, true, false, true, false, true, true, false, true, true, true, true, true, true, false, true, false, false, true, false, false, true, true, true, false, true, true, false, false, true, false, true, true, false, true, false, true, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, true, false, false, false, false, false, false, true, true, true, true, true, false, false, true, true, false, true, false, true, true, false, true, true, true, true, true, true, false, true, false, false, true, false, false, true, true, true, false, true, true, false, false, true, false, true, true, false, true, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, true, true, false, true, true, false, false, false, false, true, false, true, true, false, true, false, false, true, false, true, true, false, false, true, false, true, false, false, false, true, false, true, true, false, true, false, false, true, false, true, false, true, true, true, false, false, true, true, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, true, true, false, true, true, false, false, false, false, true, false, true, true, false, true, false, false, true, false, true, true, false, false, true, false, true, false, false, false, true, false, true, true, false, true, false, false, true, false, true, false, true, true, true, false, true, true, true, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, false, true, false, true, true, false, false, false, false, true, false, false, false, false, false, false, true, false, true, false, false, true, true, true, true, true, false, false, true, false, true, true, true, true, true, true, true, false, true, true, false, true, false, true, true, true, true, false, true, false, true, false, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, false, true, false, true, true, false, false, false, false, true, false, false, false, false, false, false, true, false, true, false, false, true, true, true, true, true, false, false, true, false, true, true, true, true, true, true, true, false, true, true, false, true, false, true, true, true, true, false, true, false, true, false, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, false, false, false, true, false, false, false, false, true, false, false, false, true, true, true, true, false, false, false, true, false, true, false, false, true, false, true, true, false, false, false, true, false, false, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, false, false, false, true, true, false, false, false, true, false, false, false, true, true, true, true, false, false, false, true, false, true, false, false, true, false, true, true, false, false, false, true, false, false, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, true, false, false, false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, true, true, false, false, false, false, false, false, false, true, false, false, false, true, true, true, false, false, false, true, true, false, true, true, true, true, true, true, false, false, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, true, true, false, false, false, false, false, false, false, true, false, false, false, true, true, true, false, false, false, true, true, false, true, true, true, true, true, true, false, false, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, false, false, true, true, false, true, false, false, false, true, false, true, false, false, true, false, false, true, true, false, true, true, true, true, false, true, false, false, true, false, false, false, true, true, false, false, false, false, true, true, true, false, false, false, false, true, true, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, true, true, true, false, false, true, true, false, true, false, false, false, true, false, true, false, true, true, false, false, true, true, false, true, true, true, true, false, true, false, false, true, false, false, false, true, true, false, false, false, false, true, true, true, false, false, false, false, true, true, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, true, true, false, true, true, false, false, false, true, false, false, false, true, false, true, false, true, false, true, true, false, true, false, false, true, true, true, false, true, false, true, true, true, false, true, false, true, false, false, true, true, true, true, false, false, true, true, true, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, false, true, true, true, true, false, true, true, false, false, false, true, false, false, false, true, false, true, false, true, false, true, true, false, true, false, false, true, true, true, false, true, false, true, true, true, false, true, false, true, false, false, true, true, true, true, false, false, true, true, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, true, true, true, false, false, false, true, false, true, false, true, false, true, false, false, false, false, false, true, false, true, true, true, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, false, true, true, false, true, true, false, false, true, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, true, false, false, false, false, false, true, false, true, true, true, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, false, false, true, true, false, true, true, false, false, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, false, true, false, false, true, true, true, true, false, false, true, false, true, false, true, true, true, true, true, true, true, true, true, true, false, false, true, false, true, false, false, false, false, true, true, true, false, false, false, false, false, false, true, false, true, true, true, true, false, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, false, true, false, false, true, true, true, true, false, false, true, false, true, false, false, true, true, true, true, true, true, true, true, true, false, false, true, false, true, false, false, false, false, true, true, true, false, false, false, false, false, false, true, false, true, true, true, true, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, false, true, true, false, true, true, false, false, false, true, false, false, false, true, false, false, false, false, false, false, false, false, true, false, true, false, false, true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, true, true, true, false, false, true, true, false, false, false, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, false, true, true, false, true, true, false, false, false, true, false, false, false, true, false, false, false, false, false, false, false, false, true, false, true, false, false, true, true, true, false, false, false, true, true, false, false, false, true, false, false, true, true, true, true, false, false, true, true, false, false, false, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, false, false, true, false, false, true, false, true, true, true, false, true, false, true, true, false, false, false, true, true, true, false, true, false, false, false, true, true, false, true, false, false, true, false, false, true, false, false, false, false, true, false, true, true, true, false, true, false, false, false, true, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, true, false, false, true, false, true, true, true, false, false, false, true, true, false, false, false, true, true, true, false, true, false, false, false, true, true, false, true, false, false, true, false, false, true, false, false, false, false, true, false, true, true, true, false, true, false, false, false, true, false, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, true, true, true, false, false, false, true, false, true, false, false, false, true, true, false, true, false, true, true, true, false, false, true, true, true, true, true, false, true, true, true, true, false, true, false, true, false, true, true, false, true, true, false, false, true, false, false, false, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, true, true, true, false, false, false, true, false, true, false, true, false, true, true, false, true, false, true, true, true, false, false, true, true, true, true, true, false, true, true, true, true, false, true, false, true, false, true, true, false, true, true, false, false, true, false, false, false, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, true, true, true, true, false, false, false, false, true, false, false, false, false, true, true, false, true, true, false, false, true, false, true, false, false, true, false, true, false, false, false, false, true, true, true, false, false, true, true, false, false, true, false, true, true, false, true, false, false, true, false, false, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, false, true, true, true, true, false, false, false, false, true, false, false, false, false, true, true, false, true, true, false, false, true, false, true, false, false, true, false, false, false, false, false, false, true, true, true, false, false, true, true, false, false, true, false, true, true, false, true, false, false, true, false, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, false, true, true, false, true, false, false, false, false, false, false, true, false, false, true, false, true, true, true, true, false, true, false, false, false, true, true, false, false, true, false, true, true, false, true, false, false, false, false, true, false, false, true, true, true, true, false, true, false, false, false, true, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, true, false, true, true, false, true, false, false, false, false, false, false, true, false, false, true, false, true, true, true, true, false, true, false, false, false, true, true, false, false, true, false, true, true, false, true, true, false, false, false, true, false, false, true, true, true, true, false, true, false, false, false, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, false, true, false, true, true, false, true, false, false, true, true, true, true, false, false, true, false, true, false, true, false, false, true, true, true, true, false, true, true, true, false, true, true, false, true, true, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, false, true, false, true, true, false, true, false, false, true, true, true, true, false, false, true, false, true, false, true, false, false, true, true, true, true, false, true, false, true, false, true, true, false, true, true, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, true, false, false, true, true, true, false, true, true, true, false, false, false, false, false, false, false, true, true, true, true, true, false, false, false, false, true, true, true, true, true, false, false, true, true, false, false, false, false, false, true, true, true, false, true, false, true, false, true, false, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, false, true, false, false, true, true, true, false, true, true, true, false, false, false, false, false, false, false, true, true, true, true, true, false, false, false, false, true, true, true, true, true, false, false, true, true, false, false, false, false, false, true, true, true, false, true, false, true, false, true, false, false, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, false, true, false, true, true, true, true, false, true, false, true, true, true, true, false, false, true, true, false, false, true, true, true, false, true, false, true, false, false, false, true, true, true, true, true, false, true, false, true, false, true, true, true, false, true, true, false, false, true, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, false, true, false, true, true, true, true, false, true, false, true, true, true, true, false, false, true, true, false, false, true, true, true, false, true, false, true, false, false, false, true, true, true, true, true, false, true, false, true, false, true, true, true, false, true, true, true, false, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, false, true, true, false, false, false, false, false, true, false, false, false, true, true, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, false, true, false, true, true, false, false, false, true, true, true, false, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, false, true, true, false, false, false, false, false, true, false, false, false, true, true, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, true, true, false, true, true, false, false, false, true, true, true, false, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, false, true, true, true, true, true, true, true, false, false, true, false, true, true, true, false, true, false, false, true, false, true, true, true, false, false, true, true, false, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, false, true, true, true, true, true, true, true, false, false, true, false, true, true, true, false, true, false, false, true, false, true, true, true, false, false, true, true, false, true, true, true, true, true, true, false, true, false, false, true, false, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, false, true, true, false, false, true, false, false, false, false, false, false, false, true, true, false, false, true, false, false, true, true, false, false, true, false, true, false, true, false, false, true, true, true, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, false, true, true, false, false, false, false, false, true, false, false, true, false, false, true, false, true, true, false, false, true, false, false, false, false, false, false, false, true, true, false, false, true, false, false, true, true, false, false, true, false, true, false, true, false, false, true, true, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, true, true, false, true, true, true, true, false, false, true, false, true, false, false, false, true, true, true, true, true, false, true, false, false, true, false, true, true, true, true, true, true, false, true, false, false, true, true, true, false, false, false, false, false, false, false, true, false, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, true, true, false, true, true, true, true, false, false, true, false, true, false, false, false, true, true, true, true, true, false, true, false, false, true, false, true, true, true, true, true, true, false, true, false, false, true, true, true, false, false, false, false, false, false, false, true, false, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, true, false, true, true, false, false, true, true, true, false, true, false, true, false, false, true, false, false, false, false, true, false, false, true, false, true, false, true, true, true, true, false, false, false, false, false, false, false, false, true, true, false, true, true, true, false, true, true, false, true, false, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, true, false, true, true, false, false, true, true, true, false, true, false, true, false, false, true, false, false, false, false, true, false, false, true, false, true, false, true, true, true, true, false, false, false, false, false, false, false, true, true, true, false, true, true, true, false, true, true, false, true, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, false, true, false, false, true, false, true, false, true, true, false, false, false, false, false, false, true, true, true, false, false, false, true, false, false, true, false, true, false, false, false, false, true, true, false, false, true, false, true, false, true, false, true, false, true, false, true, false, false, true, true, false, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, false, true, false, false, true, false, true, false, true, true, false, false, false, false, false, false, true, true, true, false, false, false, true, false, false, true, false, true, false, false, false, false, true, true, false, false, true, true, true, false, true, false, true, false, true, false, true, false, false, true, true, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, false, false, true, true, false, true, false, false, true, true, false, false, false, false, false, true, true, true, true, true, true, true, true, false, true, true, true, true, false, true, true, false, false, true, true, false, true, false, true, false, false, false, true, true, true, true, false, true, false, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, true, true, true, false, false, true, true, false, true, false, false, true, true, false, false, false, false, false, true, true, true, true, true, true, true, true, false, true, false, true, true, false, true, true, false, false, true, true, false, true, false, true, false, false, false, true, true, true, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, false, true, false, false, false, true, false, true, true, false, false, true, true, false, false, false, true, true, false, false, true, false, false, true, false, true, false, true, false, false, false, true, false, false, false, false, true, true, false, false, true, false, false, false, false, false, true, true, false, false, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, false, false, true, false, false, false, true, false, true, true, false, false, true, true, false, false, false, true, true, false, false, true, false, false, true, false, true, false, true, false, false, false, true, false, false, false, false, true, false, false, false, true, false, false, false, false, false, true, true, false, false, true, false, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, true, false, true, true, false, true, true, false, false, false, true, true, false, false, false, true, true, false, true, false, false, false, false, false, false, true, true, true, false, true, false, true, true, false, true, false, true, false, true, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, true, false, true, true, false, true, true, false, false, false, true, true, false, false, false, true, true, false, true, false, false, false, false, false, true, true, true, true, false, true, false, true, true, false, true, false, true, false, true, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, true, false, true, false, false, false, false, false, false, false, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true, false, true, true, true, false, true, true, true, true, false, true, false, false, false, false, true, true, false, true, true, false, false, false, true, false, true, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, true, false, true, false, false, false, false, false, false, false, true, false, false, false, true, true, false, true, true, true, true, true, false, false, true, false, true, true, true, false, true, true, true, true, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, false, false, false, true, true, false, true, true, true, false, true, true, false, true, false, false, false, false, true, false, true, true, true, false, false, true, true, false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, true, true, false, true, false, true, true, true, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, false, false, false, true, true, true, true, true, true, false, true, true, false, true, false, false, false, false, true, false, true, true, true, false, false, true, true, false, false, true, true, false, false, false, false, true, true, false, false, false, false, false, true, true, false, true, false, true, true, true, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, false, false, true, true, false, false, true, false, true, false, true, true, true, true, false, false, true, true, true, false, false, false, false, false, true, true, false, false, true, true, true, false, false, true, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, true, false, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, false, false, true, true, false, true, true, false, true, false, true, true, true, true, false, false, true, true, true, false, false, false, false, false, true, true, false, false, true, true, true, false, false, true, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, true, false, false, true, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, false, true, false, false, true, false, false, true, false, true, false, false, false, false, true, true, true, false, false, true, true, false, false, true, true, false, false, false, true, false, true, false, true, false, false, false, true, false, false, true, false, true, true, true, true, true, false, false, true, true, true, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, false, true, false, false, true, false, false, true, false, true, false, false, false, false, true, true, true, false, false, true, true, false, false, true, true, false, false, false, true, false, true, false, true, false, false, false, true, false, false, true, false, true, true, true, true, true, false, false, true, true, true, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, true, true, true, false, true, true, false, true, false, true, false, true, false, false, false, true, true, true, true, false, false, true, false, true, true, false, true, false, true, true, false, true, false, true, true, true, true, false, false, true, false, true, true, true, false, false, false, false, true, false, true, false, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, true, true, true, false, true, true, false, true, false, true, false, true, false, false, false, true, true, true, true, false, false, true, false, true, true, false, true, false, true, true, false, true, false, true, true, true, true, false, false, true, false, true, true, true, false, false, false, false, true, false, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, false, false, true, false, true, false, true, true, false, false, false, false, true, false, false, false, false, true, false, true, false, true, false, false, false, false, true, true, true, false, false, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, false, true, false, true, false, true, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, false, true, false, true, false, true, true, false, false, false, false, true, false, false, false, false, true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, false, false, false, true, true, false, true, false, true, false, true, false, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, true, true, false, false, false, true, true, true, true, true, false, false, true, false, false, true, false, true, false, false, true, false, true, true, true, true, true, true, false, true, false, true, true, true, false, true, true, true, false, false, true, true, false, false, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, true, true, false, true, false, false, false, false, false, true, true, false, false, false, true, true, true, true, true, false, false, true, false, false, true, false, true, false, false, true, false, true, true, true, true, true, true, false, true, false, true, true, true, false, true, true, true, false, false, true, true, false, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, true, false, true, true, true, false, false, false, true, false, true, false, false, false, false, true, false, true, false, false, false, true, false, true, true, true, false, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, true, true, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, false, true, false, true, true, true, false, false, false, true, false, true, false, false, false, false, true, false, true, false, false, false, true, false, true, true, true, false, true, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, true, false, false, false, false, false, false, true, true, false, false, false, true, true, true, true, false, false, true, true, false, false, false, true, false, true, true, false, true, false, false, false, false, false, true, true, true, false, false, true, true, false, true, false, true, false, false, false, false, false, false, false, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, true, false, false, false, false, false, false, true, true, false, false, false, true, true, true, true, false, false, true, true, false, false, false, true, false, true, true, false, true, false, false, false, false, false, true, true, true, false, false, true, true, false, true, false, true, false, false, false, false, false, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false, true, true, true, true, true, false, true, false, true, false, false, true, false, true, false, false, false, true, false, true, true, true, true, true, false, true, true, false, true, true, true, true, true, true, true, false, true, false, false, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, false, true, false, false, false, true, false, true, false, false, false, true, false, true, true, true, true, true, false, true, false, true, false, false, true, false, true, false, false, false, true, false, true, true, true, true, true, false, true, true, false, false, true, true, true, true, true, true, false, true, false, false, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, true, true, true, true, false, false, true, false, false, true, false, false, true, true, true, true, false, false, true, false, false, false, false, false, false, true, false, true, false, false, false, false, false, false, false, true, true, true, true, true, false, true, false, false, false, true, false, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, false, false, true, true, true, true, false, false, true, false, false, true, false, false, true, true, true, true, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, false, false, false, true, true, true, true, true, false, true, false, false, false, true, false, true, false, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, false, true, true, true, false, false, false, true, true, true, false, true, true, true, false, true, false, true, false, false, true, false, false, false, true, true, false, true, false, true, true, true, false, true, true, true, true, false, true, true, false, false, true, false, true, true, true, false, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, false, true, false, false, true, true, true, false, false, false, true, true, true, false, true, true, true, false, true, false, true, false, false, true, false, false, false, true, true, false, true, false, true, true, true, false, true, true, true, true, false, true, true, false, false, true, false, true, true, true, false, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, true, false, true, true, false, false, true, true, true, false, false, false, true, false, true, false, false, true, false, false, false, false, true, true, true, false, false, false, true, true, true, false, true, false, true, true, false, false, false, false, false, true, true, true, false, false, true, false, false, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, true, false, true, true, false, false, true, true, true, false, false, false, true, false, true, true, false, true, false, false, false, false, true, true, true, false, false, false, true, true, true, false, true, false, true, true, false, false, false, false, false, true, true, true, false, false, true, false, false, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, false, true, true, false, false, true, true, false, true, false, false, true, true, true, true, true, false, false, true, false, false, false, false, false, false, true, false, false, true, false, true, true, true, false, false, true, false, false, true, true, true, false, true, false, false, true, true, true, true, true, false, false, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, false, false, true, false, false, true, true, false, true, false, false, true, true, true, true, true, false, false, true, false, false, false, false, false, false, true, false, false, true, false, true, true, true, false, false, true, false, false, true, true, true, false, true, false, false, true, true, true, true, true, false, false, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, false, true, false, true, true, false, false, false, false, true, true, false, false, false, false, false, false, true, false, false, true, true, false, true, false, false, true, false, true, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, false, true, true, false, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false, true, false, false, false, true, false, true, true, false, false, false, false, true, true, false, false, false, false, false, false, true, false, false, true, true, false, true, false, false, true, false, true, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, false, true, true, false, false, true, true, true, true, true, false, true, true, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, false, true, false, true, false, false, false, false, true, true, false, true, false, true, false, true, true, false, false, false, true, true, false, true, true, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, false, true, true, false, false, true, true, true, true, true, false, true, true, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, false, true, true, true, false, false, false, false, true, true, false, true, false, true, false, true, true, false, false, false, true, true, false, true, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, true, false, true, false, true, true, true, true, false, true, false, true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, true, true, false, false, true, true, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, true, false, true, false, true, true, true, true, false, true, false, true, true, true, false, false, true, true, true, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, true, true, false, false, true, true, false, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, true, false, true, false, false, true, true, false, true, true, false, true, true, true, false, false, false, false, true, true, false, true, true, false, false, true, true, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true, true, true, false, false, false, true, false, false, true, true, true, false, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, false, true, false, false, true, true, false, true, true, false, true, true, true, false, false, false, false, true, true, false, true, true, false, false, true, true, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true, false, true, false, false, false, true, false, false, true, true, true, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, false, false, false, true, true, false, false, false, false, false, false, true, false, false, false, true, false, false, false, true, true, true, false, false, false, true, true, false, false, true, true, false, false, true, true, false, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, false, true, true, false, false, false, true, true, false, false, false, false, false, true, true, false, false, false, true, false, false, false, true, true, true, false, false, false, true, true, false, false, true, true, false, false, true, true, false, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, false, false, false, false, false, false, true, true, true, true, true, false, false, false, true, true, false, true, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, false, true, false, false, true, true, false, false, true, true, false, false, false, true, true, false, false, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, false, false, false, false, false, false, true, true, true, true, true, false, false, false, true, true, false, true, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, false, true, false, false, true, true, false, false, true, true, false, false, false, false, true, false, false, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, true, true, false, true, false, false, false, true, true, false, false, true, false, false, false, false, true, true, false, true, false, false, false, true, true, true, false, true, true, false, false, true, true, false, true, false, true, false, true, false, true, true, true, true, false, true, false, true, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, true, true, false, true, false, false, false, true, true, false, false, true, false, false, false, false, true, true, false, true, false, false, false, true, true, true, false, true, true, false, false, true, true, true, true, false, true, false, true, false, true, true, true, true, false, true, false, true, false, true, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, false, false, false, true, false, true, false, false, true, false, true, false, false, true, true, false, false, false, false, true, true, false, false, false, true, true, false, true, true, false, true, true, true, true, true, false, true, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, false, false, false, true, false, true, false, false, true, false, true, false, false, true, true, false, false, false, false, true, true, false, false, false, true, true, false, true, true, false, true, true, true, true, true, false, true, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, false, true, false, false, true, true, true, false, false, true, false, false, true, true, false, false, true, false, false, false, true, true, false, false, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, false, true, false, true, true, false, true, false, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, false, true, false, true, true, true, true, false, false, true, false, false, true, true, false, false, true, false, false, false, true, true, false, false, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, true, true, false, true, false, true, true, false, true, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, false, false, true, false, true, false, false, true, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, true, true, true, false, true, true, true, true, true, true, true, true, false, false, true, false, true, true, true, true, false, true, true, false, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, false, false, true, false, true, false, false, true, false, true, true, true, false, false, true, true, true, false, false, false, false, false, false, true, true, true, false, true, true, true, true, true, true, true, true, false, false, true, false, true, true, true, true, false, true, true, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, true, true, false, true, false, true, false, true, true, false, false, false, true, true, true, true, true, true, false, true, true, true, false, false, false, false, true, true, false, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, false, true, false, false, true, true, false, false, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, true, true, false, true, false, true, false, true, true, false, false, false, true, true, true, true, true, true, false, true, true, true, false, true, false, false, true, true, false, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, false, true, false, false, true, true, false, false, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, false, true, false, false, false, true, true, false, false, true, false, true, false, true, true, true, true, false, false, true, false, false, true, false, false, true, true, false, true, true, true, true, true, true, false, false, false, true, false, true, false, true, false, true, true, false, false, false, true, true, false, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, false, true, false, false, false, true, true, false, false, true, false, true, false, true, true, false, true, false, false, true, false, false, true, false, false, true, true, false, true, true, true, true, true, true, false, false, false, true, false, true, false, true, false, true, true, false, false, false, true, true, false, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, true, true, false, false, true, true, true, true, false, true, false, true, false, true, false, false, true, false, false, false, false, false, true, false, true, true, true, true, false, true, true, false, true, false, false, true, true, false, false, true, true, false, false, true, false, true, true, true, false, true, true, false, true, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, true, true, false, false, true, true, true, true, false, true, false, true, false, true, false, false, true, false, false, false, false, false, true, false, true, true, true, true, false, true, true, false, true, false, false, true, true, false, false, true, true, false, false, true, false, true, true, true, false, true, true, true, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, true, false, true, true, true, true, true, false, true, true, true, false, true, true, false, false, true, true, false, false, true, false, false, false, false, true, false, true, true, false, false, false, false, true, true, false, false, true, true, true, false, false, true, false, true, true, true, false, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, true, false, true, true, true, true, true, false, true, true, true, false, true, true, false, false, true, true, false, false, true, false, false, false, false, true, false, true, true, false, false, false, false, true, true, false, false, true, true, true, false, false, true, false, false, true, true, false, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, false, false, true, true, false, true, false, true, true, false, true, true, false, true, true, false, false, true, false, false, true, false, true, false, true, false, true, true, true, true, true, true, true, true, true, true, false, false, false, true, true, false, true, true, false, false, true, false, false, false, true, false, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, true, false, false, false, true, true, false, true, false, true, true, false, true, true, false, true, true, false, false, true, false, false, true, false, true, false, true, false, true, true, true, true, true, true, true, true, true, true, false, false, false, true, true, false, true, true, false, false, true, false, false, false, true, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, false, false, false, true, true, true, false, true, true, true, true, true, true, false, false, true, true, true, true, true, true, true, false, true, false, true, false, true, false, true, false, false, false, false, false, false, true, true, false, true, true, true, false, false, false, false, false, false, false, false, true, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, true, true, false, true, true, true, true, true, true, false, false, true, true, true, true, true, true, true, false, true, false, true, false, true, false, true, false, false, false, false, false, false, true, true, false, true, true, true, false, false, false, false, false, false, false, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, false, true, true, true, true, true, false, false, true, false, true, true, false, false, true, false, true, false, false, true, true, false, true, true, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, true, true, true, false, true, true, false, false, false, true, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, false, true, true, true, true, true, false, false, true, false, false, true, false, false, true, false, true, false, false, true, true, false, true, true, false, false, false, true, false, false, false, false, false, true, false, true, false, false, false, true, true, true, false, true, true, false, false, false, true, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, true, false, false, false, false, true, true, false, false, true, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, true, false, true, true, false, false, true, true, true, false, true, false, false, false, true, true, false, true, false, false, false, false, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, false, true, false, false, false, false, true, true, false, false, true, true, true, false, false, false, false, true, false, false, true, false, false, false, false, true, true, false, true, true, false, false, true, true, true, false, true, false, false, false, true, true, false, true, false, false, false, false, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, true, false, false, false, false, false, true, true, false, true, false, true, true, true, true, true, true, false, true, false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, true, true, false, true, true, true, true, false, true, false, true, false, true, true, false, true, false, false, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, true, false, false, false, false, false, true, true, false, false, false, true, true, true, true, true, true, false, true, false, false, false, false, true, false, false, false, true, true, false, true, true, false, true, true, true, false, true, true, true, true, false, true, false, true, false, true, true, false, true, false, false, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, true, false, true, false, false, true, true, false, true, true, true, false, true, false, true, false, false, false, true, false, false, true, true, true, true, true, false, false, true, true, false, true, false, false, false, true, false, false, true, false, false, false, false, false, true, true, true, false, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, true, false, true, false, false, true, true, false, true, true, true, false, true, false, true, false, false, false, true, false, false, true, true, true, true, true, false, true, true, true, false, true, false, false, false, true, false, false, true, false, false, false, false, false, true, true, true, false, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, true, false, true, true, false, true, false, false, false, false, true, false, false, false, true, false, false, true, true, false, true, false, false, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false, false, false, true, true, true, true, false, true, true, false, false, false, true, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, true, false, true, true, false, true, false, false, false, false, true, false, false, false, true, false, false, true, true, false, true, false, false, false, true, true, true, false, true, true, false, false, false, true, true, false, true, false, false, false, true, true, true, true, false, true, true, false, false, false, true, true, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, false, true, true, false, false, true, true, false, false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, false, true, false, true, false, true, false, false, true, false, true, false, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, false, false, false, false, true, true, false, false, true, true, false, true, true, true, true, true, true, true, true, true, false, false, true, true, false, true, false, true, false, true, false, true, false, false, true, false, true, false, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, false, false, false, true, false, true, true, true, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, false, false, false, true, false, true, false, false, true, false, false, false, false, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, false, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, false, false, false, true, false, true, true, true, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, false, false, false, true, false, true, false, false, true, true, false, false, false, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, false, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, true, true, false, false, false, true, false, true, false, false, true, false, false, false, true, true, false, false, false, true, false, false, false, false, false, true, false, true, true, false, false, true, true, true, true, true, true, true, true, true, false, false, true, false, true, true, true, true, true, false, true, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, true, true, false, false, false, true, false, true, false, false, true, false, false, false, true, true, false, false, false, true, false, false, false, false, false, true, false, true, true, false, false, true, true, true, true, true, true, true, true, false, false, false, true, false, true, true, true, true, true, false, true, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, false, true, false, false, false, true, false, false, true, true, false, false, true, false, false, false, false, false, true, false, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, false, true, true, true, true, true, true, false, true, true, false, true, true, true, false, true, false, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, true, false, true, false, false, false, false, false, false, true, true, false, false, true, false, false, false, false, false, true, false, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, false, true, true, true, true, true, true, false, true, true, false, true, true, true, false, true, false, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, false, false, false, true, false, true, false, true, true, false, false, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, false, true, true, false, false, false, false, true, true, false, true, true, true, true, false, true, false, true, false, false, false, true, true, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, false, false, false, true, false, true, false, true, true, false, false, true, true, true, true, false, true, false, false, true, false, false, true, false, true, false, false, false, true, true, false, false, false, false, true, true, false, true, true, true, true, false, true, false, true, false, false, false, false, true, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, true, true, true, false, false, true, false, true, true, true, false, true, true, true, false, false, true, false, false, true, false, false, false, false, true, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, true, true, true, false, true, true, true, true, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, true, true, true, true, true, false, false, true, false, true, true, true, false, false, true, true, false, false, true, false, false, true, false, false, false, false, true, false, false, true, true, false, false, false, false, false, true, false, true, true, false, false, true, true, true, false, true, true, true, true, false, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, true, false, false, false, true, true, true, true, false, true, true, false, false, true, true, true, true, false, true, true, false, false, true, true, false, true, true, true, false, false, true, false, false, false, false, false, false, false, true, true, false, true, false, true, true, false, false, true, true, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, true, false, false, true, false, false, false, true, true, true, true, true, true, true, false, false, true, true, true, true, false, true, true, false, false, true, true, false, true, true, true, false, false, true, false, false, false, false, false, false, false, true, true, false, true, false, true, true, false, false, true, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, false, true, true, false, false, false, false, false, false, true, false, true, false, false, false, false, true, false, false, true, false, true, true, false, false, true, true, true, true, true, false, true, false, false, false, true, true, true, false, false, true, false, false, true, true, false, false, false, false, false, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, true, true, false, false, false, false, false, false, true, false, true, false, false, false, false, true, true, false, true, false, true, true, false, false, true, true, true, true, true, false, true, false, false, false, true, true, true, false, false, true, false, false, true, true, false, false, false, false, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, true, false, true, false, false, false, false, true, true, false, true, true, true, true, true, true, false, false, true, false, false, false, true, true, true, false, true, false, false, false, false, true, true, true, true, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, true, true, false, true, true, false, true, false, false, false, false, true, true, false, true, true, true, false, true, true, false, false, true, false, false, false, true, true, true, false, true, false, false, false, false, true, true, true, true, false, true, false, false, true, true, false, false, false, true, false, true, true, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, false, false, true, true, true, true, false, true, true, false, false, true, false, true, false, false, false, false, true, true, true, false, true, false, true, true, true, false, false, false, true, false, false, false, false, true, true, false, false, true, false, true, true, true, true, false, false, false, true, true, false, true, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, false, true, true, true, true, false, true, true, false, false, true, false, true, false, false, false, false, true, true, true, false, true, false, true, true, true, false, false, false, true, false, false, false, false, true, true, false, false, true, false, true, true, true, true, false, false, false, true, true, false, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, false, false, false, false, false, true, false, true, false, true, true, true, true, false, false, false, true, false, false, true, false, true, false, true, false, true, false, true, false, true, true, true, false, true, true, false, false, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, false, false, false, false, false, true, true, true, false, true, true, true, true, false, false, false, true, false, false, true, false, true, false, true, false, true, false, true, false, true, true, true, false, true, true, false, false, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, true, true, true, true, false, false, true, true, false, true, true, true, true, false, false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, true, false, true, true, false, true, false, false, false, false, false, true, true, true, true, false, true, true, true, true, false, true, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, true, true, true, true, false, false, true, true, false, true, true, true, true, false, false, true, true, true, true, true, true, true, true, false, false, true, true, false, true, true, false, true, true, false, true, false, false, false, false, false, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, true, true, true, true, true, true, false, true, true, false, true, true, true, true, false, true, false, false, false, true, false, false, true, false, true, true, true, false, false, false, true, false, false, true, false, true, false, false, true, false, true, true, true, false, true, true, true, true, false, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, true, false, true, false, true, true, true, true, true, true, false, true, true, false, true, true, true, true, false, true, false, false, false, true, false, false, true, false, true, true, true, false, true, false, true, false, false, true, false, true, false, false, true, false, true, true, true, false, true, true, true, true, false, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, false, true, true, true, false, false, false, true, false, true, true, false, false, true, true, false, true, true, false, false, true, false, false, true, true, false, false, false, false, true, true, true, true, true, false, true, true, false, true, true, false, false, true, true, false, true, false, true, true, true, true, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, false, true, true, true, false, false, false, true, false, true, true, false, false, true, true, false, true, true, false, false, true, false, false, true, true, false, false, false, false, true, true, true, true, true, false, true, true, false, true, true, false, false, true, true, false, true, false, true, true, true, false, false, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, false, true, true, true, false, false, true, false, true, true, true, true, false, true, false, true, true, true, false, false, false, false, false, false, true, true, true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, false, true, false, false, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, false, true, true, true, false, false, true, false, true, true, true, true, false, true, true, true, true, true, false, false, false, false, false, false, true, true, true, false, true, true, false, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, true, false, true, false, false, true, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, false, true, true, false, true, true, true, false, true, false, false, true, false, true, true, false, false, false, true, true, true, true, true, false, true, true, true, false, false, false, true, false, false, true, false, false, false, true, true, true, false, true, true, true, true, true, true, false, true, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, false, true, true, false, false, true, true, false, true, false, false, true, false, true, true, false, false, false, true, true, true, true, true, false, true, true, true, false, false, false, true, false, false, true, false, false, false, true, true, true, false, true, true, true, true, true, true, false, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, true, false, true, true, true, false, true, true, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true, false, true, false, true, true, false, false, true, false, false, true, true, false, true, true, true, true, false, true, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, true, true, false, true, true, false, true, true, true, false, true, true, true, false, true, false, false, true, true, false, false, false, true, true, false, true, false, false, true, true, true, true, false, true, false, true, true, false, false, true, false, false, true, false, false, true, true, true, true, false, true, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, false, false, false, false, true, true, true, false, true, false, true, true, true, false, true, true, true, false, false, false, true, false, false, false, true, true, true, false, false, false, true, true, true, false, false, true, false, true, true, true, true, true, false, true, true, true, true, true, true, false, true, false, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, false, false, false, false, true, true, true, false, true, false, true, true, true, false, true, true, true, false, false, false, true, false, false, false, true, true, true, false, false, false, true, true, true, false, true, true, false, true, true, true, true, true, false, true, true, true, true, true, true, false, true, false, true, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, false, true, true, false, true, false, false, false, false, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false, true, true, false, true, false, true, true, false, true, true, true, false, false, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, false, false, true, false, true, false, false, false, false, false, true, false, false, false, false, true, false, false, false, true, true, true, false, false, true, true, false, true, false, true, true, false, true, true, true, false, false, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, true, false, true, true, false, true, false, false, false, true, false, false, false, false, true, true, true, false, true, true, false, false, false, true, false, true, false, false, false, false, true, true, false, false, true, false, false, false, true, true, false, false, true, true, false, true, true, false, false, true, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, true, false, true, true, false, true, false, false, false, true, false, false, false, false, true, true, true, true, true, true, false, false, false, true, false, true, false, false, false, false, true, true, false, false, true, false, false, false, true, true, false, false, true, true, false, true, true, false, false, true, true, false, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, false, true, true, true, false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, false, true, true, false, true, false, false, true, false, true, false, true, false, true, false, false, false, true, false, true, true, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, true, true, true, false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, false, true, false, true, false, true, false, false, true, false, false, true, true, false, true, true, false, true, false, true, false, true, false, true, false, false, false, true, false, true, true, false, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, false, false, true, true, false, false, true, false, false, true, false, true, true, true, false, false, false, false, true, true, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, false, false, false, true, false, false, true, false, true, true, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, false, false, false, true, true, false, false, true, true, false, false, true, false, false, true, false, true, true, true, false, false, false, false, true, true, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, false, false, false, true, false, false, true, false, false, true, false, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, true, false, false, false, true, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, true, true, true, false, false, true, true, true, false, false, true, true, true, true, true, true, false, true, false, false, true, true, false, false, false, true, false, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, true, false, false, false, true, true, false, false, true, false, false, true, false, true, false, false, true, true, true, false, true, false, true, true, true, true, true, false, false, true, false, true, false, false, true, true, true, true, true, true, false, true, false, false, true, true, false, false, false, true, false, true, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, false, true, true, true, false, true, true, true, false, true, true, false, true, true, true, true, true, false, false, false, true, false, false, true, false, false, true, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, false, true, true, true, false, true, true, true, false, true, true, false, true, true, true, true, true, false, false, false, true, false, true, true, false, false, true, false, true, true, true, false, true, true, true, false, true, false, true, false, true, true, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, false, true, false, true, true, true, false, false, true, true, false, false, true, true, true, false, false, false, false, false, true, true, true, true, false, false, false, true, true, false, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, false, false, false, false, false, true, true, true, true, false, false, false, true, true, false, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, true, true, true, false, false, true, false, true, false, false, true, false, false, false, false, false, false, true, true, true, false, false, true, false, false, false, false, true, true, true, true, true, true, false, false, true, true, true, false, false, false, true, false, false, false, true, true, true, false, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, true, false, false, true, true, true, true, false, false, true, false, true, false, false, true, false, false, false, false, false, false, true, true, true, false, false, true, false, false, false, false, true, true, true, true, true, true, false, false, true, true, true, true, false, false, true, false, false, false, true, true, true, false, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, false, false, true, true, true, false, false, true, true, false, true, false, true, false, true, false, false, false, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false, false, true, false, false, false, false, false, true, true, false, true, false, false, true, true, false, false, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, false, false, false, true, true, true, false, false, true, true, false, true, false, true, false, true, false, false, false, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false, false, true, false, false, false, false, false, false, true, false, true, false, false, true, true, false, false, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, false, false, true, true, false, true, true, true, true, true, false, true, true, false, true, false, false, false, true, true, false, true, false, false, false, true, false, true, true, false, true, false, false, false, false, true, false, true, true, false, false, true, false, false, true, true, true, false, true, true, false, true, false, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, false, true, true, false, true, true, true, true, true, false, true, true, false, true, false, false, false, false, true, false, true, false, false, false, true, false, true, true, false, true, false, false, false, false, true, false, true, true, false, false, true, false, false, true, true, true, false, true, true, false, true, false, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, true, false, false, false, false, false, false, true, false, true, false, false, false, false, true, false, true, true, true, false, true, false, false, true, false, true, true, false, false, false, false, true, true, false, false, false, true, true, true, false, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, true, false, false, false, false, false, false, true, false, true, false, false, false, false, true, false, true, true, true, false, true, false, true, true, false, true, true, false, false, false, false, true, true, false, false, false, true, true, true, false, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, false, true, false, false, false, true, true, true, true, true, true, true, true, false, false, true, false, true, false, true, true, true, false, true, false, true, true, false, true, true, true, true, false, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, false, false, true, false, true, false, true, false, false, false, true, true, true, true, true, true, true, true, false, false, true, false, true, false, true, true, true, false, true, false, true, true, false, true, true, true, true, false, true, true, true, true, false, true, true, true, true, true, true, true, false, false, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, false, true, true, false, false, false, true, true, false, false, false, false, true, true, true, false, true, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, false, true, false, false, true, false, false, false, false, false, false, false, true, false, false, true, false, true, true, false, false, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, false, true, true, false, false, false, true, true, false, false, false, false, true, true, true, false, true, true, false, true, true, true, true, false, false, false, true, false, true, true, true, false, false, true, false, false, true, false, false, false, false, false, false, false, true, false, false, true, false, true, true, true, false, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, true, false, false, true, true, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, false, false, false, false, true, false, true, true, true, true, false, false, true, true, false, false, false, true, true, true, true, true, false, false, false, true, true, false, true, false, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, true, false, false, true, true, false, false, true, true, false, false, false, false, false, false, true, false, true, false, true, true, false, false, false, true, false, true, false, true, true, true, true, false, false, true, true, false, false, false, true, true, true, true, true, false, false, false, true, true, false, true, false, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, false, false, false, true, true, true, false, true, false, true, false, false, false, false, false, false, true, false, false, true, true, false, true, true, true, true, true, true, false, false, true, false, false, true, false, false, true, false, false, true, true, false, true, false, true, true, false, false, true, true, true, false, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, false, false, true, true, true, true, false, true, false, true, false, false, false, false, false, false, true, false, false, true, true, false, true, true, true, true, true, true, false, false, true, false, false, true, false, false, true, false, false, true, true, false, true, false, true, true, false, false, true, true, true, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, true, true, false, true, false, false, true, true, false, false, true, false, false, true, false, true, false, true, false, false, true, false, true, false, false, false, false, true, true, true, true, false, true, false, false, true, true, false, true, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, true, false, false, false, false, false, false, true, false, false, false, true, false, true, true, false, true, false, false, true, true, false, false, true, false, false, true, false, true, false, true, false, false, true, false, true, false, false, false, false, true, true, true, true, false, true, false, false, true, true, false, true, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, true, true, true, false, true, true, true, false, true, false, true, false, true, true, false, false, true, false, true, false, true, true, false, true, true, false, true, false, true, false, false, false, true, true, true, true, false, false, true, false, true, true, false, true, true, true, false, false, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, false, true, true, true, true, true, false, true, true, true, false, true, false, true, false, true, true, false, false, true, false, true, false, true, true, false, true, true, false, true, false, true, false, false, false, true, true, true, true, false, false, true, false, true, true, false, true, true, true, false, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, true, false, true, false, false, false, false, false, false, true, true, true, true, true, false, false, false, false, false, true, true, false, true, false, false, false, true, false, true, true, true, false, true, true, true, true, false, true, true, false, false, false, false, true, true, false, true, false, true, false, false, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, false, true, false, false, false, false, false, false, true, true, true, true, true, false, false, false, false, false, true, true, false, true, false, false, false, true, false, true, true, true, false, true, true, true, true, false, true, true, false, false, false, false, true, true, false, true, false, true, true, false, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, true, false, false, false, false, true, false, false, false, false, true, true, true, true, true, false, true, false, false, true, false, true, true, true, false, false, false, false, true, true, false, false, false, true, true, true, false, false, false, true, true, false, false, false, true, true, false, false, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, false, false, false, true, false, false, false, false, true, false, false, false, false, true, true, true, true, true, false, true, false, false, true, false, true, true, true, false, false, false, false, true, true, false, false, true, true, true, true, false, false, false, true, true, false, false, false, true, true, false, false, false, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, true, true, true, true, false, true, false, false, true, false, true, false, false, false, false, true, false, false, true, false, false, false, true, true, false, false, false, true, false, true, true, false, false, true, false, false, false, false, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, true, false, true, false, false, true, false, true, false, false, false, false, true, false, false, true, false, false, false, true, true, false, false, false, true, false, true, true, false, false, true, false, false, false, false, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, true, true, false, false, true, true, true, false, true, false, true, true, true, false, false, false, false, false, true, false, true, true, true, false, false, true, true, false, true, true, false, true, false, false, true, false, false, false, false, true, true, true, true, false, true, false, false, false, false, true, false, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, true, false, false, true, true, true, false, true, false, true, true, true, false, false, false, false, false, true, false, true, true, true, false, false, false, true, false, true, true, false, true, false, false, true, false, false, false, false, true, true, true, true, false, true, false, false, false, false, true, false, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, true, false, true, true, true, false, false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, true, true, false, false, true, true, true, false, false, true, true, true, true, true, false, false, false, false, true, false, true, true, true, false, true, false, true, true, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, true, false, true, true, true, false, false, true, true, false, true, true, false, false, true, false, false, false, true, true, false, true, true, false, true, true, false, false, true, true, true, false, false, true, true, true, true, true, false, false, true, false, true, false, true, true, true, false, true, false, true, true, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, true, false, true, true, false, true, true, false, false, false, true, true, true, true, false, true, false, false, true, false, true, false, false, false, true, true, false, true, true, false, true, false, false, true, false, false, false, false, true, false, false, false, false, true, false, false, false, true, true, true, true, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, true, false, true, true, false, true, true, false, false, false, true, false, true, true, false, true, false, false, true, false, true, false, false, false, true, true, false, true, true, false, true, false, false, true, false, false, false, false, true, false, false, false, false, true, false, false, false, true, true, true, true, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, true, false, false, true, false, false, true, true, true, true, false, false, true, false, false, true, false, false, false, false, true, true, false, true, false, false, false, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true, false, true, true, false, true, true, true, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, false, false, true, false, false, true, false, false, true, true, true, true, false, false, true, false, false, true, false, false, false, false, true, true, false, true, false, false, false, true, true, true, true, true, true, false, true, false, true, true, true, true, false, true, false, true, true, false, true, true, true, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, false, false, true, false, true, true, true, false, false, true, false, true, true, false, true, false, false, false, true, false, false, true, false, true, true, true, false, true, false, true, true, true, true, false, false, false, true, false, false, true, false, true, false, false, true, true, false, true, true, true, true, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, false, true, false, true, true, true, false, false, true, false, true, true, false, true, false, false, false, true, false, false, true, false, true, true, true, false, true, false, true, true, true, true, false, false, true, true, false, false, true, false, true, false, false, true, true, false, true, true, true, true, true, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, true, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, false, true, false, false, true, false, false, false, true, false, true, false, true, false, true, true, true, true, false, false, false, false, true, true, true, false, false, false, false, true, true, false, true, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, true, false, true, true, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, false, false, true, false, false, true, false, false, false, true, false, true, false, true, false, true, true, true, true, false, false, false, false, true, true, true, false, false, true, false, true, true, false, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, false, false, false, false, false, false, false, true, true, false, false, false, true, true, true, false, false, false, true, false, false, true, true, true, true, true, true, false, false, true, true, false, true, false, false, true, true, false, true, false, true, false, true, false, true, true, false, true, false, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, true, true, true, false, true, false, false, false, false, false, false, false, true, true, false, false, false, true, true, true, false, false, true, true, false, false, true, true, true, true, true, true, false, false, true, true, false, true, false, false, true, true, false, true, false, true, false, true, false, true, true, false, true, false, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, true, true, true, false, false, false, false, true, false, false, true, false, false, true, false, true, false, true, false, false, false, true, false, true, true, true, false, true, false, false, false, true, true, true, false, true, true, true, false, true, true, false, false, false, true, false, true, false, false, false, false, true, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, true, true, true, false, false, false, false, true, false, false, true, false, false, true, false, true, false, true, false, false, false, true, false, true, true, true, false, true, false, true, false, true, true, true, false, true, true, true, false, true, true, false, false, false, true, false, true, false, false, false, false, true, false, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, false, true, false, true, true, false, false, false, true, false, true, true, false, false, true, false, false, true, true, true, true, true, true, true, false, true, false, false, false, true, false, false, false, true, false, false, true, false, false, true, true, true, true, true, true, false, false, false, true, true, false, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false, true, true, false, false, true, false, false, true, true, true, true, true, true, true, false, true, false, false, false, true, false, false, false, true, false, false, true, false, false, true, true, true, true, true, true, false, false, false, true, true, false, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, true, true, false, true, false, true, true, true, true, false, false, true, false, true, false, true, true, false, true, true, false, false, false, false, false, false, false, true, false, false, true, true, true, false, true, true, true, true, true, false, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, false, false, false, false, true, true, true, false, false, true, true, false, true, false, true, true, true, true, false, false, false, false, true, false, true, true, false, true, true, false, false, false, false, false, false, false, true, false, false, true, true, true, false, true, true, true, true, true, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, false, false, false, true, true, false, true, true, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true, false, false, false, false, false, true, false, true, true, true, true, false, false, true, false, true, false, false, false, true, false, false, true, false, true, true, false, true, false, true, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, false, false, false, true, true, false, true, true, true, false, false, false, false, true, false, true, false, false, false, true, true, true, true, false, false, false, false, false, true, false, true, true, true, true, false, false, true, false, true, false, false, false, true, true, false, true, false, true, true, false, true, false, true, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, false, false, true, true, true, true, true, true, false, true, true, false, false, true, false, true, false, true, true, true, false, false, false, false, true, true, false, false, true, true, true, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false, true, true, true, false, false, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, false, false, true, true, true, true, true, true, false, true, true, false, false, false, false, true, false, true, true, true, false, false, false, false, true, true, false, false, true, true, true, false, true, true, true, false, true, true, false, true, false, true, true, false, true, false, true, true, true, false, false, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, false, true, true, false, false, false, false, false, false, false, true, true, false, true, true, false, false, false, true, false, true, true, false, false, true, false, true, false, false, false, false, false, false, true, true, false, true, false, true, false, true, true, true, true, false, false, true, false, true, false, false, false, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, false, true, true, false, false, false, false, false, false, false, true, true, false, true, true, false, false, false, true, false, true, true, false, false, true, false, true, false, false, false, false, false, false, true, true, false, true, true, true, false, true, true, true, true, false, false, true, false, true, false, false, false, true, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, true, true, false, false, false, false, false, false, false, false, true, true, false, true, true, false, false, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, true, false, true, true, true, false, true, true, false, false, false, false, false, false, false, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, false, true, false, false, true, true, true, false, false, false, false, false, true, false, false, true, true, false, true, true, false, false, true, true, false, false, true, true, true, false, true, true, false, true, false, true, true, true, false, true, true, true, false, true, true, false, false, false, false, false, false, false, false, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, true, false, true, false, false, true, true, true, false, false, true, true, false, true, true, false, true, true, true, true, false, true, false, true, true, false, false, false, true, true, true, true, true, true, false, false, false, true, false, false, true, false, false, true, false, true, false, false, true, false, false, false, true, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, true, true, false, true, true, false, true, true, true, true, false, true, false, true, true, false, false, false, true, true, true, true, true, true, false, false, false, true, false, false, true, false, false, true, false, true, false, false, true, false, false, false, true, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, true, true, false, false, true, true, false, false, true, false, false, false, false, false, true, true, true, false, false, true, false, true, true, false, true, false, false, true, true, false, true, true, false, true, true, false, true, false, false, false, false, false, false, false, false, false, false, false, true, false, true, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, true, true, false, false, true, true, false, false, true, false, false, false, false, false, false, true, true, false, false, true, false, true, true, false, true, false, false, true, true, false, true, true, false, true, true, false, true, false, false, false, false, false, false, false, false, false, false, false, true, false, true, false, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, false, true, false, false, true, false, true, false, false, false, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false, false, true, false, true, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, true, false, false, true, false, true, false, false, true, true, true, false, false, false, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, false, true, false, true, true, false, true, true, false, true, true, false, false, true, false, true, true, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, false, false, false, false, false, true, false, false, false, false, true, true, false, true, false, false, false, true, false, true, false, true, true, false, false, false, false, true, false, false, true, true, false, false, true, true, false, false, false, true, false, false, true, false, true, false, true, true, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, true, true, true, false, false, false, false, false, true, true, false, false, false, false, true, true, false, true, false, false, false, true, false, true, false, true, true, false, false, false, false, true, false, false, true, true, false, false, true, true, false, false, false, true, false, false, true, false, true, false, true, true, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, true, true, false, false, true, false, false, true, true, true, false, true, false, true, false, true, false, false, false, true, false, false, true, false, false, false, true, true, false, false, false, true, false, false, false, false, false, true, false, true, true, true, true, true, true, false, true, true, true, true, false, true, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, true, true, false, false, true, false, false, true, true, true, false, true, false, true, false, true, false, false, false, true, false, false, true, false, false, false, true, true, false, false, false, true, false, false, false, false, false, true, false, true, true, true, true, true, false, false, true, true, true, true, false, true, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, false, true, false, true, false, false, false, false, true, true, true, true, false, true, true, false, false, false, true, true, false, false, false, true, true, true, true, false, false, true, false, false, true, false, true, false, false, true, false, false, true, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, false, true, false, true, false, false, false, false, true, true, true, true, false, true, true, false, false, false, true, true, false, false, false, true, true, true, true, false, false, true, true, false, true, false, true, false, false, true, false, false, true, false, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, true, true, true, true, true, false, true, true, false, false, false, true, false, false, true, false, false, true, true, true, false, false, false, false, false, false, false, false, true, true, false, false, false, false, false, true, false, false, true, true, false, false, false, false, true, true, false, true, false, true, true, false, true, true, false, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, true, true, true, true, true, false, true, true, false, false, false, true, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, false, true, true, false, false, false, false, false, true, false, false, true, true, false, false, false, false, true, true, false, true, false, true, true, false, true, true, false, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, false, false, false, true, true, true, false, true, false, true, true, true, false, false, true, false, true, true, true, false, false, true, true, true, true, false, true, false, true, true, true, true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, true, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, true, false, false, false, true, true, true, false, true, false, true, true, true, false, false, true, false, true, true, true, false, false, true, true, true, true, false, true, false, true, true, true, true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, true, true, false, false, true, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false, false, false, false, true, true, true, true, false, false, true, false, false, false, true, true, false, false, true, false, true, false, false, true, true, false, false, false, false, true, false, true, true, false, true, true, true, false, false, true, false, true, true, false, true, false, false, false, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, true, true, true, true, false, false, false, false, false, true, true, false, true, false, false, true, false, false, false, true, true, false, false, true, false, true, false, false, true, true, false, false, false, false, true, false, true, true, false, true, true, true, false, false, true, false, true, true, false, true, false, false, false, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, false, true, false, true, true, false, true, true, false, false, false, true, false, true, false, true, true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, false, true, true, false, true, true, false, true, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, false, true, false, true, true, false, true, true, false, false, false, true, false, true, true, true, true, false, false, true, true, true, true, true, false, true, false, true, false, false, false, false, true, true, false, true, true, false, true, true, true, false, false, false, false, true, true, false, true, true, false, false, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, false, true, true, false, false, false, false, false, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, true, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, true, true, false, true, false, true, true, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, false, false, false, false, false, false, true, true, false, false, false, false, false, true, true, true, false, false, true, false, false, false, true, false, false, false, false, true, true, true, true, false, false, false, true, true, false, true, false, true, true, false, true, false, false, true, true, false, true, false, true, true, false, false, false, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, true, true, false, true, false, true, false, false, true, true, false, false, true, true, true, true, false, false, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, true, false, false, true, false, false, false, false, false, true, true, true, false, false, true, true, true, false, false, true, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, true, true, false, true, false, true, false, false, true, true, false, false, true, true, false, true, false, false, false, false, false, true, false, true, true, true, true, false, true, true, true, true, true, true, false, false, true, false, false, false, false, false, true, true, true, false, false, true, true, true, false, false, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, true, false, false, true, false, true, false, false, false, false, false, true, false, false, true, true, false, true, true, true, false, true, true, false, true, false, false, false, true, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, true, true, true, false, false, false, true, false, true, false, false, false, false, false, true, false, false, true, true, false, true, true, true, false, true, true, false, true, false, false, false, true, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, false, true, false, false, true, true, false, true, true, false, false, false, false, false, false, false, true, false, false, true, true, false, true, false, true, true, true, false, true, true, false, true, false, false, true, false, false, false, false, false, false, true, false, false, true, true, false, false, true, false, true, true, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, true, false, false, true, true, false, true, true, false, false, false, false, false, false, false, true, false, false, true, true, false, true, false, true, true, true, false, true, true, false, true, false, false, true, false, false, false, false, false, false, true, false, false, true, true, false, false, true, false, true, true, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, true, false, false, true, true, false, false, false, true, false, false, true, false, false, false, false, false, true, false, true, false, false, true, false, true, true, false, false, true, true, true, true, true, false, true, true, true, true, false, true, false, false, false, true, false, false, false, true, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, true, false, false, true, true, false, false, true, true, false, false, true, false, false, false, false, false, true, false, true, false, false, true, false, true, true, false, false, true, true, true, true, true, false, true, true, true, true, false, true, false, false, false, true, false, false, false, true, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, true, false, true, true, false, true, false, false, true, true, true, false, false, false, false, false, false, true, false, false, false, true, false, false, true, false, false, false, false, false, true, true, false, true, true, true, false, true, true, true, false, true, false, true, false, false, true, false, false, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, true, true, true, true, true, true, false, true, true, false, true, false, false, true, false, true, false, false, false, false, false, false, true, false, false, false, true, false, false, true, false, false, false, false, false, true, true, false, true, true, true, false, true, true, true, false, true, false, true, false, false, true, false, false, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, true, true, false, false, true, false, true, false, false, false, true, false, true, false, true, false, true, true, false, true, true, true, true, true, false, false, false, true, false, true, false, false, true, false, true, true, true, true, false, false, false, false, true, false, false, false, true, false, false, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, false, true, true, false, false, true, false, true, false, false, false, true, false, true, false, true, false, true, true, false, true, true, true, true, true, false, false, false, true, false, true, true, false, true, false, true, true, true, true, false, false, false, false, true, false, false, false, true, false, false, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, false, false, true, false, false, false, false, true, true, false, false, true, false, false, true, true, false, true, false, true, true, false, false, false, true, false, true, true, false, false, true, true, false, false, false, false, true, false, true, true, false, false, false, false, false, true, true, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, false, false, false, false, true, false, false, false, false, true, true, false, false, true, false, false, true, true, false, true, false, true, true, false, false, false, true, false, true, true, false, false, true, true, false, false, false, false, true, false, true, true, false, false, false, false, false, true, true, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, true, false, true, true, false, true, true, false, true, false, false, false, true, false, false, false, true, true, true, true, true, true, false, true, true, false, true, true, true, false, false, true, false, false, false, true, true, false, false, false, false, false, true, false, false, true, false, true, false, true, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, true, true, false, true, true, true, false, true, true, false, true, true, false, true, false, false, false, true, false, false, false, true, true, true, false, true, true, false, true, true, false, true, true, true, false, false, true, false, false, false, true, true, false, false, false, false, false, true, false, false, true, false, true, false, true, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, true, false, false, false, true, false, true, true, false, true, true, false, true, true, false, true, true, true, false, false, false, true, false, false, false, true, true, true, true, true, false, true, false, false, true, false, false, false, false, true, false, false, true, false, true, false, true, false, false, false, false, false, false, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, true, true, false, false, false, true, false, true, true, false, true, true, false, true, true, false, true, true, true, false, false, false, true, false, false, false, true, true, true, false, true, false, true, false, false, true, false, false, false, false, true, false, false, true, false, true, false, true, false, false, false, false, false, false, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, false, false, true, false, false, false, false, true, true, true, true, false, false, true, true, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, true, true, true, true, false, false, true, false, true, true, false, false, false, false, false, true, false, false, false, false, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, false, false, true, false, false, false, false, true, true, true, true, false, false, true, true, false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, true, true, true, true, false, false, true, false, true, true, false, false, false, false, false, true, false, false, false, false, true, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, true, true, false, false, false, true, true, false, true, false, false, false, true, false, false, false, false, true, false, true, false, false, true, false, false, true, false, true, false, false, true, false, false, true, false, true, false, false, false, true, true, false, true, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, false, false, false, true, true, false, false, true, false, false, true, true, true, false, false, false, true, true, false, true, false, false, false, true, false, false, false, false, true, false, true, false, false, true, true, false, true, false, true, false, false, true, false, false, true, false, true, false, false, false, true, true, false, true, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, true, true, false, true, false, false, true, false, true, false, false, true, true, false, true, false, false, true, true, false, false, true, false, false, false, true, true, true, false, false, true, true, false, false, false, false, true, true, true, false, false, false, true, false, false, true, true, false, false, false, true, true, true, false, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, true, true, false, true, false, false, true, false, true, false, true, true, true, false, true, false, false, true, true, false, false, true, false, false, false, true, true, true, false, false, true, true, false, false, false, false, true, true, true, false, false, false, true, false, false, true, true, false, false, false, true, true, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, true, true, false, true, false, false, true, false, false, true, false, false, false, false, true, true, false, true, false, false, true, true, false, true, false, false, true, false, false, false, true, false, true, true, true, false, true, true, true, true, true, false, false, false, false, false, false, true, false, true, true, false, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, true, true, true, false, true, false, false, true, false, false, true, false, false, false, false, true, true, false, true, false, false, true, true, false, true, false, false, true, false, false, false, true, false, true, true, true, false, true, true, true, true, true, false, false, false, false, false, false, true, false, true, true, false, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, true, false, false, true, true, true, true, false, false, false, true, false, true, false, true, false, false, false, true, true, true, false, false, false, false, false, true, false, false, true, false, false, true, false, true, true, true, false, false, false, false, true, false, true, true, true, false, true, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, true, true, true, false, false, true, true, true, true, false, false, false, true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, false, true, false, false, true, false, false, true, false, true, true, true, false, false, false, false, true, false, true, true, true, false, true, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, true, false, true, true, true, true, true, false, true, true, false, true, false, false, false, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, true, true, true, false, true, true, false, true, true, true, false, false, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, true, false, true, true, true, true, true, false, true, true, false, true, false, false, false, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, true, true, true, true, true, true, false, true, true, true, false, false, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, true, false, true, true, false, false, false, false, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, true, true, true, false, true, false, true, true, false, true, false, true, true, true, true, false, true, false, false, false, false, true, true, true, true, false, false, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, true, false, true, true, false, true, true, false, false, false, false, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, true, true, true, true, true, false, true, true, false, true, false, true, true, true, true, false, true, false, false, false, false, true, true, true, true, false, false, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, false, true, false, true, true, true, false, false, false, true, false, false, false, true, true, true, true, false, true, true, true, false, true, true, false, false, false, true, false, true, false, true, true, true, false, true, true, true, true, true, true, true, true, false, false, false, false, true, false, false, true, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, false, true, false, true, true, true, false, false, false, true, false, false, false, true, true, true, true, false, true, true, true, false, true, true, false, false, false, true, false, true, false, true, true, true, false, true, true, true, true, true, true, true, true, true, false, false, false, true, false, false, true, false, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, false, false, false, true, false, false, true, true, true, true, false, false, true, false, true, true, true, false, false, false, true, true, true, true, false, false, false, false, false, true, true, true, false, true, false, true, false, true, true, true, false, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, false, false, false, true, false, false, true, true, true, true, false, false, true, false, true, true, true, false, false, false, true, true, true, true, false, true, false, false, false, true, true, true, false, true, false, true, false, true, true, true, false, false, false, false, true, true, false, false, false, true, false, false, true, false, true, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, false, false, false, true, false, false, false, false, false, false, false, true, false, true, true, true, true, true, false, true, true, true, true, true, false, false, true, false, false, true, false, true, true, true, false, true, false, true, false, true, false, true, true, true, true, true, true, true, true, false, false, false, true, true, true, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, true, false, false, false, true, false, false, false, false, false, false, false, true, false, true, true, true, true, true, false, true, true, true, true, true, false, false, true, false, false, true, false, true, true, true, true, true, false, true, false, true, false, true, true, true, true, true, true, true, true, false, false, false, true, true, true, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, false, false, false, true, false, false, false, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, true, false, false, false, true, false, false, false, false, true, true, false, false, false, true, false, false, true, false, true, false, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, false, false, false, true, true, true, false, true, true, true, false, false, false, true, false, false, false, false, false, true, false, false, true, true, true, true, false, false, false, false, false, false, true, false, false, false, true, false, false, false, false, true, true, false, false, false, true, false, false, true, false, true, false, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, false, true, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, false, true, true, false, true, true, false, true, false, true, true, true, false, false, false, true, true, false, false, true, false, false, false, true, false, true, false, true, true, true, true, true, false, true, true, false, false, true, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, false, true, false, false, true, false, false, true, false, false, false, true, false, true, false, false, false, false, false, true, true, false, true, true, false, true, false, true, true, true, false, false, false, true, true, false, false, true, false, false, false, true, false, true, false, true, true, true, true, true, false, true, true, false, false, true, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, false, false, true, false, true, true, true, false, true, false, true, false, false, false, false, true, false, false, false, false, true, false, true, true, false, true, true, false, false, false, true, true, false, true, true, true, true, true, true, false, true, false, true, true, true, true, true, true, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, false, false, true, true, true, false, false, false, true, false, true, true, true, false, true, false, true, false, false, false, false, true, false, false, false, false, true, false, true, true, false, true, true, false, false, false, true, true, false, true, true, true, true, true, true, false, true, false, true, true, false, true, true, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, false, true, false, true, false, true, true, false, true, false, false, false, false, true, false, false, false, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, false, false, true, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, false, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, false, false, true, true, true, false, true, false, false, false, true, true, false, true, false, false, false, false, true, false, false, false, false, true, false, true, true, true, false, true, true, true, false, false, true, true, true, false, false, true, false, true, true, true, true, true, true, true, true, true, false, true, false, true, true, false, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, false, false, false, false, true, false, false, false, false, true, true, true, false, true, true, false, false, true, false, true, true, false, false, true, true, true, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, false, true, false, false, false, true, true, false, true, true, false, true, true, true, true, true, true, false, true, true, false, true, true, true, false, false, false, false, false, false, true, true, false, false, false, false, true, true, true, false, true, true, false, false, true, false, true, true, false, false, true, true, true, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, true, false, false, false, true, false, false, true, false, false, false, false, true, false, true, false, false, false, false, true, false, false, false, false, false, true, false, false, true, true, false, true, false, false, true, true, false, true, true, false, true, false, true, false, true, false, false, false, true, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, true, false, false, true, false, false, false, true, false, false, true, false, false, false, false, true, false, true, false, false, false, false, true, false, false, false, false, false, true, true, false, true, true, false, true, false, false, true, true, false, true, true, false, true, false, true, false, true, false, false, false, true, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, true, false, false, false, true, true, true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, true, false, true, false, false, false, false, true, true, false, false, true, false, false, false, true, false, true, true, false, true, false, false, false, true, true, false, true, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, true, true, true, false, false, false, true, true, true, false, false, false, false, true, true, true, false, true, false, false, false, true, false, true, false, true, false, false, false, false, true, true, false, false, true, false, false, false, true, false, true, true, false, true, false, false, false, true, true, false, false, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, false, true, true, false, false, true, false, false, true, false, true, true, false, false, true, true, true, false, false, true, false, false, true, true, false, true, false, false, false, true, true, false, false, true, false, false, false, true, false, true, true, true, true, true, false, false, false, true, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, false, false, false, true, false, true, false, true, true, false, false, true, false, false, true, false, true, true, false, false, true, true, true, false, false, true, false, false, true, true, false, false, false, false, false, true, true, false, false, true, false, false, false, true, false, true, true, true, true, true, false, false, false, true, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, true, false, false, true, true, true, false, true, false, true, true, true, false, true, true, true, true, false, false, true, true, true, false, false, false, false, true, true, true, false, false, true, true, true, true, false, false, true, true, true, true, false, false, false, true, true, false, true, true, false, false, true, false, false, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, false, true, false, false, true, true, true, false, true, false, true, true, true, false, true, true, false, true, false, false, true, true, true, false, false, false, false, true, true, true, false, false, true, true, true, true, false, false, true, true, true, true, false, false, false, true, true, false, true, true, false, false, true, false, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, false, false, true, false, true, true, true, true, false, true, true, true, true, false, false, false, false, false, true, false, false, false, true, false, false, false, false, true, false, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, false, false, true, false, true, true, true, true, false, true, true, false, true, false, false, false, false, false, true, false, false, false, true, false, false, false, false, true, false, true, false, true, true, false, false, false, false, true, true, true, false, true, true, true, true, false, false, true, false, true, false, false, true, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, false, true, false, true, false, false, true, false, true, false, false, true, false, true, true, true, true, false, false, false, true, true, false, false, false, false, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, true, true, true, false, true, false, true, true, false, true, true, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, true, true, true, false, false, false, true, true, false, false, false, false, false, false, false, true, false, false, false, false, false, true, true, true, true, true, false, true, true, true, true, false, true, false, true, true, false, true, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, false, false, true, true, false, false, false, true, false, false, false, false, false, false, false, false, false, false, true, true, true, true, false, true, false, false, true, false, true, false, true, false, false, false, true, true, true, false, false, false, false, false, true, true, false, true, false, true, false, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, true, false, false, false, true, false, false, true, true, false, false, false, true, false, false, false, false, false, false, false, false, false, false, true, true, true, true, false, true, false, false, true, false, true, false, true, false, false, false, true, true, true, false, false, false, false, false, true, true, false, true, false, true, false, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, true, true, false, false, false, true, false, false, true, true, true, true, false, false, true, true, false, false, true, true, true, false, false, false, false, true, false, true, true, true, false, true, false, true, true, false, true, false, true, true, true, false, false, true, false, false, false, true, true, true, true, false, true, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, true, true, false, false, false, true, false, false, true, true, true, true, false, false, true, true, false, false, true, true, true, false, false, false, false, true, false, true, true, true, false, true, false, true, true, false, true, false, true, true, false, false, false, true, false, false, false, true, true, true, true, false, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, true, false, false, true, false, true, true, true, false, true, true, false, false, false, false, true, true, true, false, true, false, true, false, true, true, false, false, true, true, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, false, true, true, true, false, false, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, false, true, true, true, false, false, false, true, false, false, true, false, true, true, true, false, true, true, false, false, false, false, true, true, true, false, true, false, true, false, false, true, false, false, true, true, false, false, true, true, true, false, false, true, false, true, false, false, true, false, true, false, true, true, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, false, false, true, false, false, false, false, false, true, false, true, false, true, false, false, true, false, false, true, false, false, true, true, false, false, false, true, true, true, false, false, false, true, true, true, true, false, true, false, false, false, true, false, true, true, false, true, true, false, true, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, true, false, false, true, false, false, true, false, true, false, false, false, true, false, true, false, true, false, false, true, false, false, true, false, false, true, true, false, false, false, true, true, true, false, false, false, true, true, true, true, false, true, false, false, false, true, false, true, true, false, true, true, false, true, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, false, false, false, false, true, false, true, true, true, false, false, true, false, false, false, false, true, true, true, false, false, false, true, false, false, false, true, false, true, false, true, false, true, true, true, true, true, false, true, true, false, false, true, true, false, true, false, false, false, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, false, false, true, true, true, false, false, false, false, true, false, false, true, true, false, false, true, false, false, false, false, true, true, true, false, false, false, true, false, false, false, true, false, true, false, true, false, true, true, true, true, true, false, true, true, false, false, true, true, false, true, false, false, false, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, false, true, false, false, true, true, false, false, false, false, false, false, true, false, false, false, true, true, true, false, true, true, false, true, false, true, true, false, false, true, false, true, true, true, false, false, true, false, true, false, true, true, true, false, true, false, false, true, true, true, false, true, true, true, true, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, true, false, true, false, false, true, true, false, false, false, false, false, false, true, false, false, false, true, true, true, false, true, true, false, true, false, true, true, false, false, true, false, true, true, false, false, false, true, false, true, false, true, true, true, false, true, false, false, true, true, true, false, true, true, true, true, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, false, false, false, true, true, false, false, false, true, true, true, true, false, false, true, false, true, true, false, false, false, false, false, false, true, false, false, true, true, false, false, false, false, true, true, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, false, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, false, true, true, false, false, false, true, true, true, false, false, false, true, true, true, true, false, false, true, false, true, true, false, false, false, false, false, false, true, false, false, true, true, false, false, false, false, true, true, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, false, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, false, true, true, false, true, true, false, true, true, false, true, true, true, false, true, true, true, true, false, false, true, true, false, true, false, true, true, true, false, false, false, false, false, true, true, true, false, false, true, false, false, true, false, true, false, true, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, false, false, true, true, false, false, false, true, true, true, false, true, true, true, true, true, false, true, true, false, true, true, true, false, true, true, true, true, false, false, true, true, false, true, false, true, true, true, false, false, false, false, false, true, true, true, false, false, true, false, false, true, false, true, false, true, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, true, true, true, false, true, false, false, false, false, true, true, false, true, false, false, true, true, false, true, false, true, true, true, false, true, true, true, true, true, false, true, true, false, true, true, true, true, true, true, false, true, true, true, false, true, true, false, false, true, false, true, true, false, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, true, true, true, false, false, true, false, false, false, false, true, true, false, true, false, false, true, true, false, true, false, true, true, true, false, true, true, true, true, true, false, true, true, false, true, true, true, true, true, true, false, true, true, true, false, true, true, false, false, true, false, true, true, false, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, false, true, false, false, true, false, false, true, true, false, false, false, true, false, false, false, true, false, false, true, true, true, true, true, false, false, true, true, true, false, false, false, true, false, true, true, false, false, true, false, false, false, true, false, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, false, true, false, false, true, false, false, true, true, false, false, false, true, false, false, false, true, false, false, true, true, true, false, true, false, false, true, true, true, false, false, false, true, false, true, true, false, false, true, false, false, false, true, false, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, false, true, false, true, false, true, true, true, false, false, true, true, false, true, false, false, false, false, true, true, false, true, true, false, false, false, false, true, false, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, true, false, true, false, false, true, true, true, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, false, false, true, false, true, false, true, true, true, false, false, true, true, false, true, false, false, false, false, true, true, false, true, true, false, false, false, false, true, false, false, false, false, false, false, false, false, true, false, true, true, true, false, true, true, true, false, true, false, true, false, false, true, true, true, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, true, true, false, true, true, false, false, false, true, false, false, false, false, false, true, true, false, true, true, true, true, true, false, true, false, false, true, false, false, false, false, true, false, true, false, true, false, false, false, true, true, true, true, true, true, false, false, false, false, false, false, false, true, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, true, true, false, true, true, false, false, false, true, false, false, false, false, false, true, true, false, true, true, true, true, true, false, true, false, false, true, false, false, false, false, true, false, true, false, true, true, false, false, true, true, true, true, true, true, false, false, false, false, false, false, false, true, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, true, true, false, true, true, true, true, false, false, false, false, true, false, false, false, true, false, false, false, false, false, true, false, false, true, false, false, true, true, true, true, true, true, false, true, true, true, true, false, true, false, true, false, true, true, false, true, false, true, false, true, true, true, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, false, true, true, false, true, true, true, true, false, false, false, false, true, false, false, false, true, false, false, false, false, false, true, false, false, true, false, false, true, true, true, true, true, true, false, true, true, true, true, false, true, false, true, false, true, true, false, true, false, true, false, true, true, true, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, true, false, false, true, false, false, false, true, true, false, true, true, false, true, false, false, false, false, true, true, true, true, true, true, false, false, true, false, true, true, true, false, true, false, false, false, false, false, true, false, false, false, true, false, false, false, true, true, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, false, false, true, true, false, false, true, false, false, true, false, true, false, true, true, false, true, true, false, true, false, false, false, false, true, true, true, true, true, true, false, false, true, false, true, true, true, false, true, false, false, false, false, false, true, false, false, false, true, false, false, false, true, true, false, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, false, true, false, true, false, true, true, false, false, false, false, true, false, false, false, true, true, true, false, true, true, false, true, true, false, false, false, true, true, true, true, false, false, false, false, true, false, true, false, false, true, false, true, true, true, true, false, false, false, true, true, false, false, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, false, true, false, true, false, true, true, false, false, false, false, true, false, false, false, true, true, true, false, true, true, false, true, true, false, false, false, true, true, true, true, false, false, false, false, true, false, true, false, false, true, false, true, true, true, true, false, false, false, true, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, true, true, true, true, false, false, true, true, true, false, true, true, false, false, false, false, true, true, true, true, true, true, true, false, false, true, false, false, true, false, false, true, false, true, false, false, true, false, true, true, false, false, false, true, false, false, true, false, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, true, true, true, true, false, true, false, false, true, true, true, true, false, false, true, true, true, false, true, true, false, false, false, false, true, true, true, true, true, false, true, false, false, true, false, false, true, false, false, true, false, true, false, false, true, false, true, true, false, false, false, true, false, false, true, false, false, true, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, true, false, false, true, false, true, false, false, false, true, true, false, true, false, false, true, true, true, true, true, false, false, false, false, false, false, false, true, true, false, true, true, true, false, true, false, true, true, false, true, true, false, false, false, true, false, true, false, false, true, true, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, false, true, true, false, false, true, false, false, true, false, true, false, false, false, true, true, false, true, false, false, true, true, true, true, true, false, false, false, false, false, false, false, true, true, false, true, true, true, false, true, false, false, true, false, true, true, false, false, false, true, false, true, false, false, true, true, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, true, false, false, false, true, true, false, false, true, true, true, false, true, false, true, false, false, true, false, false, true, true, true, true, false, true, true, true, false, false, true, false, false, false, true, false, false, true, true, false, false, true, true, false, false, true, true, true, false, false, false, false, false, true, false, true, true, true, true, false, false, false]);
-            let codeword = BinVector::from_bools(&[false, true, false, false, false, true, true, false, false, true, true, true, false, true, false, true, false, false, true, false, false, true, true, true, true, false, true, true, true, false, false, true, false, false, false, true, false, false, true, true, false, false, true, true, false, false, true, true, true, false, false, false, false, false, true, false, true, true, true, true, false, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, false, false, false, true, false, true, true, false, false, true, true, false, true, true, true, true, false, true, false, true, true, true, true, false, true, true, false, true, true, false, true, false, false, false, true, false, false, true, false, true, false, true, true, true, false, true, false, true, false, true, false, true, true, true, false, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, false, false, true, true, false, true, true, false, false, true, true, false, true, true, true, true, false, true, false, true, true, true, true, false, true, true, false, true, true, false, true, false, false, false, true, false, false, true, false, true, false, true, true, true, false, true, false, true, false, true, false, true, true, true, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, false, true, false, true, false, true, true, false, true, false, true, false, false, true, false, true, true, true, true, false, true, true, true, true, false, false, true, false, false, false, true, true, false, false, true, true, true, true, false, false, false, true, true, true, true, false, true, false, true, false, true, true, false, false, false, false, false, true, true, true, false]);
-            let codeword = BinVector::from_bools(&[false, false, false, true, false, true, false, true, true, false, true, false, true, false, false, true, false, true, true, true, true, false, true, true, true, true, false, false, true, false, false, false, true, true, false, true, true, true, true, true, false, false, false, true, true, true, true, false, true, false, true, false, true, true, false, false, false, false, false, true, true, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, true, false, false, true, false, false, true, false, false, true, false, true, true, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, false, false, false, false, true, true, false, true, false, false, false, false, true, false, false, false, true, false, false, false, false, false, true, false, false, false, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, true, false, false, true, false, false, true, false, false, true, false, true, true, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, true, false, false, false, false, false, false, false, false, true, true, false, true, false, false, false, false, true, false, false, false, true, false, false, false, false, false, true, false, false, false, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, true, true, true, false, true, false, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, false, true, true, true, false, false, false, true, true, true, false, true, false, true, false, true, true, false, true, false, false, true, true, true, true, false, true, true, false, false, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, true, false, false, true, true, true, true, true, true, true, false, true, false, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, false, true, true, true, true, false, false, true, true, true, false, true, false, true, false, true, true, false, true, false, false, true, true, true, true, false, true, true, false, false, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, false, true, true, false, true, true, true, false, true, true, true, false, true, true, false, false, false, true, true, false, true, false, true, true, true, true, false, false, true, true, true, false, true, false, true, true, true, true, true, false, true, false, true, false, false, false, false, false, true, true, false, true, true, false, false, true, false, false, true, true, false, false]);
-            let codeword = BinVector::from_bools(&[true, false, true, true, false, true, true, true, false, true, true, false, false, true, true, false, false, false, true, true, false, true, false, true, true, true, true, false, false, true, true, true, false, true, false, true, true, true, true, true, false, true, false, true, false, false, false, false, false, true, true, false, true, true, false, false, true, false, false, true, true, false, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, false, false, true, true, true, false, false, true, true, false, true, false, true, true, false, false, false, false, false, false, false, false, true, false, false, false, true, false, true, true, true, true, false, true, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, true, true, false, true, false, true, false, true, false, false, true, true, true, false, false, true, true, false, true, false, true, true, false, false, false, false, false, false, false, false, true, false, false, false, true, false, true, true, true, true, false, true, false, false, true, false, true, true]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[true, true, true, true, true, true, false, false, true, true, true, true, false, false, true, false, true, false, true, false, true, true, true, true, true, false, true, false, false, false, false, true, false, true, true, true, true, false, false, false, false, false, false, false, false, true, false, true, false, true, true, false, true, false, true, false, true, true, false, false, false, true, false]);
-            let codeword = BinVector::from_bools(&[true, true, true, true, true, true, false, false, true, true, true, true, false, false, true, false, true, false, true, false, true, true, true, true, true, true, true, false, false, false, false, true, false, true, true, true, true, false, false, false, false, false, false, false, false, true, false, true, false, true, true, false, true, false, true, false, true, true, false, false, false, true, false]);
-            assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
-        }
-        
-        {
-            let code = HammingCode63_57;
-            let randvec = BinVector::from_bools(&[false, false, true, true, true, true, true, false, true, true, false, true, false, true, false, false, true, false, false, true, false, true, true, false, true, false, true, false, true, false, false, true, false, true, true, false, false, true, true, false, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, true, true, false, true, true, false, true, true]);
-            let codeword = BinVector::from_bools(&[false, false, true, true, true, true, true, false, true, true, false, true, false, true, false, false, true, true, false, true, false, true, true, false, true, false, true, false, true, false, false, true, false, true, true, false, false, true, true, false, false, false, true, true, true, false, true, true, false, true, false, false, false, true, false, true, true, false, true, true, false, true, true]);
+            let randvec = BinVector::from_bools(&[true, true, true, true, true, false, false, true, true, false, true, false, true, true, false, true, false, true, false, true, true, true, false, true, true, false, true, false, true, true, false, false, false, true, false, true, false, true, false, false, true, false, false, true, true, false, false, false, false, false, true, true, false, true, true, true, true, false, true, false, false, true, false]);
+            let codeword = BinVector::from_bools(&[true, true, false, true, true, false, false, true, true, false, true, false, true, true, false, true, false, true, false, true, true, true, false, true, true, false, true, false, true, true, false, false, false, true, false, true, false, true, false, false, true, false, false, true, true, false, false, false, false, false, true, true, false, true, true, true, true, false, true, false, false, true, false]);
             assert_eq!(code.decode_to_code(&randvec), Ok(codeword));
         }
         

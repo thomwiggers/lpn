@@ -4,9 +4,21 @@ from __future__ import print_function
 import itertools
 import sys
 from jinja2 import Environment
-from sage.all import codes, GF, vector, ZZ, random_vector, channels, matrix, Matrix, gap
-from sage import coding
 from collections import defaultdict
+import sage
+from sage.all import *
+
+from sage.features.gap import GapPackage
+
+feature = GapPackage("GUAVA")
+print(feature)
+if not feature:
+    sys.exit(1)
+
+# The databases module can be annoying to load
+import sage.coding as coding
+from sage.coding import databases
+coding.databases.best_linear_code_in_guava
 
 
 def boollist(lst):
@@ -56,9 +68,9 @@ def vectors_up_to(weight, n):
 
 
 def bools_to_binvec(bools):
-    u64s = list(0 for _ in range(len(bools)/64 + (1 if len(bools) % 64 != 0 else 0)))
+    u64s = list(0 for _ in range(len(bools)//64 + (1 if len(bools) % 64 != 0 else 0)))
     for (i, bit) in enumerate(bools):
-        u64s[i/64] |= bool(bit) << (i % 64)
+        u64s[i//64] |= bool(bit) << (i % 64)
     return u64s
 
 def wagner_to_code(m, k, rows):
@@ -94,7 +106,7 @@ def generate_code_implementation(name, code, comment=None):
         syndrome_map[ZZ(list(he), base=2)] = bools_to_binvec(error)
 
     info['syndrome_map'] = syndrome_map
-    info['syndrome_map_itemlen'] = len(syndrome_map.values()[0])
+    info['syndrome_map_itemlen'] = len(list(syndrome_map.values())[0])
 
     assert max(syndrome_map) < 2**64, "sydrome map too big!"
     
@@ -103,7 +115,7 @@ def generate_code_implementation(name, code, comment=None):
     testcases = []
     if 'might-error' in cs.decoder().decoder_type():
         max_error -= 3
-    for _ in range(200):
+    for _ in range(20):
         randvec = random_vector(GF(2), code.length())
         codeword = cs.decode_to_code(randvec)
         testcase = {
@@ -235,43 +247,53 @@ if False:
     # https://www.sciencedirect.com/science/article/pii/S0019995866901288
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(9, 11, [0o774, 0o763, 0o717, 0o477, 0o377, 0o650, 0o622, 0o605, 0o330, 0o243, 0o631])
+        wagner_to_code(9, 11, [0o774, 0o763, 0o717, 0o477, 0o377, 0o650, 0o622, 0o605, 0o330, 0o243, 0o631]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(9, 13, [0o760, 0o714, 0o525, 0o256, 0o702, 0o650, 0o621, 0o511, 0o243, 0o445, 0o126, 0o572, 0o675])
+        wagner_to_code(9, 13, [0o760, 0o714, 0o525, 0o256, 0o702, 0o650, 0o621, 0o511, 0o243, 0o445, 0o126, 0o572, 0o675]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(9, 14, [0o760, 0o714, 0o525, 0o256, 0o702, 0o650, 0o621, 0o511, 0o243, 0o445, 0o126, 0o572, 0o675, 0o337])
+        wagner_to_code(9, 14, [0o760, 0o714, 0o525, 0o256, 0o702, 0o650, 0o621, 0o511, 0o243, 0o445, 0o126, 0o572, 0o675, 0o337]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(10, 15, [0o1216, 0o73, 0o664, 0o1550, 0o1777, 0o1321, 0o507, 0o1643, 0o1435, 0o1166, 0o1524, 0o1422, 0o612, 0o530, 0o467])
+        wagner_to_code(10, 15, [0o1216, 0o73, 0o664, 0o1550, 0o1777, 0o1321, 0o507, 0o1643, 0o1435, 0o1166, 0o1524, 0o1422, 0o612, 0o530, 0o467]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(10, 16, [0o1216, 0o73, 0o664, 0o1550, 0o1777, 0o1321, 0o507, 0o1643, 0o1435, 0o1166, 0o1524, 0o1422, 0o612, 0o530, 0o262, 0o123])
+        wagner_to_code(10, 16, [0o1216, 0o73, 0o664, 0o1550, 0o1777, 0o1321, 0o507, 0o1643, 0o1435, 0o1166, 0o1524, 0o1422, 0o612, 0o530, 0o262, 0o123]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(10, 17, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o226, 0o164])
+        wagner_to_code(10, 17, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o226, 0o164]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(10, 18, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o226, 0o164, 0o47])
+        wagner_to_code(10, 18, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o226, 0o164, 0o47]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(10, 19, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o216, 0o66, 0o1171, 0o1547])
+        wagner_to_code(10, 19, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o216, 0o66, 0o1171, 0o1547]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(10, 20, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o231, 0o164, 0o1166, 0o1066, 0o436, 0o1171])
+        wagner_to_code(10, 20, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o231, 0o164, 0o1166, 0o1066, 0o436, 0o1171]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
     generate_code_implementation(
         "Wagner",
-        wagner_to_code(11, 21, [0o3550, 0o3321, 0o2643, 0o1507, 0o3216, 0o2435, 0o1664, 0o732, 0o355, 0o2166, 0o1073, 0o3044, 0o3022, 0o2700, 0o2775, 0o1767, 0o3717, 0o3477, 0o227, 0o526, 0o2322])
+        wagner_to_code(11, 21, [0o3550, 0o3321, 0o2643, 0o1507, 0o3216, 0o2435, 0o1664, 0o732, 0o355, 0o2166, 0o1073, 0o3044, 0o3022, 0o2700, 0o2775, 0o1767, 0o3717, 0o3477, 0o227, 0o526, 0o2322]),
+        comment="https://www.sciencedirect.com/science/article/pii/S0019995866901288",
     )
 
 if True:

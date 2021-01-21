@@ -185,3 +185,13 @@ pub use self::mds::*;
 mod custom;
 #[cfg(feature = "custom")]
 pub use self::custom::*;
+
+#[cfg(feature = "wagner")]
+mod wagner;
+#[cfg(feature = "wagner")]
+pub use self::wagner::*;
+
+#[cfg(feature = "guavacodes")]
+mod guava;
+#[cfg(feature = "guavacodes")]
+pub use self::guava::*;
