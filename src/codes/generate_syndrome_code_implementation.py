@@ -4,7 +4,9 @@ from __future__ import print_function
 import itertools
 import sys
 from jinja2 import Environment
-from sage.all import codes, GF, vector, ZZ, random_vector, channels, matrix
+from sage.all import codes, GF, vector, ZZ, random_vector, channels, matrix, Matrix, gap
+from sage import coding
+from collections import defaultdict
 
 
 def boollist(lst):
@@ -19,6 +21,26 @@ def intlist(lst):
 ENVIRONMENT = Environment()
 ENVIRONMENT.filters['boollist'] = boollist
 ENVIRONMENT.filters['intlist'] = intlist
+
+
+MODULE_TEMPLATE = """
+macro_rules! useit {
+    ($name:ident) => {
+        mod $name;
+        pub use self::$name::*;
+    };
+}
+
+"""
+
+def render_module(name, codes):
+    with open('{}/mod.rs'.format(name.lower()), 'w') as f:
+        f.write(MODULE_TEMPLATE)
+        for (n, k) in codes:
+            f.write("useit!({namelower}_{n}_{k});\n"
+                    .format(namelower=name.lower(), n=n, k=k))
+
+rendered_codes = defaultdict(list)
 
 
 def vectors_up_to(weight, n):
@@ -39,8 +61,19 @@ def bools_to_binvec(bools):
         u64s[i/64] |= bool(bit) << (i % 64)
     return u64s
 
+def wagner_to_code(m, k, rows):
+    assert k == len(rows), "Doesn't match"
+    mat_rows = []
+    for row in [list(bin(row)[2:]) for row in rows]:
+        row_len = len(row)
+        mat_rows.append(
+            [GF(2)(i) for i in (['0']*(m-row_len) + row)]
+        )   
+    P = Matrix(GF(2), mat_rows)
+    return codes.LinearCode(matrix.identity(GF(2),k).augment(P))
 
-def generate_code_implementation(name, code):
+
+def generate_code_implementation(name, code, comment=None):
     """Generate a code implementation"""
     k = code.dimension()
     cs, _p = code.standard_form()
@@ -51,6 +84,7 @@ def generate_code_implementation(name, code):
         'generator': [bools_to_binvec(row) for row in cs.systematic_generator_matrix()],
         'generator_bools': cs.systematic_generator_matrix(),
         'parity_matrix': [bools_to_binvec(row) for row in cs.parity_check_matrix()],
+        "comment": comment,
     }
 
     max_error = code.decoder().maximum_error_weight()
@@ -87,11 +121,16 @@ def generate_code_implementation(name, code):
               'w') as outputfile:
         outputfile.write(template.render(**info))
 
+    rendered_codes[name].append((code.length(), code.dimension()))
+
 
 if __name__ == "__main__":
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 2))
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 3))
     #generate_code_implementation("Hamming", codes.HammingCode(GF(2), 4))
+    rendered_codes["Hamming"].append((3, 1))
+    rendered_codes["Hamming"].append((7, 4))
+    rendered_codes["Hamming"].append((15, 11))
     print("Hamming code 5")
     generate_code_implementation("Hamming", codes.HammingCode(GF(2), 5))
     print("Hamming code 6")
@@ -146,7 +185,7 @@ if __name__ == "__main__":
                     [0, 0, 1, 1, 1],
                 ])))
 
-if True:
+if False:
     print("Bogos code [18, 6]")
     generate_code_implementation(
         "Bogosrnd",
@@ -190,3 +229,65 @@ if True:
                     [1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0],
                     [1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
                 ])))
+    
+if False:
+    print("Wagner codes")
+    # https://www.sciencedirect.com/science/article/pii/S0019995866901288
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(9, 11, [0o774, 0o763, 0o717, 0o477, 0o377, 0o650, 0o622, 0o605, 0o330, 0o243, 0o631])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(9, 13, [0o760, 0o714, 0o525, 0o256, 0o702, 0o650, 0o621, 0o511, 0o243, 0o445, 0o126, 0o572, 0o675])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(9, 14, [0o760, 0o714, 0o525, 0o256, 0o702, 0o650, 0o621, 0o511, 0o243, 0o445, 0o126, 0o572, 0o675, 0o337])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(10, 15, [0o1216, 0o73, 0o664, 0o1550, 0o1777, 0o1321, 0o507, 0o1643, 0o1435, 0o1166, 0o1524, 0o1422, 0o612, 0o530, 0o467])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(10, 16, [0o1216, 0o73, 0o664, 0o1550, 0o1777, 0o1321, 0o507, 0o1643, 0o1435, 0o1166, 0o1524, 0o1422, 0o612, 0o530, 0o262, 0o123])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(10, 17, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o226, 0o164])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(10, 18, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o226, 0o164, 0o47])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(10, 19, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o611, 0o216, 0o66, 0o1171, 0o1547])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(10, 20, [0o525, 0o1252, 0o377, 0o1477, 0o1717, 0o1763, 0o1774, 0o1640, 0o1510, 0o1422, 0o1405, 0o1304, 0o1203, 0o720, 0o231, 0o164, 0o1166, 0o1066, 0o436, 0o1171])
+    )
+    generate_code_implementation(
+        "Wagner",
+        wagner_to_code(11, 21, [0o3550, 0o3321, 0o2643, 0o1507, 0o3216, 0o2435, 0o1664, 0o732, 0o355, 0o2166, 0o1073, 0o3044, 0o3022, 0o2700, 0o2775, 0o1767, 0o3717, 0o3477, 0o227, 0o526, 0o2322])
+    )
+
+if True:
+    guava_version = gap("guava_version();")
+    for n in range(25):
+        for k in range(10, n):
+            code = coding.databases.best_linear_code_in_guava(n, k, GF(2))
+            if code:
+                print("Rendering GUAVA-{}-found [{}, {}] code".format(guava_version, n, k))
+                generate_code_implementation(
+                    "Guava",
+                    code,
+                    comment="Best code found from the GUAVA database version {}".format(guava_version)
+                )
+            else:
+                print("Guava doesn't have [{}, {}]".format(n, k))
+
+for (name, codes) in rendered_codes.items():
+    render_module(name, codes)

@@ -10,6 +10,8 @@ use m4ri_rust::friendly::BinVector;
 use crate::codes::BinaryCode;
 
 /// ``[{{n}}, {{k}}]`` {{ name }} code
+///{% if comment %}
+/// {{ comment }}{% endif %}
 ///
 /// Decodes using Syndrome decoding
 #[derive(Clone, Serialize)]
