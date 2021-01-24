@@ -1,5 +1,5 @@
 /// Example of the covering codes reduction combined with WHT to get the secret.
-#[cfg(feature = "codes")]
+#[cfg(feature = "hamming")]
 fn main() {
     extern crate lpn;
     extern crate m4ri_rust;
@@ -37,7 +37,7 @@ fn main() {
     println!("Found (Gauss):  {:?}", gauss_solution);
 }
 
-#[cfg(not(feature = "codes"))]
+#[cfg(not(feature = "hamming"))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }

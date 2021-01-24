@@ -1,10 +1,8 @@
 //! Defines the algorithms from the classic Blum, Kalai and Wasserman paper
-use crate::oracle::query_bits_range;
 use crate::oracle::*;
 use fnv::FnvHashMap;
 use m4ri_rust::friendly::BinVector;
-use std::ops;
-use std::{default::Default, num::NonZeroUsize, slice};
+use std::{default::Default, num::NonZeroUsize, ops};
 
 use rayon::prelude::*;
 use unchecked_unwrap::UncheckedUnwrap;
@@ -19,6 +17,46 @@ use unchecked_unwrap::UncheckedUnwrap;
 pub fn bkw(mut oracle: LpnOracle, a: u32, b: u32) -> BinVector {
     bkw_reduce(&mut oracle, a, b);
     majority(oracle)
+}
+
+/// XXX get rid of this allow?
+#[allow(mutable_transmutes)]
+pub(crate) fn create_partitions(oracle_samples: &mut [Sample], bitrange: ops::Range<usize>) -> Vec<&mut [Sample]> {
+    let num_samples = oracle_samples.len();
+    let maxj = 2usize.pow(bitrange.len() as u32);
+
+    oracle_samples.sort_unstable_by_key(|s| query_bits_range(s, bitrange.clone()));
+
+    // create iterator to zip
+    let pivots = {
+        let samples = &*oracle_samples;
+        (0..maxj)
+            .into_par_iter()
+            .map(|item| {
+                samples.partition_point(|q| query_bits_range(q, bitrange.clone()) <= item as u64)
+            })
+            .collect::<Vec<_>>()
+    };
+    let lefts = rayon::iter::once(0).chain(pivots.par_iter().copied());
+    let rights = pivots
+        .par_iter()
+        .copied()
+        .chain(rayon::iter::once(num_samples));
+    let partitions = lefts.zip(rights).filter_map(|(l, r)| unsafe {
+        if l == r {
+            None
+        } else {
+            debug_assert!(l < r, "{} >= {}", l, r);
+            let slice = std::mem::transmute::<&[Sample], &mut [Sample]>(&oracle_samples[l..r]);
+            Some(slice)
+        }
+    }).collect::<Vec<_>>();
+
+    debug_assert_eq!(
+        num_samples,
+        partitions.iter().map(|s| s.len()).sum::<usize>()
+    );
+    partitions
 }
 
 /// Reduces the LPN problem size using the reduction from Blum, Kalai and Wasserman.
@@ -79,7 +117,6 @@ fn bkw_reduce_sorted(oracle: &mut LpnOracle, i: usize, b: usize) {
     let bitrange: ops::Range<usize> = (k - (b * i))..(k - (b * (i - 1)));
 
     let maxj = 2usize.pow(b as u32);
-    let num_samples = oracle.samples.len();
     // max j:
     println!(
         "BKW iteration, {} samples left, expecting to remove {} through sorting method",
@@ -94,45 +131,20 @@ fn bkw_reduce_sorted(oracle: &mut LpnOracle, i: usize, b: usize) {
 
     // split into partitions
     let oracle_start = oracle.samples.as_ptr() as usize;
-    let maxj = 2usize.pow(b as u32);
-    // create iterator to zip
-    let pivots = (0..maxj).into_par_iter().map(|item| {
-        let pivot = oracle
-            .samples
-            .partition_point(|q| item as u64 > query_bits_range(q, bitrange.clone()));
-        pivot
-    });
-    let sample_ptr = &oracle.samples;
-    let lefts = rayon::iter::once(0).chain(pivots.clone());
-    let rights = pivots.chain(rayon::iter::once(num_samples));
-    let partitions = lefts.zip(rights).rev().filter_map(|(l, r)| unsafe {
-        if l == r {
-            None
-        } else {
-            let ptr = std::mem::transmute::<*const _, *mut _>(sample_ptr.as_ptr().add(l));
-            debug_assert!(l < r, "{} >= {}", l, r);
-            Some(slice::from_raw_parts_mut(ptr, r - l))
-        }
-    });
-
-    // we need to collect here because otherwise we are both reading from our
-    // &mut [Sample]s (below) and from &oracle.samples above
-    let partitions = {
-        let partitions = partitions.collect::<Vec<&mut [Sample]>>();
-        debug_assert_eq!(num_samples, partitions.iter().map(|s| s.len()).sum());
-        partitions.into_par_iter()
-    };
+    let partitions = create_partitions(&mut oracle.samples, bitrange.clone());
 
     // process produced slices
     let partitions = partitions
+        .into_par_iter()
         .map(|partition: &mut [Sample]| {
-            let first = partition[0];
-            let len = partition.len() - 1;
-            partition[1..].iter_mut().enumerate().for_each(|(idx, q)| {
+            let (partition, remainder) = partition.split_at_mut(1);
+            let first = &partition[0];
+            let len = remainder.len();
+            remainder.iter_mut().enumerate().for_each(|(idx, q)| {
                 let l = query_bits_range(&first, bitrange.clone());
                 let r = query_bits_range(&q, bitrange.clone());
                 debug_assert_eq!(l, r, "{:b} != {:b} (idx: {}/{})", l, r, idx, len);
-                q.xor_into(&first);
+                q.xor_into(first);
                 debug_assert_eq!(0, query_bits_range(&q, bitrange.clone()));
             });
             partition.as_ptr() as usize
@@ -239,5 +251,31 @@ mod test {
         let solution = bkw(oracle, a, b);
         secret.truncate(solution.len());
         assert_eq!(solution, secret);
+    }
+
+    #[test]
+    fn test_partition() {
+        let k = MAX_K - 10;
+        let mut oracle = LpnOracle::new(k as u32, 1.0/8.0);
+        oracle.get_samples(1000);
+        let bitrange = k-10..k;
+        let parts = create_partitions(&mut oracle.samples, bitrange.clone());
+        let mut failed = false;
+        for part in parts {
+            let first_range = query_bits_range(&part[0], bitrange.clone());
+            for (idx, sample) in part[1..].into_iter().enumerate() {
+                let bits = query_bits_range(sample, bitrange.clone());
+                if bits != first_range { 
+                    println!("failed for idx {} ({:b})", idx+1, bits);
+                    failed = true;
+                } 
+            }
+            if !failed {
+                println!("still okay");
+            }
+        }
+        assert!(!failed);
+
+
     }
 }

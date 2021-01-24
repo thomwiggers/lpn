@@ -3,7 +3,7 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate test;
 
-#[cfg(feature = "codes")]
+#[cfg(feature = "hamming")]
 mod bench {
     use crate::test::Bencher;
     use lpn::codes::*;

@@ -171,6 +171,7 @@ impl<'codes> BinaryCode for ConcatenatedCode<'codes> {
     }
 }
 
+#[cfg(feature = "hamming")]
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,11 +1,19 @@
 //! Defines the algorithms from the Levieil and Fouque paper (LF1, LF2)
-use crate::oracle::{are_last_bits_zero, query_bits_range, LpnOracle, Sample, SampleStorage};
+use crate::{
+    bkw::create_partitions,
+    oracle::{are_last_bits_zero, query_bits_range, LpnOracle, Sample, SampleStorage},
+    util::log_2,
+};
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use packed_simd_2::i64x4;
 use rayon::prelude::*;
-use std::{ops, slice};
+use std::{
+    ops,
+    sync::atomic::{AtomicI64, Ordering},
+};
+use unchecked_unwrap::UncheckedUnwrap;
 
 use std::mem::size_of;
 
@@ -63,7 +71,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         n_prime as i32 - 2 * (hw as i32)
     };
 
-    println!("Doing LF1 naively");
+    log::trace!("Doing LF1 naively");
     let max = 2usize.pow(b as u32);
     // find the candidate with the best weight
     let best_candidate = (1..max)
@@ -71,7 +79,7 @@ pub fn lf1_solve(oracle: LpnOracle) -> BinVector {
         .max_by_key(|candidate| computation(*candidate))
         .expect("Can't work on an empty list");
 
-    println!("Best candidate weight: {}", best_candidate.count_ones());
+    log::info!("Best candidate weight: {}", best_candidate.count_ones());
     usize_to_binmatrix(best_candidate as u64, b).as_vector()
 }
 
@@ -86,146 +94,209 @@ pub fn xor_reduce(oracle: &mut LpnOracle, b: u32) {
     xor_drop_reduce(oracle, b, 0)
 }
 
+fn fill_delete_ranges(deletes: &mut Vec<&mut [Sample]>, extras: &mut Vec<Sample>) {
+    while deletes.len() > 0 && extras.len() > 0 {
+        let fillable = unsafe { deletes.pop().unchecked_unwrap() };
+        let fillable_len = fillable.len();
+        if fillable_len <= extras.len() {
+            let offset = extras.len() - fillable_len;
+            debug_assert_eq!(extras[offset..].len(), fillable_len);
+            let src = &extras[offset..];
+            for (dst, src) in fillable.iter_mut().zip_eq(src) {
+                *dst = src.clone();
+            }
+            extras.truncate(offset);
+        } else {
+            let (fillable, remainder) = fillable.split_at_mut(extras.len());
+            debug_assert_eq!(fillable.len(), extras.len());
+            for (dst, src) in fillable.iter_mut().zip_eq(extras.iter()) {
+                *dst = src.clone();
+            }
+            if deletes.capacity() < 10 {
+                deletes.reserve_exact(1000);
+            }
+            extras.truncate(extras.len() - fillable.len());
+            deletes.push(remainder);
+        }
+    }
+}
+
 pub fn xor_drop_reduce(oracle: &mut LpnOracle, b: u32, zero_bits: usize) {
     let k = oracle.get_k();
     let b = b as usize;
     assert!(b < k);
 
     let num_samples = oracle.samples.len();
-    println!("xor-reduce iteration, {} samples", num_samples);
+
+    let expected_samples =
+        (num_samples * (num_samples - 1)) / 2usize.pow((b + 1 + zero_bits) as u32);
+
+    log::info!(
+        "xor-reduce iteration, b={}, {} samples (log2: {}), expect to obtain {} (log2: {})",
+        b,
+        num_samples,
+        log_2(num_samples),
+        expected_samples,
+        log_2(expected_samples)
+    );
     // Partition into V_j
     let bitrange: ops::Range<usize> = (k - b)..k;
-    println!("Sorting");
     oracle
         .samples
         .par_sort_unstable_by_key(|q| query_bits_range(q, bitrange.clone()));
 
+    let dup_count = (&oracle.samples[1..])
+        .iter()
+        .fold((&oracle.samples[0], 0usize), |(prev, count), s| {
+            if prev == s {
+                (s, count + 1)
+            } else {
+                (s, count)
+            }
+        })
+        .1;
+    if dup_count > 0 {
+        log::warn!("There are {} duplicate samples", dup_count);
+    }
+
     // split into partitions
-    println!("Creating partitions");
-    let oracle_start = oracle.samples.as_ptr();
-    let maxj = 2usize.pow(b as u32);
-    // create iterator to zip
-    let pivots = (0..maxj).into_par_iter().map(|item| {
-        oracle
-            .samples
-            .partition_point(|q| item as u64 > query_bits_range(q, bitrange.clone()))
-    });
-    let sample_ptr = &oracle.samples;
-    let lefts = rayon::iter::once(0).chain(pivots.clone());
-    let rights = pivots.chain(rayon::iter::once(num_samples));
-    let partitions = lefts.zip(rights).filter_map(|(l, r)| unsafe {
-        if l == r {
-            None
-        } else {
-            let ptr = std::mem::transmute::<*const _, *mut Sample>(sample_ptr.as_ptr().add(l));
-            debug_assert!(l < r, "{} >= {}", l, r);
-            Some(slice::from_raw_parts_mut(ptr, r - l))
-        }
-    });
+    log::debug!("Creating partitions");
 
-    // we need to collect here because otherwise we are both reading from our
-    // &mut [Sample]s (below) and from &oracle.samples above
-    let partitions = {
-        let partitions = partitions.collect::<Vec<&mut [Sample]>>();
-        debug_assert_eq!(num_samples, partitions.iter().map(|s| s.len()).sum());
-        partitions.into_par_iter()
-    };
+    let partitions = create_partitions(&mut oracle.samples, bitrange.clone());
 
-    println!("xor-reducing");
-    let (_, delete_ranges, extra_stuff): (Vec<Sample>, Vec<_>, Vec<Vec<Sample>>) = partitions
+    log::debug!("xor-reducing over {} partitions", partitions.len());
+    let (mut delete_ranges, mut extra_stuff): (Vec<_>, Vec<Sample>) = partitions
+        .into_par_iter()
         .fold(
             || {
                 (
-                    Vec::<Sample>::new(), // temporary vector to collect results in. cleared after every iter
                     Vec::<&mut [Sample]>::new(), // Ranges that should be filled or emptied out
-                    Vec::<Vec<Sample>>::new(), // Additional samples
+                    Vec::<Sample>::new(),        // Additional samples
                 )
             },
-            |(mut result, mut deletes, mut extra), partition: &mut [Sample]| {
-                let new_samples = partition.iter().tuple_combinations().map(|(v1, v2)| {
-                    let mut vnew = v1.clone();
-                    vnew.xor_into(v2);
-                    vnew
-                });
+            |(mut deletes, mut extras), partition: &mut [Sample]| {
+                let new_samples = partition
+                    .iter()
+                    .tuple_combinations()
+                    .map(|(v1, v2)| {
+                        debug_assert_eq!(
+                            query_bits_range(v1, bitrange.clone()),
+                            query_bits_range(v2, bitrange.clone())
+                        );
+                        let mut vnew = v1.clone();
+                        debug_assert_eq!(&vnew, v1);
+                        vnew.xor_into(v2);
+                        debug_assert_ne!(&vnew, v1);
+                        debug_assert_ne!(&vnew, v2);
+                        debug_assert_eq!(
+                            v1.as_binvector(k) + v2.as_binvector(k),
+                            vnew.as_binvector(k)
+                        );
+                        vnew
+                    })
+                    .collect::<Vec<_>>();
+                extras.reserve_exact(new_samples.len());
                 if zero_bits != 0 {
-                    result.extend(new_samples.filter(|x| are_last_bits_zero(x, k, zero_bits)));
+                    extras.extend(
+                        new_samples
+                            .into_iter()
+                            .filter(|x| are_last_bits_zero(x, k, zero_bits)),
+                    );
                 } else {
-                    result.extend(new_samples)
+                    extras.extend(new_samples);
                 };
-                if result.len() >= partition.len() {
-                    partition.copy_from_slice(&result[result.len() - partition.len()..]);
-                    let mut taken = partition.len();
-                    // plug any holes left by previous iterations
-                    while taken < result.len() {
-                        if let Some(fillable) = deletes.pop() {
-                            let copy_to = result.len() - taken;
-                            if fillable.len() > result.len() - taken {
-                                let copy_from = copy_to - fillable.len();
-                                let (fillable_here, fillable_later) =
-                                    fillable.split_at_mut(result.len());
-                                fillable_here.copy_from_slice(&result[copy_from..copy_to]);
-                                deletes.push(fillable_later);
-                                break;
-                            } else {
-                                let copy_from = copy_to - fillable.len();
-                                fillable.copy_from_slice(&result[copy_from..copy_to]);
-                                taken += fillable.len();
-                            }
-                        } else {
-                            let extra_result = result[..(result.len() - taken)].to_vec();
-                            extra.push(extra_result);
-                            break;
-                        }
-                    }
-                } else {
-                    // partition is larger than result
-                    partition[..result.len()].copy_from_slice(&result[..]);
-                    let (_, deleteme) = partition.split_at_mut(result.len());
-                    deletes.push(deleteme);
+
+                if deletes.capacity() < 10 {
+                    deletes.reserve_exact(1000);
                 }
-                // throw away this result
-                result.clear();
-                (result, deletes, extra)
+                deletes.push(partition);
+
+                fill_delete_ranges(&mut deletes, &mut extras);
+
+                (deletes, extras)
             },
         )
         .reduce(
-            || (Vec::new(), Vec::new(), Vec::new()),
-            |mut a: (Vec<Sample>, Vec<&mut [Sample]>, Vec<Vec<Sample>>),
-             b: (Vec<_>, Vec<_>, Vec<Vec<Sample>>)| {
-                debug_assert_eq!(a.0.len(), 0);
-                a.0.shrink_to_fit();
-                (a.1).extend(b.1);
-                (a.2).extend(b.2);
-                a
+            || (Vec::new(), Vec::new()),
+            |(mut a_delete, mut a_extra): (Vec<&mut [Sample]>, Vec<Sample>),
+             (mut b_delete, mut b_extra): (Vec<_>, Vec<Sample>)| {
+                fill_delete_ranges(&mut a_delete, &mut b_extra);
+                fill_delete_ranges(&mut b_delete, &mut a_extra);
+
+                let mut a_delete = if a_delete.len() > b_delete.len() {
+                    a_delete.reserve_exact(b_delete.len() + 100);
+                    a_delete.extend(b_delete);
+                    a_delete
+                } else {
+                    b_delete.reserve_exact(a_delete.len() + 100);
+                    b_delete.extend(a_delete);
+                    b_delete
+                };
+                let mut a_extra = if a_extra.len() > b_extra.len() {
+                    a_extra.reserve_exact(b_extra.len() + 100);
+                    a_extra.extend(b_extra);
+                    a_extra
+                } else {
+                    b_extra.reserve_exact(a_extra.len() + 100);
+                    b_extra.extend(a_extra);
+                    b_extra
+                };
+
+                fill_delete_ranges(&mut a_delete, &mut a_extra);
+
+                (a_delete, a_extra)
             },
         );
+    log::trace!("Done with xor-reducing, moving into cleanup");
 
-    // Remove the ranges that we've left empty.
-    let delete_ranges = delete_ranges
-        .into_iter()
-        .rev()
-        .map(|old_partition| {
-            let old_partition = old_partition.as_ptr_range();
-            let startpos = (old_partition.start as *const _ as usize - oracle_start as usize)
-                / std::mem::size_of::<Sample>();
-            let endpos = (old_partition.end as *const _ as usize - oracle_start as usize)
-                / std::mem::size_of::<Sample>();
-            startpos..endpos
-        })
-        .collect::<Vec<_>>();
-    delete_ranges
-        .into_iter()
-        .for_each(|range| oracle.samples.drain(range).for_each(drop));
-    let num_extra_samples = extra_stuff.iter().fold(0, |acc, v| acc + v.len());
+    fill_delete_ranges(&mut delete_ranges, &mut extra_stuff);
+
+    let num_extra_samples = extra_stuff.len();
+    let delete_count = delete_ranges.iter().map(|v| v.len()).sum::<usize>();
+    log::debug!(
+        "deleting {} samples before extending with {} extra samples",
+        delete_count,
+        num_extra_samples
+    );
+
+    // sort samples to clear out remainder
+    if delete_count > 0 {
+        delete_ranges.into_par_iter().for_each(|deletable_samples| {
+            for sample in deletable_samples {
+                for block in sample.get_sample_mut() {
+                    *block = !0;
+                }
+            }
+        });
+
+        oracle.samples.par_sort_unstable();
+        debug_assert_eq!(oracle.samples.last().unwrap().get_sample()[0], !0);
+
+        oracle.samples.truncate(oracle.samples.len() - delete_count);
+    }
+
+    log::trace!(
+        "extending with {} newly generated samples",
+        num_extra_samples
+    );
     oracle.samples.reserve_exact(num_extra_samples);
-    oracle.samples.extend(extra_stuff.into_iter().flatten());
+    oracle.samples.extend(extra_stuff);
+    oracle.samples.shrink_to_fit();
+
+    debug_assert!(!oracle
+        .samples
+        .iter()
+        .any(|q| query_bits_range(q, bitrange.clone()) != 0));
 
     // Set the new k
-    oracle.truncate(k - b);
+    log::trace!("truncating oracle");
+    unsafe { oracle.set_k(k - b) };
+    oracle.secret.truncate(k - b, true);
     oracle.delta = oracle.delta.powi(2);
-    println!(
-        "xor-reduce iteration done, {} samples now, k' = {}",
+    log::debug!(
+        "xor-reduce iteration done, {} samples (2^{}) now, k' = {}",
         oracle.samples.len(),
+        log_2(oracle.samples.len()),
         oracle.get_k()
     );
 }
@@ -235,30 +306,14 @@ pub fn xor_drop_reduce(oracle: &mut LpnOracle, b: u32, zero_bits: usize) {
 /// This section of code is based on the implementation of
 /// LPN by Tramer (Bogos, Tramer, Vaudenay 2015)
 pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
-    println!("FWHT solving...");
+    log::info!("FWHT solving for k' = {}", oracle.get_k());
+    assert!(oracle.get_k() < crate::util::num_bits::<usize>());
+
     let k = oracle.get_k() as u32;
+    let mut majority_counter = count_samples(oracle);
 
-    let mut majority_counter = oracle
-        .samples
-        .into_par_iter()
-        .fold(
-            || vec![0; 2usize.pow(k)],
-            |mut counters, sample| {
-                let idx = sample.get_block(0) as usize;
-                counters[idx] += if sample.get_product() { -1 } else { 1 };
-                counters
-            },
-        )
-        .reduce(
-            || vec![0; 2usize.pow(k)],
-            |mut a, b| {
-                a.iter_mut().zip(b).for_each(|(a, b)| *a += b);
-                a
-            },
-        );
-
-    println!("FWHT");
-    parfwht(majority_counter.as_mut_slice(), k);
+    log::debug!("FWHT");
+    parfwht(&mut majority_counter[..], k);
 
     let guess = (0..2usize.pow(k))
         .max_by_key(|x| majority_counter[*x])
@@ -269,6 +324,26 @@ pub fn fwht_solve(oracle: LpnOracle) -> BinVector {
         result.push(guess >> i & 1 == 1);
     }
     result
+}
+
+#[cfg(target_arch = "x86_64")]
+fn count_samples(oracle: LpnOracle) -> Vec<i64> {
+    let k = oracle.get_k() as u32;
+
+    let mut sum_vector = Vec::new();
+    sum_vector.resize_with(2usize.pow(k), || AtomicI64::new(0));
+
+    oracle
+        .samples
+        .into_par_iter()
+        .for_each_with(&sum_vector[..], |counters, sample| {
+            let idx = sample.get_block(0) as usize;
+            counters[idx].fetch_add(if sample.get_product() { -1 } else { 1 }, Ordering::Relaxed);
+        });
+    sum_vector
+        .into_iter()
+        .map(|i| i.into_inner())
+        .collect::<Vec<_>>()
 }
 
 /// Fast Walsh Hamadard Transform

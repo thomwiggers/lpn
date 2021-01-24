@@ -171,9 +171,7 @@ pub use self::identity::*;
 mod repetition;
 pub use self::repetition::*;
 
-#[cfg(feature = "bogosrnd")]
 mod bogosrnd;
-#[cfg(feature = "bogosrnd")]
 pub use self::bogosrnd::*;
 
 #[cfg(feature = "mds")]
@@ -186,12 +184,8 @@ mod custom;
 #[cfg(feature = "custom")]
 pub use self::custom::*;
 
-#[cfg(feature = "wagner")]
 mod wagner;
-#[cfg(feature = "wagner")]
 pub use self::wagner::*;
 
-#[cfg(feature = "guavacodes")]
 mod guava;
-#[cfg(feature = "guavacodes")]
 pub use self::guava::*;

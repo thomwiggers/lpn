@@ -1,13 +1,20 @@
 //! Describes the LPN problem oracle on which we apply reductions and solving algorithms
 //!
 //! This project currently makes strong assumptions that u64 == usize
+use indicatif::ProgressBar;
 use m4ri_rust::friendly::*;
 use rand::distributions::{Bernoulli, Distribution};
-use std::{mem::MaybeUninit, ops::Range};
+use std::{
+    cmp, fmt,
+    mem::{self, MaybeUninit},
+    ops::Range,
+};
 
 use rand::prelude::*;
 use rand_hc::Hc128Rng;
 use rayon::prelude::*;
+
+use crate::util::log_2;
 
 pub(crate) type StorageBlock = u64;
 pub(crate) const ONE: StorageBlock = 1;
@@ -54,10 +61,22 @@ pub(crate) type SampleStorage = [StorageBlock; SAMPLE_LEN];
 /// Represents a sample in the oracle
 ///
 /// `<a, s> + e = c`
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(transparent)]
 pub struct Sample {
     sample: [StorageBlock; SAMPLE_LEN],
+}
+
+impl fmt::Debug for Sample {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let sample = self
+            .sample
+            .iter()
+            .copied()
+            .map(|b| format!("{:064b}", b))
+            .collect::<Vec<String>>();
+        f.debug_tuple("Sample").field(&sample).finish()
+    }
 }
 
 impl Sample {
@@ -100,7 +119,7 @@ impl Sample {
             .iter_mut()
             .zip(other.sample.iter())
             .for_each(|(v1, v2)| *v1 ^= v2);
-        assert_eq!(self.get_product(), before_a ^ before_b);
+        debug_assert_eq!(self.get_product(), before_a ^ before_b);
     }
 
     /// set noise bit
@@ -227,8 +246,8 @@ impl LpnOracle {
             "We require K limit to be hardcoded, sorry. Max K for this build: {}",
             MAX_K
         );
-        if blocks_required(k) < blocks_required(MAX_K + 1) {
-            println!("WARNING: you could reduce MAX_K, be faster and use less memory!");
+        if blocks_required(k + 1) < blocks_required(MAX_K + 1) {
+            log::warn!("WARNING: you could reduce MAX_K, be faster and use less memory!");
         }
         debug_assert!((0.0..1.0).contains(&tau), "0 <= tau < 1");
         debug_assert!(k > 0, "should have k > 0");
@@ -236,7 +255,7 @@ impl LpnOracle {
             sample: rand::random(),
         };
         secret.truncate(k, true);
-        println!("Constructed Oracle with k={}, τ={:0.5}", k, tau);
+        log::info!("Constructed Oracle with k={}, τ={:0.5}", k, tau);
 
         LpnOracle {
             samples: vec![],
@@ -262,10 +281,13 @@ impl LpnOracle {
     ///
     /// Uses parallelism
     pub fn get_samples(&mut self, n: usize) {
-        self.samples.extend(self.get_some_samples(n));
+        let mut input_samples = Vec::with_capacity(n);
+        self.get_some_samples(&mut input_samples, n);
+        self.samples.reserve_exact(input_samples.len());
+        self.samples.extend(input_samples);
     }
 
-    fn get_some_samples(&self, n: usize) -> Vec<Sample> {
+    fn get_some_samples(&self, result: &mut Vec<Sample>, n: usize) {
         let k = self.k as usize;
 
         let tau = (1.0 - self.delta) / 2.0;
@@ -273,11 +295,16 @@ impl LpnOracle {
         let secret = &self.secret;
 
         // allocate the space.
-        let mut samples = Vec::with_capacity(n);
+        result.reserve_exact(n);
+        // obtain the vector itself as maybeuninit
+        let samples = unsafe {
+            std::mem::transmute::<&mut Vec<Sample>, &mut Vec<MaybeUninit<Sample>>>(result)
+        };
         // we cheat the size by using set_len
         unsafe { samples.set_len(n) };
+        result.shrink_to_fit();
         // bitbang some contents into you, multithreaded of course
-        let chunk_size: usize = std::cmp::max(n / rayon::current_num_threads(), 10000);
+        let chunk_size: usize = std::cmp::max(n / rayon::current_num_threads(), 10_000);
         samples.par_chunks_mut(chunk_size).for_each_init(
             || Hc128Rng::from_entropy(),
             |rng, samples| {
@@ -289,8 +316,10 @@ impl LpnOracle {
             },
         );
 
-        let mut samples =
-            unsafe { std::mem::transmute::<Vec<MaybeUninit<Sample>>, Vec<Sample>>(samples) };
+        // these have now been initialized
+        let samples = unsafe {
+            std::mem::transmute::<&mut Vec<MaybeUninit<Sample>>, &mut Vec<Sample>>(samples)
+        };
 
         if block_offset(k) < NOISE_BIT_BLOCK {
             samples.par_iter_mut().for_each_init(
@@ -300,6 +329,7 @@ impl LpnOracle {
                     sample.sample[(block_offset(k) + 1)..SAMPLE_LEN]
                         .iter_mut()
                         .for_each(|block| *block = 0);
+                    sample.sample[block_offset(k)] &= (ONE << (k % bits_per_block())) - 1;
                     let product = sample.vector_product(&secret, k) ^ noise_bit;
                     if product {
                         sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
@@ -308,20 +338,23 @@ impl LpnOracle {
             );
         } else {
             samples.par_iter_mut().for_each_init(
-                || thread_rng(),
+                || Hc128Rng::from_entropy(),
                 |rng, sample| {
-                    sample.sample[NOISE_BIT_BLOCK] &= (1 << (k % bits_per_block())) - 1;
+                    sample.sample[NOISE_BIT_BLOCK] &= (ONE << (k % bits_per_block())) - 1;
                     let noise_bit = dist.sample(rng);
                     let product = sample.vector_product(&secret, k) ^ noise_bit;
                     if product {
-                        sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
+                        sample.sample[NOISE_BIT_BLOCK] |= ONE << NOISE_BIT_IDX;
                     }
                 },
             );
         }
-        samples.shrink_to_fit();
-
-        samples
+        if cfg!(debug_assertions) {
+            let max_k = cmp::min(k + 10, MAX_K);
+            for sample in samples {
+                debug_assert_eq!(query_bits_range(sample, k..max_k), 0);
+            }
+        }
     }
 
     /// Get samples from the oracle with a trailing number of zero bits
@@ -329,34 +362,47 @@ impl LpnOracle {
     /// Uses parallelism
     pub fn get_samples_drop(&mut self, n: usize, trailing_zeros: usize) {
         let original_len = self.samples.len();
-        println!(
-            "Getting additional samples until we have {} that have {} trailing zeros",
-            n, trailing_zeros
+        log::trace!(
+            "Getting additional samples until we have {} (2^{}) that have {} trailing zeros",
+            n,
+            log_2(n),
+            trailing_zeros
         );
         let k = self.k;
 
-        while self.samples.len() < n {
+        let progress = ProgressBar::new(n as u64);
+        progress.println("Getting samples");
+        progress.reset();
+
+        if sys_info::mem_info().is_err() {
+            log::warn!("meminfo failed, only fetching max 2^28 samples");
+        }
+
+        let mut input_vec = Vec::new();
+        const SAMPLE_SIZE: usize = mem::size_of::<Sample>();
+        while (self.samples.len() - original_len) < n {
             // do some minimal amount of samples to reduce short iterations
-            let samples_to_get = std::cmp::max(n - (self.samples.len() - original_len), 100_000);
-            let samples = self.get_some_samples(samples_to_get);
-            println!(
-                "Trying to get samples with {} trailing zeros from {} input",
-                trailing_zeros,
-                samples.len()
+            let samples_to_get = n - (self.samples.len() - original_len);
+
+            let samples_to_get = if let Ok(meminfo) = sys_info::mem_info() {
+                std::cmp::min(
+                    samples_to_get << trailing_zeros,
+                    // include the current capacity, otherwise we only use a third or so of RAM
+                    ((input_vec.capacity() * SAMPLE_SIZE) + ((meminfo.free * 1000) as usize))
+                        / (2 * SAMPLE_SIZE),
+                )
+            } else {
+                std::cmp::min(samples_to_get << trailing_zeros, 2usize.pow(28))
+            };
+            // get_some_samples manages the size of input_vec.
+            self.get_some_samples(&mut input_vec, samples_to_get);
+            let before_extend = self.samples.len();
+            self.samples.par_extend(
+                input_vec
+                    .par_drain(..)
+                    .filter(|sample| are_last_bits_zero(sample, k, trailing_zeros)),
             );
-            let samples = samples
-                .into_par_iter()
-                .filter(|sample| are_last_bits_zero(sample, k, trailing_zeros))
-                .collect::<Vec<_>>();
-            let to_go = n.saturating_sub(self.samples.len() + samples.len());
-            println!(
-                "Adding {} samples with {} trailing zeros, {} to go",
-                samples.len(),
-                trailing_zeros,
-                to_go
-            );
-            self.samples.reserve_exact(samples.len());
-            self.samples.extend_from_slice(&samples);
+            progress.inc((self.samples.len() - before_extend) as u64);
         }
         self.samples.truncate(n);
         self.samples.shrink_to_fit();

@@ -1,6 +1,6 @@
 /// This file demonstrates the combination of the covering codes
 /// reduction with the BKW majority solving method.
-#[cfg(feature = "codes")]
+#[cfg(feature = "hamming")]
 fn main() {
     extern crate lpn;
 
@@ -28,7 +28,7 @@ fn main() {
     println!("Actual: {:?}", secret);
 }
 
-#[cfg(not(feature = "codes"))]
+#[cfg(not(feature = "hamming"))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }

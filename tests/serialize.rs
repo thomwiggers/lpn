@@ -4,7 +4,7 @@ extern crate rayon;
 extern crate serde;
 extern crate serde_json;
 
-#[cfg(feature = "codes")]
+#[cfg(feature = "stgen")]
 mod codes {
     use lpn::codes::*;
 

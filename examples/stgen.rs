@@ -3,7 +3,7 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
 
-#[cfg(feature = "codes")]
+#[cfg(all(feature = "stgen", feature = "hamming"))]
 mod themod {
     use lpn::codes::*;
 
@@ -72,7 +72,7 @@ mod themod {
     }
 }
 
-#[cfg(feature = "codes")]
+#[cfg(all(feature = "stgen", feature = "hamming"))]
 fn main() {
     use lpn::codes::*;
     use m4ri_rust::friendly::*;
@@ -88,7 +88,7 @@ fn main() {
     //});
 }
 
-#[cfg(not(feature = "codes"))]
+#[cfg(not(all(feature = "stgen", feature = "hamming")))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }

@@ -1,5 +1,8 @@
 //! Implements the covering codes reduction and sparse secret transformation
+use std::sync::{Arc, Mutex};
+
 use crate::oracle::{LpnOracle, Sample};
+use indicatif::ProgressBar;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
 use rayon::prelude::*;
@@ -16,7 +19,6 @@ use rand::prelude::*;
 /// `$d' = d$`
 /// `$d'_s = d$`
 pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
-    println!("Reducing to a sparse secret");
     let k = oracle.get_k();
     let mut rng = thread_rng();
 
@@ -57,7 +59,7 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
 
     // update the secret:
     let original_secret = oracle.secret.as_binvector(k);
-    println!(
+    log::debug!(
         "the secret prior to reduction to a sparse secret was: {:?}",
         original_secret
     );
@@ -79,9 +81,9 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
 
     let m_t_inv = m.inverted();
 
-    // remove the samples we took
+    log::trace!("removing the samples we took for the transformation matrix");
     let poses = samples
-        .into_iter()
+        .into_par_iter()
         .map(|sample| {
             oracle.samples[..searchspace]
                 .iter()
@@ -96,13 +98,28 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     // update the samples
     //let secret = &oracle.secret;
     let m_t_inv_t = &m_t_inv.transposed();
-    oracle.samples.par_iter_mut().for_each(|query| {
-        let new_v = m_t_inv_t.mul_slice(query.get_sample()).as_vector();
-        let new_product = query.get_product() ^ &new_v * &c_prime;
-        *query = Sample::from_binvector(&new_v, new_product);
-        //debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
-    });
 
+    let progress = ProgressBar::new(oracle.samples.len() as u64);
+    log::info!("Sparse-secretifying samples");
+    progress.set_draw_delta(oracle.samples.len() as u64 / 100);
+    progress.reset();
+    let progress = Arc::new(Mutex::new(progress));
+    oracle
+        .samples
+        .par_chunks_mut(10000)
+        .for_each(|queries| {
+            let len_chunk = queries.len();
+            for query in queries {
+                let new_v = m_t_inv_t.mul_slice(query.get_sample()).as_vector();
+                let new_product = query.get_product() ^ &new_v * &c_prime;
+                *query = Sample::from_binvector(&new_v, new_product);
+                //debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
+            }
+            progress.lock().unwrap().inc(len_chunk as u64);
+        });
+    progress.lock().unwrap().finish_and_clear();
+    
+    
     oracle.sparse_transform_matrix = Some(m);
     oracle.sparse_transform_vector = Some(c_prime);
     oracle.delta_s = oracle.delta;
@@ -136,47 +153,60 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
         "The length of the code does not match the problem size!"
     );
 
-    println!("Decoding samples");
+    log::info!("Decoding samples");
+    let progress = ProgressBar::new(oracle.samples.len() as u64);
+    progress.set_draw_delta(oracle.samples.len() as u64 / 100);
+    progress.reset();
+    let progress = Arc::new(Mutex::new(progress));
     oracle
         .samples
-        .par_iter_mut()
-        .for_each(|query| code.decode_sample(query));
+        .par_chunks_mut(10000)
+        .for_each(|queries| {
+            let chunk_len = queries.len();
+            for query in queries {
+                code.decode_sample(query)
+            }
+            progress.lock().unwrap().inc(chunk_len as u64);
+        });
+    progress.lock().unwrap().finish_and_clear();
 
-    println!("Note that we transformed the secret $s$ into $s'=s*G^T$!");
+    log::warn!("Note that we transformed the secret $s$ into $s'=s*G^T$ with k' = {}!", oracle.get_k());
     let k = oracle.get_k();
     let gen_t = code.generator_matrix().transposed();
     oracle.secret = Sample::from_binvector(&(&oracle.secret.as_binvector(k) * &gen_t), false);
 
     unsafe { oracle.set_k(code.dimension()) };
 
-    println!("Computing new delta");
-    oracle.delta *= code.bias(oracle.delta_s);
-    println!("New delta = {}", oracle.delta);
+    //log::trace!("Computing new delta");
+    //oracle.delta *= code.bias(oracle.delta_s);
+    //log::debug!("New delta = {}", oracle.delta);
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::codes::HammingCode15_11;
-    use crate::lf1::fwht_solve;
-
+    
     #[test]
     fn test_unsparse() {
         // setup
         let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 4.0);
         oracle.secret =
-            Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
+        Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
         let secret = oracle.secret.as_binvector(oracle.get_k());
         oracle.get_samples(1000);
-
+        
         // check the sparse secret reduction
         sparse_secret_reduce(&mut oracle);
         let unsps = unsparse_secret(&oracle, &oracle.secret.as_binvector(oracle.get_k()));
         assert_eq!(secret, unsps, "sparse/unsparse unequal");
     }
-
+    
+    #[cfg(feature = "hamming")]
     #[test]
     fn test_reduction() {
+        use crate::codes::HammingCode15_11;
+        use crate::lf1::fwht_solve;
+        
         // setup
         let mut oracle: LpnOracle = LpnOracle::new(15, 0.0 / 8.0);
         oracle.secret =

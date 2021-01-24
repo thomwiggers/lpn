@@ -36,6 +36,7 @@ ENVIRONMENT.filters['intlist'] = intlist
 
 
 MODULE_TEMPLATE = """
+#[allow(unused_macros)]
 macro_rules! useit {
     ($name:ident) => {
         mod $name;
@@ -49,7 +50,8 @@ def render_module(name, codes):
     with open('{}/mod.rs'.format(name.lower()), 'w') as f:
         f.write(MODULE_TEMPLATE)
         for (n, k) in codes:
-            f.write("useit!({namelower}_{n}_{k});\n"
+            f.write('#[cfg(feature = "{namelower}_{n}")]\n'.format(namelower=name.lower(), n=n))
+            f.write("useit!({namelower}_{n}_{k});\n\n"
                     .format(namelower=name.lower(), n=n, k=k))
 
 rendered_codes = defaultdict(list)
@@ -211,7 +213,9 @@ if False:
                     [1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0],
                     [0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
                     [0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1],
-                ])))
+                ])),
+        comment="Random codes from the supplemental material of Bogos and Vaudenay, 2016 which appeared at Asiacrypt",
+    )
     print("Bogos code [19, 7]")
     generate_code_implementation(
         "Bogosrnd",
@@ -226,7 +230,9 @@ if False:
                     [0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
                     [0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1],
                     [0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-                ])))
+                ])),
+        comment="Random codes from the supplemental material of Bogos and Vaudenay, 2016 which appeared at Asiacrypt",
+    )
     print("Bogos code [19, 6]")
     generate_code_implementation(
         "Bogosrnd",
@@ -240,7 +246,9 @@ if False:
                     [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0],
                     [1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0],
                     [1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
-                ])))
+                ])),
+        comment="Random codes from the supplemental material of Bogos and Vaudenay, 2016 which appeared at Asiacrypt",
+    )
     
 if False:
     print("Wagner codes")
@@ -298,8 +306,8 @@ if False:
 
 if True:
     guava_version = gap("guava_version();")
-    for n in range(25):
-        for k in range(10, n):
+    for n in range(1, 25):
+        for k in range(1, min(10, n)):
             code = coding.databases.best_linear_code_in_guava(n, k, GF(2))
             if code:
                 print("Rendering GUAVA-{}-found [{}, {}] code".format(guava_version, n, k))

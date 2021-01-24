@@ -325,8 +325,6 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
         let mut b = BinVector::with_capacity(20);
         let mut b_tmp = BinVector::with_capacity(20);
         for i in 0..self.codes.len() {
-            #[cfg(not(feature = "nodebug"))]
-            println!("Stgen decoding round {}", i);
             // set helpful vars
             let small_code = self.codes[i];
             let ki = small_code.dimension();
@@ -408,8 +406,6 @@ impl<'codes> BinaryCode for StGenCode<'codes> {
             // swap
             l_next = mem::replace(&mut l_previous, l_next);
 
-            #[cfg(not(feature = "nodebug"))]
-            println!("List length {}", l_previous.len());
             if l_previous.len() < self.l_max {
                 wi += self.w_inc;
             } else {

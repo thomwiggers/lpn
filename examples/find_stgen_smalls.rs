@@ -4,10 +4,10 @@
 extern crate lpn;
 extern crate rand;
 
-use std::env;
-use std::fs;
-#[cfg(feature = "codes")]
+#[cfg(feature = "stgen")]
 mod program {
+    use std::env;
+    use std::fs;
     use std::fs::File;
     use std::io::{Result, Write};
 
@@ -176,7 +176,7 @@ mod program {
     }
 }
 
-#[cfg(feature = "codes")]
+#[cfg(all(feature = "stgen"))]
 fn main() {
     let args: Vec<_> = env::args().collect();
 
@@ -200,7 +200,7 @@ fn main() {
     program::generate_codes(file, n_min, n_max);
 }
 
-#[cfg(not(feature = "codes"))]
+#[cfg(not(all(feature = "stgen")))]
 fn main() {
     println!("necessary feature disabled");
 }

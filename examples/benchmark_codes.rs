@@ -7,7 +7,7 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate rayon;
 
-#[cfg(feature = "codes")]
+#[cfg(all(feature = "hamming", feature="golay"))]
 fn main() {
     use itertools::Itertools;
     use lpn::codes::*;
@@ -136,7 +136,7 @@ fn main() {
     }
 }
 
-#[cfg(not(feature = "codes"))]
+#[cfg(not(all(feature = "hamming", feature="golay")))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }

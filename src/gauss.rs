@@ -26,12 +26,12 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let c = (tau * m + (3.0 * (0.5 - tau) * (1.0 / alpha).ln() * m).sqrt().floor()) as u32;
     let m = m as usize;
 
-    println!(
+    log::info!(
         "Attempting Pooled Gauss solving method, k={}, tau={}",
         k, tau
     );
-    println!("Target secret weight <= {}", c);
-    println!("Building (Am, b) with length {}", m);
+    log::trace!("Target secret weight <= {}", c);
+    log::trace!("Building (Am, b) with length {}", m);
     let (am, bm) = sample_matrix(m, &oracle, &mut rng);
     debug_assert_eq!(am.ncols(), k);
     debug_assert_eq!(am.nrows(), m);
@@ -57,7 +57,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
         result
     };
 
-    println!("Starting random sampling of invertible (A, b)");
+    log::debug!("Starting random sampling of invertible (A, b)");
 
     let s_prime_finder = move |(sender, rng): &mut (Arc<Mutex<Option<BinMatrix>>>, _), _| {
         for _ in 0..10000 {
@@ -72,12 +72,12 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
             };
             // A*s = b
             if !solve_left(a, &mut b) {
-                println!("Somehow, solving failed....");
+                log::warn!("Somehow, solving failed....");
                 continue;
             }
             let result = { test(&b) };
             if result {
-                println!("Found {:?}!", b);
+                println!("Found {:?}!", b.as_vector());
                 let mut sender = sender.lock().unwrap();
                 sender.replace(b);
                 break;

@@ -20,7 +20,7 @@ num-rational = "0.3"
 num-bigint = "0.3"
 num-traits = "0.2"
 factorial = "0.2"
-m4ri-rust = { features = ["serde"], git = "https://github.com/thomwiggers/m4ri-rust.git", branch ="vec-improvements" }
+m4ri-rust = { features = ["serde"], path = "/home/thom/vscode/m4ri-rust/m4ri-rust" }
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
@@ -28,21 +28,70 @@ sha2 = "0.9"
 unchecked_unwrap = "2.0"
 packed_simd_2 = "0.3"
 jemallocator = { version = "0.3.0", optional = true }
+log = "0.4"
+indicatif = "0.15"
+sys-info = "0.7"
+
+[dev-dependencies]
+simple_logger = "1"
 
 [features]
-default = ['nodebug', 'codes', 'unchecked_unwrap/debug_checks']
-nodebug = []
-codes = ["golay", "bogosrnd", "custom", "hamming", "stgen", "mds"]
-golay = []
-bogosrnd = []
-custom = []
-hamming = []
-mds = []
-stgen = []
+default = ["codes", "unchecked_unwrap/debug_checks"]
+codes = []
 
-[profile.release]
-opt-level = 3
-lto = true
-debug-assertions = false
-#codegen-units = 1
-overflow-checks = false
+golay = ["golay_23", "golay_24"]
+golay_23 = ["codes"]
+golay_24 = ["codes"]
+
+bogosrnd = ["bogosrnd_18", "bogosrnd_19"]
+bogosrnd_18 = ["codes"]
+bogosrnd_19 = ["codes"]
+
+custom = ["custom_5"]
+custom_5 = ["codes"]
+
+hamming = ["hamming_3", "hamming_7", "hamming_15", "hamming_31", "hamming_63", "hamming_127"]
+hamming_3 = ["codes"]
+hamming_7 = ["codes"]
+hamming_15 = ["codes"]
+hamming_31 = ["codes"]
+hamming_63 = ["codes"]
+hamming_127 = ["codes"]
+
+mds = ["mds_3", "mds_4", "mds_5"]
+mds_3 = ["codes"]
+mds_4 = ["codes"]
+mds_5 = ["codes"]
+
+stgen = ["codes"]
+
+wagner = ["wagner_20", "wagner_21", "wagner_22", "wagner_23", "wagner_24", "wagner_25", "wagner_26", "wagner_27", "wagner_28", "wagner_29", "wagner_30", "wagner_32"]
+wagner_20 = ["codes"]
+wagner_21 = ["codes"]
+wagner_22 = ["codes"]
+wagner_23 = ["codes"]
+wagner_24 = ["codes"]
+wagner_25 = ["codes"]
+wagner_26 = ["codes"]
+wagner_27 = ["codes"]
+wagner_28 = ["codes"]
+wagner_29 = ["codes"]
+wagner_30 = ["codes"]
+wagner_32 = ["codes"]
+
+guava = ["guava_11", "guava_12", "guava_13", "guava_14", "guava_15", "guava_16", "guava_17", "guava_18", "guava_19", "guava_20", "guava_21", "guava_22", "guava_23", "guava_24", "guava_25"]
+guava_11 = ["codes"]
+guava_12 = ["codes"]
+guava_13 = ["codes"]
+guava_14 = ["codes"]
+guava_15 = ["codes"]
+guava_16 = ["codes"]
+guava_17 = ["codes"]
+guava_18 = ["codes"]
+guava_19 = ["codes"]
+guava_20 = ["codes"]
+guava_21 = ["codes"]
+guava_22 = ["codes"]
+guava_23 = ["codes"]
+guava_24 = ["codes"]
+guava_25 = ["codes"]

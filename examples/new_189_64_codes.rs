@@ -4,7 +4,7 @@ extern crate lpn;
 extern crate itertools;
 extern crate rayon;
 
-#[cfg(feature = "codes")]
+#[cfg(all(feature = "stgen", feature = "hamming"))]
 mod program {
     use lpn::codes::*;
 
@@ -65,12 +65,12 @@ mod program {
     }
 }
 
-#[cfg(feature = "stgen")]
+#[cfg(all(feature = "stgen", feature = "hamming"))]
 fn main() {
     program::main()
 }
 
-#[cfg(not(feature = "codes"))]
+#[cfg(not(all(feature = "stgen", feature = "hamming")))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }
