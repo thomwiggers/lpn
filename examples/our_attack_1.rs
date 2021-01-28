@@ -26,7 +26,7 @@ fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(k, tau);
     let start_len = 2usize.pow(24);
     let k = k as usize;
-    oracle.get_samples_drop(start_len + 1000,  k-118);
+    oracle.get_samples_drop(start_len + 1000, k - 118);
     assert_eq!(oracle.get_k(), 118);
     log::info!("Collected samples.");
     sparse_secret_reduce(&mut oracle);

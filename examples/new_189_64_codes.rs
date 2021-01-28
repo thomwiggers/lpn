@@ -1,6 +1,6 @@
+extern crate itertools;
 /// Tries to find new [189,64] StGen codes
 extern crate lpn;
-extern crate itertools;
 extern crate rayon;
 
 #[cfg(all(feature = "stgen", feature = "hamming"))]

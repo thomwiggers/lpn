@@ -7,8 +7,11 @@ use lpn::oracle::LpnOracle;
 
 fn main() {
     use simple_logger::SimpleLogger;
-    SimpleLogger::new().with_level(log::LevelFilter::Trace).init().unwrap();
-    
+    SimpleLogger::new()
+        .with_level(log::LevelFilter::Trace)
+        .init()
+        .unwrap();
+
     let mut oracle: LpnOracle = LpnOracle::new(128, 1.0 / 32.0);
     oracle.get_samples(200_000);
     xor_reduce(&mut oracle, 8);

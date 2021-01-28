@@ -1,10 +1,10 @@
+extern crate itertools;
 /// This file computes the properties of StGen codes based on the
 /// code used by Bogos and Vaudenay to attack ``LPN_512,1/8``
 extern crate lpn;
-extern crate itertools;
 extern crate rayon;
 
-#[cfg(all(feature = "bogosrnd", feature="stgen"))]
+#[cfg(all(feature = "bogosrnd", feature = "stgen"))]
 fn main() {
     use lpn::codes::*;
     use std::time::Instant;
@@ -58,7 +58,7 @@ fn main() {
     });
 }
 
-#[cfg(not(all(feature = "bogosrnd", feature="stgen")))]
+#[cfg(not(all(feature = "bogosrnd", feature = "stgen")))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }

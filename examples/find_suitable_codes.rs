@@ -7,7 +7,7 @@ extern crate lpn;
 #[allow(unused)]
 use std::env;
 
-#[cfg(all(feature = "hamming", feature="golay"))]
+#[cfg(all(feature = "hamming", feature = "golay"))]
 mod program {
     use lazy_static::lazy_static;
     use lpn::codes::*;
@@ -87,7 +87,7 @@ mod program {
     }
 }
 
-#[cfg(all(feature = "hamming", feature="golay"))]
+#[cfg(all(feature = "hamming", feature = "golay"))]
 fn main() {
     println!("This function has O(k!) runtime. Are you sure?");
     let args: Vec<_> = env::args().collect();
@@ -104,7 +104,7 @@ fn main() {
     program::run(k, k_min, k_max);
 }
 
-#[cfg(not(all(feature = "hamming", feature="golay")))]
+#[cfg(not(all(feature = "hamming", feature = "golay")))]
 fn main() {
     println!("Disabled necessary feature, example won't work");
 }

@@ -1,14 +1,13 @@
 extern crate lpn;
 
-// [1, 155, 46.450923007920466, 39.59516467811528, 32.800748811765175, 32.40037440588259, 
+// [1, 155, 46.450923007920466, 39.59516467811528, 32.800748811765175, 32.40037440588259,
 // 'drop_reduce (c= 1, k=155); 1,142,41.5957014763019,39.59516467811528,32.800748811765175,32.40037440588259,
 // xor_drop_reduce (c=1, k=142, opt_k-b1=111), 2,111,41.03994268217354,39.59516467811528,32.800748811765175,32.800748811765175,
 // xor_drop_reduce (c=2, k=111, opt_k-b1=79), 4,79,40.379425177621826,38.905278371707446,32.60149762353034,32.60149762353034,
 // xor_drop_reduce (c=4, k=79, opt_k-b1=47), 8,47,39.735690258577044,37.75758409873832,32.202995247060684,32.202995247060684,
 // codes_reduce + WHT (c=8, k=47, opt_k_prime=30, code=[47, 30] concatenated code with from ([27,17] Wagner, [20,13] Wagner))']
-    
 
-#[cfg(all(feature = "wagner_27", feature="guava_20"))]
+#[cfg(all(feature = "wagner_27", feature = "guava_20"))]
 fn main() {
     use simple_logger::SimpleLogger;
     SimpleLogger::new()
@@ -27,7 +26,7 @@ fn main() {
     let mut oracle: LpnOracle = LpnOracle::new(k, tau);
     let start_len = 5668714268;
     let k = k as usize;
-    oracle.get_samples_drop(start_len + 1000,  k-142);
+    oracle.get_samples_drop(start_len + 1000, k - 142);
     log::info!("Collected samples.");
     sparse_secret_reduce(&mut oracle);
     xor_drop_reduce(&mut oracle, 142 - 111, 0);
