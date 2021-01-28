@@ -1,4 +1,3 @@
-
 #[allow(unused_macros)]
 macro_rules! useit {
     ($name:ident) => {

@@ -28,7 +28,8 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
 
     log::info!(
         "Attempting Pooled Gauss solving method, k={}, tau={}",
-        k, tau
+        k,
+        tau
     );
     log::trace!("Target secret weight <= {}", c);
     log::trace!("Building (Am, b) with length {}", m);

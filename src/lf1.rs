@@ -1,6 +1,6 @@
 //! Defines the algorithms from the Levieil and Fouque paper (LF1, LF2)
 use crate::{
-    bkw::create_partitions,
+    bkw::{create_partitions, create_pivots},
     oracle::{are_last_bits_zero, query_bits_range, LpnOracle, Sample, SampleStorage},
     util::log_2,
 };
@@ -162,9 +162,10 @@ pub fn xor_drop_reduce(oracle: &mut LpnOracle, b: u32, zero_bits: usize) {
     // split into partitions
     log::debug!("Creating partitions");
 
-    let partitions = create_partitions(&mut oracle.samples, bitrange.clone());
+    let pivots = create_pivots(&mut oracle.samples, &bitrange);
+    let partitions = create_partitions(&mut oracle.samples, &pivots);
 
-    log::debug!("xor-reducing over {} partitions", partitions.len());
+    log::debug!("xor-reducing");
     let (mut delete_ranges, mut extra_stuff): (Vec<_>, Vec<Sample>) = partitions
         .into_par_iter()
         .fold(

@@ -46,7 +46,7 @@ const fn blocks_required(num_bits: usize) -> usize {
 }
 
 /// change me according to k
-pub const MAX_K: usize = (3 * bits_per_block()) - 1;
+pub const MAX_K: usize = (4 * bits_per_block()) - 1;
 /// length of a sample in bytes
 pub(crate) const SAMPLE_LEN: usize = blocks_required(MAX_K + 1);
 /// Block in which noise bit is stored (the K'th bit)

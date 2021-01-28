@@ -1,6 +1,5 @@
 /// Tries to find new [189,64] StGen codes
 extern crate lpn;
-#[macro_use]
 extern crate itertools;
 extern crate rayon;
 

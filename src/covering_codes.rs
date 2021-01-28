@@ -82,7 +82,7 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     let m_t_inv = m.inverted();
 
     log::trace!("removing the samples we took for the transformation matrix");
-    let poses = samples
+    let mut poses = samples
         .into_par_iter()
         .map(|sample| {
             oracle.samples[..searchspace]
@@ -91,7 +91,8 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
                 .unwrap()
         })
         .collect::<Vec<_>>();
-    poses.into_iter().for_each(|pos| {
+    poses.sort_unstable();
+    poses.into_iter().rev().for_each(|pos| {
         oracle.samples.swap_remove(pos);
     });
 
@@ -104,22 +105,18 @@ pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     progress.set_draw_delta(oracle.samples.len() as u64 / 100);
     progress.reset();
     let progress = Arc::new(Mutex::new(progress));
-    oracle
-        .samples
-        .par_chunks_mut(10000)
-        .for_each(|queries| {
-            let len_chunk = queries.len();
-            for query in queries {
-                let new_v = m_t_inv_t.mul_slice(query.get_sample()).as_vector();
-                let new_product = query.get_product() ^ &new_v * &c_prime;
-                *query = Sample::from_binvector(&new_v, new_product);
-                //debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
-            }
-            progress.lock().unwrap().inc(len_chunk as u64);
-        });
+    oracle.samples.par_chunks_mut(10000).for_each(|queries| {
+        let len_chunk = queries.len();
+        for query in queries {
+            let new_v = m_t_inv_t.mul_slice(query.get_sample()).as_vector();
+            let new_product = query.get_product() ^ &new_v * &c_prime;
+            *query = Sample::from_binvector(&new_v, new_product);
+            //debug_assert_eq!((secret * &new_v) ^ query.e, query.c);
+        }
+        progress.lock().unwrap().inc(len_chunk as u64);
+    });
     progress.lock().unwrap().finish_and_clear();
-    
-    
+
     oracle.sparse_transform_matrix = Some(m);
     oracle.sparse_transform_vector = Some(c_prime);
     oracle.delta_s = oracle.delta;
@@ -158,19 +155,19 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
     progress.set_draw_delta(oracle.samples.len() as u64 / 100);
     progress.reset();
     let progress = Arc::new(Mutex::new(progress));
-    oracle
-        .samples
-        .par_chunks_mut(10000)
-        .for_each(|queries| {
-            let chunk_len = queries.len();
-            for query in queries {
-                code.decode_sample(query)
-            }
-            progress.lock().unwrap().inc(chunk_len as u64);
-        });
+    oracle.samples.par_chunks_mut(10000).for_each(|queries| {
+        let chunk_len = queries.len();
+        for query in queries {
+            code.decode_sample(query)
+        }
+        progress.lock().unwrap().inc(chunk_len as u64);
+    });
     progress.lock().unwrap().finish_and_clear();
 
-    log::warn!("Note that we transformed the secret $s$ into $s'=s*G^T$ with k' = {}!", oracle.get_k());
+    log::warn!(
+        "Note that we transformed the secret $s$ into $s'=s*G^T$ with k' = {}!",
+        oracle.get_k()
+    );
     let k = oracle.get_k();
     let gen_t = code.generator_matrix().transposed();
     oracle.secret = Sample::from_binvector(&(&oracle.secret.as_binvector(k) * &gen_t), false);
@@ -185,28 +182,28 @@ pub fn code_reduce<T: BinaryCode + Sync>(oracle: &mut LpnOracle, code: &T) {
 #[cfg(test)]
 mod test {
     use super::*;
-    
+
     #[test]
     fn test_unsparse() {
         // setup
         let mut oracle: LpnOracle = LpnOracle::new(15, 1.0 / 4.0);
         oracle.secret =
-        Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
+            Sample::from_binvector(&BinVector::from_function(15, |x| x % 2 == 0), false);
         let secret = oracle.secret.as_binvector(oracle.get_k());
         oracle.get_samples(1000);
-        
+
         // check the sparse secret reduction
         sparse_secret_reduce(&mut oracle);
         let unsps = unsparse_secret(&oracle, &oracle.secret.as_binvector(oracle.get_k()));
         assert_eq!(secret, unsps, "sparse/unsparse unequal");
     }
-    
+
     #[cfg(feature = "hamming")]
     #[test]
     fn test_reduction() {
         use crate::codes::HammingCode15_11;
         use crate::lf1::fwht_solve;
-        
+
         // setup
         let mut oracle: LpnOracle = LpnOracle::new(15, 0.0 / 8.0);
         oracle.secret =

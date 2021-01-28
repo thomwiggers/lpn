@@ -1,4 +1,3 @@
-
 #[allow(unused_macros)]
 macro_rules! useit {
     ($name:ident) => {
@@ -6,7 +5,6 @@ macro_rules! useit {
         pub use self::$name::*;
     };
 }
-
 
 #[cfg(feature = "guava_11")]
 useit!(guava_11_10);
