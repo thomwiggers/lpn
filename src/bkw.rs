@@ -29,12 +29,17 @@ pub(crate) fn create_pivots(
     oracle_samples.sort_unstable_by_key(|s| query_bits_range(s, bitrange.clone()));
 
     // create iterator to zip
+    // preallocate because collect() will try to reserve()
+    // this leads to power-of-two allocs.
+    let mut result = Vec::with_capacity(maxj);
     (0..maxj)
         .into_par_iter()
         .map(|item| {
             oracle_samples.partition_point(|q| query_bits_range(q, bitrange.clone()) <= item as u64)
         })
-        .collect::<Vec<_>>()
+        .collect_into_vec(&mut result);
+    result.shrink_to_fit();
+    result
 }
 
 /// XXX get rid of this allow?

@@ -159,10 +159,9 @@ pub fn xor_drop_reduce(oracle: &mut LpnOracle, b: u32, zero_bits: usize) {
         log::warn!("There are {} duplicate samples", dup_count);
     }
 
-    // split into partitions
-    log::debug!("Creating partitions");
-
+    log::debug!("Collecting Pivots");
     let pivots = create_pivots(&mut oracle.samples, &bitrange);
+    log::debug!("Creating PartitionIterator");
     let partitions = create_partitions(&mut oracle.samples, &pivots);
 
     log::debug!("xor-reducing");
