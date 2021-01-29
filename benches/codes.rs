@@ -3,7 +3,7 @@ extern crate lpn;
 extern crate m4ri_rust;
 extern crate test;
 
-#[cfg(any(feature = "hamming", feature="golay", feature="bogosrnd"))]
+#[cfg(any(feature = "hamming", feature = "golay", feature = "bogosrnd"))]
 macro_rules! bench_code {
     ($name:ident, $code:expr) => {
         #[cfg(feature = "codes")]

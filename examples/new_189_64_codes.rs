@@ -3,7 +3,7 @@ extern crate itertools;
 extern crate lpn;
 extern crate rayon;
 
-#[cfg(all(feature = "stgen", feature = "hamming"))]
+#[cfg(all(feature = "stgen", feature = "hamming", feature="max_k_191"))]
 mod program {
     use lpn::codes::*;
 

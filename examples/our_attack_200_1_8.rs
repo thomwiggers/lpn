@@ -7,7 +7,7 @@ extern crate lpn;
 /// xor_drop_reduce (c=4, k=128, opt_k-b1=97), 8,97,39.60623381197313,38.46445723019095,31.864544388003825,31.864544388003825,
 /// xor_drop_reduce (c=8, k=97, opt_k-b1=66), 16,66,38.73531593320804,37.7734828953661,31.72908877600765,31.72908877600765,
 /// codes_reduce + WHT (c=16, k=66, opt_k_prime=28, code=[66, 28] concatenated code with from ([19,6] rnd150926, [19,6] rnd150926, [3,1] repetition, [25,15] Wagner))']    
-#[cfg(all(feature = "wagner_25", feature = "bogosrnd_19"))]
+#[cfg(all(feature = "wagner_25", feature = "bogosrnd_19", feature = "max_k_255"))]
 fn main() {
     use simple_logger::SimpleLogger;
     SimpleLogger::new()
@@ -50,7 +50,7 @@ fn main() {
     println!("Actual: {:?}", secret);
 }
 
-#[cfg(not(all(feature = "wagner_25", feature = "bogosrnd_19")))]
+#[cfg(not(all(feature = "wagner_25", feature = "bogosrnd_19", feature = "max_k_255")))]
 fn main() {
     println!("necessary feature disabled");
 }

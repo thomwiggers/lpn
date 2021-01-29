@@ -45,8 +45,19 @@ const fn blocks_required(num_bits: usize) -> usize {
         }
 }
 
-/// change me according to k
+
+/// Maximum size of 127
+#[cfg(not(any(feature = "max_k_191", feature = "max_k_255")))]
+pub const MAX_K: usize = (2 * bits_per_block()) - 1;
+
+///Maximum K of 192
+#[cfg(feature = "max_k_191")]
+pub const MAX_K: usize = (3 * bits_per_block()) - 1;
+
+/// Maximum k of 255
+#[cfg(feature = "max_k_255")]
 pub const MAX_K: usize = (4 * bits_per_block()) - 1;
+
 /// length of a sample in bytes
 pub(crate) const SAMPLE_LEN: usize = blocks_required(MAX_K + 1);
 /// Block in which noise bit is stored (the K'th bit)
@@ -388,8 +399,8 @@ impl LpnOracle {
                 std::cmp::min(
                     samples_to_get << trailing_zeros,
                     // include the current capacity, otherwise we only use a third or so of RAM
-                    ((input_vec.capacity() * SAMPLE_SIZE) + ((meminfo.free * 1000) as usize))
-                        / (2 * SAMPLE_SIZE),
+                    (5*((input_vec.capacity() * SAMPLE_SIZE) + ((meminfo.free * 1000) as usize)))
+                        / (6 * SAMPLE_SIZE),
                 )
             } else {
                 std::cmp::min(samples_to_get << trailing_zeros, 2usize.pow(28))
