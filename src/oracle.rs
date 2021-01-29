@@ -415,6 +415,7 @@ impl LpnOracle {
             );
             progress.inc((self.samples.len() - before_extend) as u64);
         }
+        progress.finish_and_clear();
         self.samples.truncate(n);
         self.samples.shrink_to_fit();
         self.k -= trailing_zeros;
