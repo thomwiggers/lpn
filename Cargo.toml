@@ -9,7 +9,7 @@ license = 'MIT'
 edition = '2018'
 
 [dependencies]
-rand = "0.8.2"
+rand = "0.8.3"
 rand_hc = "0.3.0"
 fnv = "1.0"
 itertools = "^0.10"
