@@ -9,7 +9,7 @@ extern crate lpn;
 /// codes_reduce  code=[63, 28] concatenated code with from ([25,15] Wagner, [19,7] rnd150926, [19,6] rnd150926))
 /// WHT (c=16, k=63, opt_k_prime=28,']
 
-#[cfg(all(feature = "wagner_25", feature = "bogosrnd_19"))]
+#[cfg(all(feature = "wagner_25", feature = "bogosrnd_19", feature = "max_k_191"))]
 fn main() {
     use simple_logger::SimpleLogger;
     SimpleLogger::new()
@@ -46,7 +46,7 @@ fn main() {
     println!("Actual: {:?}", secret);
 }
 
-#[cfg(not(all(feature = "wagner_25", feature = "bogosrnd_19")))]
+#[cfg(not(all(feature = "wagner_25", feature = "bogosrnd_19", feature = "max_k_191")))]
 fn main() {
     println!("necessary feature disabled");
 }
