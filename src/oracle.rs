@@ -11,9 +11,9 @@ use std::{
 };
 
 use rand::prelude::*;
-use rand_hc::Hc128Rng;
 use rayon::prelude::*;
 
+use crate::random::lpn_thread_rng;
 use crate::util::log_2;
 
 pub(crate) type StorageBlock = u64;
@@ -44,7 +44,6 @@ const fn blocks_required(num_bits: usize) -> usize {
             1
         }
 }
-
 
 /// Maximum size of 127
 #[cfg(not(any(feature = "max_k_191", feature = "max_k_255")))]
@@ -317,7 +316,7 @@ impl LpnOracle {
         // bitbang some contents into you, multithreaded of course
         let chunk_size: usize = std::cmp::max(n / rayon::current_num_threads(), 10_000);
         samples.par_chunks_mut(chunk_size).for_each_init(
-            || Hc128Rng::from_entropy(),
+            || lpn_thread_rng(),
             |rng, samples| {
                 let new_samples = MaybeUninit::slice_as_mut_ptr(samples) as *mut u8;
                 let size = std::mem::size_of::<[StorageBlock; SAMPLE_LEN]>();
@@ -332,10 +331,12 @@ impl LpnOracle {
             std::mem::transmute::<&mut Vec<MaybeUninit<Sample>>, &mut Vec<Sample>>(samples)
         };
 
+        // HcRng seemed to be slower here...
+        let get_rng = || lpn_thread_rng();
         if block_offset(k) < NOISE_BIT_BLOCK {
-            samples.par_iter_mut().for_each_init(
-                || Hc128Rng::from_entropy(),
-                |rng, sample| {
+            samples
+                .par_iter_mut()
+                .for_each_init(get_rng, |rng, sample| {
                     let noise_bit = dist.sample(rng);
                     sample.sample[(block_offset(k) + 1)..SAMPLE_LEN]
                         .iter_mut()
@@ -345,20 +346,18 @@ impl LpnOracle {
                     if product {
                         sample.sample[NOISE_BIT_BLOCK] |= NOISE_BIT_MASK;
                     }
-                },
-            );
+                });
         } else {
-            samples.par_iter_mut().for_each_init(
-                || Hc128Rng::from_entropy(),
-                |rng, sample| {
+            samples
+                .par_iter_mut()
+                .for_each_init(get_rng, |rng, sample| {
                     sample.sample[NOISE_BIT_BLOCK] &= (ONE << (k % bits_per_block())) - 1;
                     let noise_bit = dist.sample(rng);
                     let product = sample.vector_product(&secret, k) ^ noise_bit;
                     if product {
                         sample.sample[NOISE_BIT_BLOCK] |= ONE << NOISE_BIT_IDX;
                     }
-                },
-            );
+                });
         }
         if cfg!(debug_assertions) {
             let max_k = cmp::min(k + 10, MAX_K);
@@ -382,6 +381,7 @@ impl LpnOracle {
         let k = self.k;
 
         let progress = ProgressBar::new(n as u64);
+        //let progress = ProgressBar::hidden();
         progress.println("Getting samples");
         progress.reset();
 
@@ -399,7 +399,7 @@ impl LpnOracle {
                 std::cmp::min(
                     samples_to_get << trailing_zeros,
                     // include the current capacity, otherwise we only use a third or so of RAM
-                    (5*((input_vec.capacity() * SAMPLE_SIZE) + ((meminfo.free * 1000) as usize)))
+                    (5 * ((input_vec.capacity() * SAMPLE_SIZE) + ((meminfo.free * 1000) as usize)))
                         / (6 * SAMPLE_SIZE),
                 )
             } else {

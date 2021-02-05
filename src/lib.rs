@@ -31,4 +31,5 @@ pub mod oracle;
 #[cfg(feature = "codes")]
 pub mod codes;
 
+mod random;
 mod util;
