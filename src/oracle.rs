@@ -308,35 +308,35 @@ impl LpnOracle {
         result.reserve_exact(n);
         // obtain the vector itself as maybeuninit
         let samples = unsafe {
+            // this is okay because MaybeUninit is #[repr(transparant)]
             std::mem::transmute::<&mut Vec<Sample>, &mut Vec<MaybeUninit<Sample>>>(result)
         };
         // we cheat the size by using set_len
         unsafe { samples.set_len(n) };
-        result.shrink_to_fit();
+        if result.capacity() > (n + 10000) {
+            result.shrink_to_fit();
+        }
         // bitbang some contents into you, multithreaded of course
         let chunk_size: usize = std::cmp::max(n / rayon::current_num_threads(), 10_000);
-        samples.par_chunks_mut(chunk_size).for_each_init(
-            || lpn_thread_rng(),
-            |rng, samples| {
+        samples
+            .par_chunks_mut(chunk_size)
+            .for_each_init(lpn_thread_rng, |rng, samples| {
                 let new_samples = MaybeUninit::slice_as_mut_ptr(samples) as *mut u8;
                 let size = std::mem::size_of::<[StorageBlock; SAMPLE_LEN]>();
                 let new_samples =
                     unsafe { std::slice::from_raw_parts_mut(new_samples, size * samples.len()) };
                 rng.fill_bytes(new_samples);
-            },
-        );
+            });
 
         // these have now been initialized
         let samples = unsafe {
             std::mem::transmute::<&mut Vec<MaybeUninit<Sample>>, &mut Vec<Sample>>(samples)
         };
 
-        // HcRng seemed to be slower here...
-        let get_rng = || lpn_thread_rng();
         if block_offset(k) < NOISE_BIT_BLOCK {
             samples
                 .par_iter_mut()
-                .for_each_init(get_rng, |rng, sample| {
+                .for_each_init(lpn_thread_rng, |rng, sample| {
                     let noise_bit = dist.sample(rng);
                     sample.sample[(block_offset(k) + 1)..SAMPLE_LEN]
                         .iter_mut()
@@ -350,7 +350,7 @@ impl LpnOracle {
         } else {
             samples
                 .par_iter_mut()
-                .for_each_init(get_rng, |rng, sample| {
+                .for_each_init(lpn_thread_rng, |rng, sample| {
                     sample.sample[NOISE_BIT_BLOCK] &= (ONE << (k % bits_per_block())) - 1;
                     let noise_bit = dist.sample(rng);
                     let product = sample.vector_product(&secret, k) ^ noise_bit;
@@ -380,8 +380,8 @@ impl LpnOracle {
         );
         let k = self.k;
 
-        let progress = ProgressBar::new(n as u64);
-        //let progress = ProgressBar::hidden();
+        //let progress = ProgressBar::new(n as u64);
+        let progress = ProgressBar::hidden();
         progress.println("Getting samples");
         progress.reset();
 

@@ -9,9 +9,10 @@ license = 'MIT'
 edition = '2018'
 
 [dependencies]
-rand = "0.8.2"
+rand = { version = "0.8.3", features = ["simd_support"] }
 rand_core = "0.6.1"
-rand_chacha = "0.3.0"
+rand_chacha = { version = "0.3.0", features = ["std"] }
+rand_xoshiro = "0.6.0"
 fnv = "1.0"
 itertools = "^0.10"
 rayon = "1.5.0"
@@ -25,7 +26,7 @@ serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 sha2 = "0.9"
-unchecked_unwrap = "2.0"
+unchecked_unwrap = "3.0"
 packed_simd_2 = "0.3"
 jemallocator = { version = "0.3.0", optional = true }
 log = "0.4"
@@ -45,7 +46,10 @@ path = "/home/thom/vscode/m4ri-rust/m4ri-rust"
 simple_logger = "1"
 
 [features]
-default = ["codes", "unchecked_unwrap/debug_checks"]
+default = ["csprng", "codes", "unchecked_unwrap/debug_checks"]
+
+csprng = []  # enables the ChaCha8 RNG. It seems its not appreciably slower than PRNG Xoshiro
+
 codes = []
 
 max_k_191 = []

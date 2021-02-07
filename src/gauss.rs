@@ -1,9 +1,12 @@
 //! Defines the Pooled Gauss solving algorithms by Esser, Kübler and May
-use crate::oracle::LpnOracle;
+use crate::{
+    oracle::{LpnOracle, StorageBlock},
+    random::{lpn_thread_rng, ThreadRng},
+};
 use m4ri_rust::friendly::solve_left;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use rand::prelude::*;
+use rand::prelude::SliceRandom;
 use rayon::prelude::*;
 
 use std::{
@@ -14,7 +17,7 @@ use std::{
 /// Solves an LPN problem using Pooled Gauss
 #[allow(clippy::many_single_char_names, clippy::needless_pass_by_value)]
 pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
-    let mut rng = thread_rng();
+    let mut rng = lpn_thread_rng();
 
     let k = oracle.get_k();
     let alpha = 0.5f64.powi(k as i32);
@@ -96,7 +99,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
     let sender = sender_parent.clone();
 
     rayon::iter::repeat(())
-        .try_for_each_init(|| (sender.clone(), rand::thread_rng()), s_prime_finder);
+        .try_for_each_init(|| (sender.clone(), lpn_thread_rng()), s_prime_finder);
 
     let sender = sender_parent.lock().unwrap();
     let s_prime = sender.as_ref().unwrap();
@@ -106,7 +109,7 @@ pub fn pooled_gauss_solve(oracle: LpnOracle) -> BinVector {
 
 /// Randomly sample ``k`` queries from the oracle as a ``(A, s)``.
 fn sample_matrix<'a>(k: usize, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinMatrix, BinMatrix) {
-    thread_local!(static TLS: RefCell<(Vec<&'static [u64]>, BinVector)> = RefCell::new((Vec::new(), BinVector::new())));
+    thread_local!(static TLS: RefCell<(Vec<&'static [StorageBlock]>, BinVector)> = RefCell::new((Vec::new(), BinVector::new())));
 
     TLS.with(|stor| {
         let mut stor = stor.borrow_mut();
@@ -114,8 +117,10 @@ fn sample_matrix<'a>(k: usize, oracle: &LpnOracle, rng: &mut ThreadRng) -> (BinM
         let samples = oracle.samples.choose_multiple(rng, k);
         slices.extend(samples.map(|q| {
             b_bits.push(q.get_product());
-            // this is okay, because we clear out samples at the end.
-            unsafe { std::mem::transmute::<&'_ [u64], &'static [u64]>(q.get_sample()) }
+            // we cheat the lifetime but this is okay, because we clear out `samples` at the end.
+            unsafe {
+                std::mem::transmute::<&'_ [StorageBlock], &'static [StorageBlock]>(q.get_sample())
+            }
         }));
         // replace by matrix directly?
         let mat = BinMatrix::from_slices(slices, oracle.get_k());

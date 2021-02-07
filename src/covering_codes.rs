@@ -1,7 +1,10 @@
 //! Implements the covering codes reduction and sparse secret transformation
 use std::sync::{Arc, Mutex};
 
-use crate::oracle::{LpnOracle, Sample};
+use crate::{
+    oracle::{LpnOracle, Sample},
+    random::lpn_thread_rng,
+};
 use indicatif::ProgressBar;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
@@ -20,7 +23,7 @@ use rand::prelude::*;
 /// `$d'_s = d$`
 pub fn sparse_secret_reduce(oracle: &mut LpnOracle) {
     let k = oracle.get_k();
-    let mut rng = thread_rng();
+    let mut rng = lpn_thread_rng();
 
     // cheat by picking from the first million
     let searchspace = std::cmp::min(oracle.samples.len(), 1_000_000);
