@@ -34,13 +34,11 @@ indicatif = "0.15"
 sys-info = "0.7"
 
 [dependencies.m4ri-rust]
-version = "*"
+version = "0.4.0"
 features = ["serde"]
 #git = "https://github.com/thomwiggers/m4ri-rust.git"
-git = "https://github.com/thomwiggers/m4ri-rust.git"
-branch = "vec-improvements"
+#branch = "vec-improvements"
 #path = "/home/thom/vscode/m4ri-rust/m4ri-rust"
-path = "/home/thom/vscode/m4ri-rust/m4ri-rust"
 
 [dev-dependencies]
 simple_logger = "1"
