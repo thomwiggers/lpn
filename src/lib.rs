@@ -1,4 +1,3 @@
-#![feature(partition_point)]
 #![feature(maybe_uninit_slice)]
 //! This library provides everything you need to program attacks on LPN
 //! as if you were writing them on paper.
