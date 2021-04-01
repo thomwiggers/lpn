@@ -15,6 +15,8 @@ Thom Wiggers. Solving LPN using Large Covering Codes. *Master's Thesis* Radboud 
 
 See also https://thomwiggers.nl/research/msc-thesis/
 
+Thom Wiggers and Simona Samardjiska.  Practically Solving LPN. _In Submission_, 2021.
+
 ## References
 
 * Blum, Kalai and Wasserman. Noise-tolerant learning, the parity problem, and the statistical query model. *Computing, 2000*, ACM, 2013.
