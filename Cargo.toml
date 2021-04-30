@@ -31,7 +31,7 @@ unchecked_unwrap = "3.0"
 packed_simd_2 = "0.3"
 jemallocator = { version = "0.3.2", optional = true }
 log = "0.4"
-indicatif = "0.15"
+indicatif = "0.16"
 sys-info = "0.9"
 
 [dependencies.m4ri-rust]
