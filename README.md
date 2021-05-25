@@ -13,9 +13,11 @@ It also contains some example programs that try to find covering codes (mainly S
 
 Thom Wiggers. Solving LPN using Large Covering Codes. *Master's Thesis* Radboud University, 2018.
 
-See also https://thomwiggers.nl/research/msc-thesis/
+See also https://thomwiggers.nl/publication/msc-thesis/
 
-Thom Wiggers and Simona Samardjiska.  Practically Solving LPN. _In Submission_, 2021.
+Thom Wiggers and Simona Samardjiska.  Practically Solving LPN. _IEEE ISIT 2021_, 2021.
+
+See also https://thomwiggers.nl/publication/lpn/
 
 ## References
 
