@@ -12,7 +12,7 @@ readme = "README.md"
 [dependencies]
 rand = { version = "0.8.3", features = ["simd_support"] }
 rand_core = "0.6.2"
-rand_chacha = { version = "0.3.0", features = ["std"] }
+rand_chacha = { version = "0.3.1", features = ["std"] }
 rand_xoshiro = "0.6.0"
 fnv = "1.0"
 itertools = "^0.10"
