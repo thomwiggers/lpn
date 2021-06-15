@@ -10,7 +10,7 @@ edition = '2018'
 readme = "README.md"
 
 [dependencies]
-rand = { version = "0.8.3", features = ["simd_support"] }
+rand = { version = "0.8.4", features = ["simd_support"] }
 rand_core = "0.6.2"
 rand_chacha = { version = "0.3.1", features = ["std"] }
 rand_xoshiro = "0.6.0"
