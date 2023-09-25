@@ -7,7 +7,7 @@ use crate::{
 use itertools::Itertools;
 use m4ri_rust::friendly::BinMatrix;
 use m4ri_rust::friendly::BinVector;
-use packed_simd_2::i64x4;
+use packed_simd::i64x4;
 use rayon::prelude::*;
 use std::{
     ops,
